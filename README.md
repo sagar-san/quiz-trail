@@ -26,6 +26,8 @@ Open [http://localhost:5173](http://localhost:5173). Local development defaults 
 
 ## Project documentation
 
+- [App overview](docs/app-overview.md) — product behavior, architecture, and important boundaries
+- [Release runbook](docs/release-runbook.md) — local startup, verification, production deployment, and rollback
 - [Development guide](docs/development-guide.md) — commands, Firebase modes, testing, and deployment notes
 - [Question bank guide](docs/question-bank.md) — CSV format and safe content updates
 - [Product plan](docs/product-plan.md)

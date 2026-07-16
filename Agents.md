@@ -15,6 +15,9 @@
 
 - At the start of every working session, read `session.md` before planning or making changes.
 - Also read `TODO.md` at the start of a session when it exists, and account for relevant deferred work when planning.
+- Read `docs/app-overview.md` before changing application behavior, persistence, authentication, or user-facing flows.
+- Read `docs/question-bank.md` before editing or replacing question data.
+- Read `docs/release-runbook.md` before starting Firebase services, running Firebase integration tests, building a cloud release, deploying, or rolling back.
 - Treat `session.md` as the repository's current handoff context, while verifying its claims against the working tree when relevant.
 - When the human says the session is ending or reminds the agent to save the session, update `session.md` before stopping.
 - The session handoff should concisely record the current status, completed work, important decisions, unresolved issues, verification results, and recommended next steps.
