@@ -4,12 +4,12 @@ Last updated: 2026-07-16
 
 ## Current status
 
-- Production release commit `8e2acb1` (`feat: launch account settings and PMLE homepage`) is synchronized with `origin/main` and deployed to Firebase Hosting.
+- Production release commit `093d637` (`feat: route support through GitHub issues`) is synchronized with `origin/main` and deployed to Firebase Hosting.
 - GitHub remote: `git@github.com:Ameenota/quiz-trail.git`.
 - Firebase production project: `quiz-trail` (project number `724933345983`). The product owner explicitly chose to use this single live project as production and accept occasional downtime; local emulators are the development environment.
 - The Firebase CLI is authenticated locally as `ssanghani@gmail.com` using the repository-scoped ignored config directory.
 - Firebase Hosting and Firestore rules/indexes were successfully deployed and smoke-tested at <https://quiz-trail.web.app>.
-- The live deployment includes Account & Data settings, secure account deletion, the public PMLE overview, updated HTML metadata, donation/source links, and the avatar account menu.
+- The live deployment includes Account & Data settings, secure account deletion, the public PMLE overview, updated HTML metadata, donation/source links, the avatar account menu, and public support through GitHub Issues.
 - The product owner tested the live Google sign-in, Firestore save, and resume flow successfully and found no issues.
 - Firebase emulators and a Firebase-mode Vite server were started for review. Confirm whether they are still running before starting duplicate processes.
 - The Firebase alias is now `production`; the prior `staging` alias was retired. No billing, App Check, OAuth consent, or custom-domain changes were made.
