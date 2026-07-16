@@ -73,6 +73,7 @@ Progress stores only outcomes keyed by stable question ID, saved-for-later IDs, 
 ## Implementation notes
 
 - The initial view is **All** so submitted questions remain visible long enough to read feedback. The learner can switch to **Unanswered** at any time.
+- Question order is shuffled once on every page load and remains stable for that tab session. Saved outcomes are keyed by permanent question ID, so a new order does not affect progress.
 - Revisiting an answered question allows another submission; the most recent outcome replaces the prior outcome.
 - Navigation changes the saved return point and therefore marks progress dirty.
 - The app uses local system fonts and needs no network after dependencies and the CSV are present.

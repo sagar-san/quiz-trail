@@ -8,10 +8,11 @@ test.beforeEach(async ({ page }) => {
 
 test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {
   const firstCard = page.locator('.question-card');
-  await expect(firstCard).toContainText('PMLE-0001');
+  const firstQuestionId = await firstCard.locator('.question-meta span').last().textContent();
+  expect(firstQuestionId).toMatch(/^PMLE-\d{4}$/);
   await firstCard.locator('input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Correct' })).toBeVisible();
+  await expect(page.locator('.feedback')).toBeVisible();
   await page.getByRole('button', { name: 'Save for later' }).click();
 
   for (let index = 0; index < 2; index += 1) {
@@ -33,7 +34,7 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
   } else {
     await page.getByRole('button', { name: 'Saved', exact: true }).click();
   }
-  await expect(page.locator('.question-card')).toContainText('PMLE-0001');
+  await expect(page.locator('.question-card')).toContainText(firstQuestionId ?? '');
   await page.getByRole('button', { name: 'Saved for later' }).click();
   await expect(page.getByRole('button', { name: 'Save for later' })).toBeVisible();
   if (testInfo.project.name === 'mobile') {

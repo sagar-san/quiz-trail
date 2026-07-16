@@ -101,7 +101,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
       <main id="quiz" className="app-shell">
         <section className="intro">
           <p className="eyebrow">PMLE practice</p>
-          <h1>One question at a time.<br /><em>Keep moving forward.</em></h1>
+          <h1>One question at a time. <em>Keep moving forward.</em></h1>
           <p>Work through the bank in short sessions. Review what needs attention and save when you’re ready to stop.</p>
         </section>
         <ProgressSummary counts={counts} />

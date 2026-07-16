@@ -11,6 +11,7 @@ Phase 2: Not started
 - Shows immediate correctness feedback, explanation, and optional reference link.
 - Tracks attempted, correct, incorrect, saved, and remaining counts.
 - Provides All, Unanswered, Incorrect, and Saved views.
+- Randomizes question order once per page load without changing stable IDs or saved outcomes.
 - Allows independent save-for-later state.
 - Explicitly saves compact progress to `localStorage` and restores it after reload.
 - Warns about unsaved changes when the browser supports unload warnings.
