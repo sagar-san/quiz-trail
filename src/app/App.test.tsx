@@ -102,6 +102,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
     expect(screen.getByText('alice@example.com')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Open a GitHub issue' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail/issues/new/choose');
     await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));
     const deleteButton = screen.getByRole('button', { name: 'Permanently delete account' });
     expect(deleteButton).toBeDisabled();

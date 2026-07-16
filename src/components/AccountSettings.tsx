@@ -50,8 +50,11 @@ export function AccountSettings({
 
       <section className="settings-card" aria-labelledby="support-heading">
         <h2 id="support-heading">Support</h2>
-        <p>Need help or want to support Quiz Trail’s cloud costs?</p>
-        {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support via PayPal</a>}
+        <p>Found a bug, an outdated question, or have an idea? Open a public GitHub issue and do not include personal or account information.</p>
+        <div className="settings-links">
+          <a className="settings-link" href="https://github.com/Ameenota/quiz-trail/issues/new/choose" target="_blank" rel="noopener noreferrer">Open a GitHub issue</a>
+          {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support cloud costs via PayPal</a>}
+        </div>
       </section>
 
       <section className="settings-card danger-zone" aria-labelledby="delete-heading">
