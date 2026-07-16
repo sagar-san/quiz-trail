@@ -15,7 +15,7 @@ const memoryStore = (saved: UserProgress | null = null): ProgressStore & { save:
 class TestAuthService implements AuthService {
   readonly mode = 'firebase' as const;
   private listener: AuthStateListener = () => undefined;
-  signIn = vi.fn(async () => this.listener({ uid: 'user-a', displayName: 'Alice', email: 'alice@example.com' }));
+  signIn = vi.fn(async () => this.listener({ uid: 'user-a', displayName: 'Alice', email: 'alice@example.com', photoUrl: 'https://example.com/alice.jpg' }));
   signOut = vi.fn(async () => this.listener(null));
   reauthenticate = vi.fn(async () => undefined);
   deleteAccount = vi.fn(async () => this.listener(null));
@@ -34,6 +34,7 @@ describe('App', () => {
     const store = memoryStore();
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
+    expect(screen.getByRole('link', { name: /View source/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
@@ -59,9 +60,14 @@ describe('App', () => {
     const store = memoryStore();
     render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
 
+    expect(screen.getByRole('heading', { name: 'What is the PMLE?' })).toBeVisible();
+    expect(screen.getByRole('link', { name: /official PMLE certification/ })).toHaveAttribute('href', 'https://cloud.google.com/learn/certification/machine-learning-engineer');
+    expect(screen.getByRole('link', { name: /View the source on GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
+
     await userEvent.click(await screen.findByRole('button', { name: 'Sign in with Google' }));
 
     expect(await screen.findByText('Alice')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Open account menu for Alice' }).querySelector('img')).toHaveAttribute('src', 'https://example.com/alice.jpg');
     expect(screen.getByText('Emulator mode')).toBeVisible();
     expect(auth.signIn).toHaveBeenCalledOnce();
     await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
@@ -75,7 +81,8 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Alice' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
     expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Sign out and discard them?');
@@ -91,7 +98,8 @@ describe('App', () => {
     auth.deleteAccount.mockImplementation(async () => { order.push('delete'); });
     render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Open account menu for Alice' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
     expect(screen.getByText('alice@example.com')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));

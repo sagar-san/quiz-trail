@@ -39,7 +39,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await page.getByRole('button', { name: 'Save progress' }).click();
   await expect(page.getByText('Progress saved')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: /Open account menu/ }).click();
+  await page.getByRole('menuitem', { name: 'Settings' }).click();
   await expect(page.getByRole('heading', { name: 'Account & data' })).toBeVisible();
   await expect(page.getByText('trail-tester@example.com')).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
@@ -50,7 +51,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByText('Progress saved')).toBeVisible();
   await expect(page.locator('.stat-grid')).toContainText('Attempted1');
 
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: /Open account menu/ }).click();
+  await page.getByRole('menuitem', { name: 'Settings' }).click();
   await page.getByRole('button', { name: 'Delete account' }).click();
   await page.getByLabel(/Type DELETE/).fill('DELETE');
   const reauthenticationPopup = page.waitForEvent('popup');

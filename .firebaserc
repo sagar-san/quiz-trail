@@ -1,5 +1,5 @@
 {
   "projects": {
-    "staging": "quiz-trail"
+    "production": "quiz-trail"
   }
 }

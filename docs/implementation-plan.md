@@ -11,6 +11,8 @@
 
 > **Delivery rule:** Complete and demonstrate Phase 1 before starting any Firebase or GCP work. Phase 1 must be useful and fully testable without internet access after dependencies and the CSV are present.
 
+> **Environment decision (2026-07-16):** The product owner designated the existing `quiz-trail` Firebase project as production and accepted occasional downtime for this small free app. Local emulators are the development environment; earlier recommendations for separate staging and production projects are superseded.
+
 ## How to use this plan
 
 The Product Plan remains the source of truth for user behavior and scope. This implementation plan translates it into technical decisions, ordered tasks, tests, and handoff gates. When the two documents conflict, stop and ask the product owner rather than expanding scope.

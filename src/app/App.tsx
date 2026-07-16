@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useReducer, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
 import { ProgressSummary } from '../components/ProgressSummary';
+import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
@@ -38,12 +39,30 @@ export function App({
   const [authError, setAuthError] = useState<string | null>(null);
   const [accountError, setAccountError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
   const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
+  const accountMenu = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!accountMenu.current?.contains(event.target as Node)) setAccountMenuOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setAccountMenuOpen(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [accountMenuOpen]);
 
   useEffect(() => auth.subscribe((nextUser) => {
     setUser(nextUser);
@@ -183,6 +202,7 @@ export function App({
         {authBusy ? 'Opening Google…' : 'Sign in with Google'}
       </button>
       {authError && <p className="error-message" role="alert">{authError}</p>}
+      <PmleOverview paypalUrl={import.meta.env.VITE_PAYPAL_URL} />
     </main>
   );
   if (loading) return <main className="centered-state"><div className="loader" /><h1>Loading your trail…</h1><p>Preparing the question bank.</p></main>;
@@ -191,14 +211,24 @@ export function App({
   return (
     <>
       <header className="site-header">
-        <a href="#quiz" className="brand" onClick={() => setSettingsOpen(false)}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
-          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
           {auth.mode === 'firebase' && (
-            <>
-              <span className="account-name" title={user.email}>{user.displayName}</span>
-              <button className="header-button" type="button" disabled={authBusy} aria-current={settingsOpen ? 'page' : undefined} onClick={() => { setAccountError(null); setSettingsOpen(true); }}>Settings</button>
-            </>
+            <div className="account-menu" ref={accountMenu}>
+              <button className="header-identity" type="button" title={user.email ?? user.displayName} aria-label={`Open account menu for ${user.displayName}`} aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen((open) => !open)}>
+                {user.photoUrl
+                  ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" />
+                  : <span className="header-avatar" aria-hidden="true">{user.displayName.charAt(0).toUpperCase()}</span>}
+                <span className="account-name">{user.displayName}</span>
+                <span className="account-chevron" aria-hidden="true">⌄</span>
+              </button>
+              {accountMenuOpen && (
+                <div className="account-popover" role="menu">
+                  <div><strong>{user.displayName}</strong>{user.email && <span>{user.email}</span>}</div>
+                  <button type="button" role="menuitem" disabled={authBusy} onClick={() => { setAccountError(null); setAccountMenuOpen(false); setSettingsOpen(true); }}>Settings</button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </header>
@@ -217,7 +247,7 @@ export function App({
         <section className="intro">
           <p className="eyebrow">PMLE practice</p>
           <h1>One question at a time. <em>Keep moving forward.</em></h1>
-          <p>Work through the bank in short sessions. Review what needs attention and save when you’re ready to stop.</p>
+          <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
         </section>
         <ProgressSummary counts={counts} />
         {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
@@ -258,7 +288,14 @@ export function App({
         />
         <TipJar paypalUrl={import.meta.env.VITE_PAYPAL_URL} venmoUrl={import.meta.env.VITE_VENMO_URL} />
       </main>}
-      <footer><span>Quiz Trail</span><span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span></footer>
+      <footer>
+        <span>Quiz Trail</span>
+        <div>
+          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
+          <span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span>
+          <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
+        </div>
+      </footer>
     </>
   );
 }

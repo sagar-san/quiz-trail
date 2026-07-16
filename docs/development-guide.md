@@ -60,7 +60,7 @@ Question order is shuffled once per page load and remains stable for that tab. P
 
 ## Firebase and deployment
 
-The committed `staging` Firebase alias points to project `quiz-trail`. Firebase initialization is disabled in default local mode to prevent accidental cloud connections.
+The committed `production` Firebase alias points to the live `quiz-trail` project. Local emulators are the development environment; there is intentionally no separate staging project for this small free app. Firebase initialization is disabled in default local mode to prevent accidental cloud connections.
 
 Build the cloud version with:
 
@@ -70,4 +70,4 @@ VITE_DATA_MODE=firebase npm run build
 
 Deployment requires an authenticated Firebase CLI account with access to the target project. Confirm the authenticated account and exact project before deploying. Production deployment, billing changes, App Check enforcement, OAuth changes, and domain changes remain explicit approval operations.
 
-The public staging site is [quiz-trail.web.app](https://quiz-trail.web.app).
+The public production site is [quiz-trail.web.app](https://quiz-trail.web.app).

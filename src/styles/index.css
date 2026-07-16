@@ -31,7 +31,16 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .brand-mark { width: 34px; height: 34px; border-radius: 50% 50% 50% 8px; background: var(--green); color: white; display: grid; place-items: center; }
 .mode-badge { border: 1px solid #b8c8c0; border-radius: 999px; padding: 7px 12px; color: var(--green-dark); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .account-controls { display: flex; align-items: center; gap: 12px; }
+.account-menu { position: relative; }
+.header-identity { min-height: 42px; display: flex; align-items: center; gap: 8px; padding: 4px 7px; border: 1px solid transparent; border-radius: 999px; background: transparent; cursor: pointer; color: inherit; }
+.header-identity:hover, .header-identity[aria-expanded='true'] { border-color: var(--line); background: var(--cream); }
+.header-identity > img, .header-avatar { width: 32px; height: 32px; border-radius: 50%; }
+.header-identity > img { object-fit: cover; }
+.header-avatar { display: grid; place-items: center; background: var(--mint); color: var(--green-dark); font-size: 13px; font-weight: 700; }
 .account-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; }
+.account-chevron { color: var(--muted); font-size: 14px; transform: translateY(-1px); }
+.account-popover { position: absolute; top: calc(100% + 9px); right: 0; width: 230px; padding: 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--cream); box-shadow: 0 14px 36px rgba(23,52,45,.16); }
+.account-popover > div { padding: 9px 10px 12px; border-bottom: 1px solid var(--line); }.account-popover strong, .account-popover span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.account-popover span { margin-top: 3px; color: var(--muted); font-size: 12px; }.account-popover button { width: 100%; min-height: 40px; margin-top: 7px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); cursor: pointer; text-align: left; font-weight: 700; }.account-popover button:hover { background: var(--mint); }
 .header-button { min-height: 40px; padding: 0 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--cream); color: var(--ink); cursor: pointer; font-weight: 700; }
 .app-shell { width: min(100% - 32px, 880px); margin: 0 auto; padding: 72px 0 48px; }
 .intro { max-width: 700px; margin-bottom: 44px; }
@@ -39,7 +48,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .intro h1 { margin: 0 0 18px; font-size: clamp(25px, 3.4vw, 34px); line-height: 1.15; letter-spacing: -.025em; }
 .intro h1 em { color: var(--green); font-family: Georgia, 'Times New Roman', serif; font-size: .68em; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
 .intro > p:last-child { max-width: 590px; color: var(--muted); font-size: 18px; line-height: 1.65; }
-.progress-panel, .question-card, .save-panel, .tip-jar, .settings-card { background: var(--cream); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 10px 30px rgba(30,55,46,.05); }
+.progress-panel, .question-card, .save-panel, .tip-jar, .settings-card, .pmle-overview { background: var(--cream); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 10px 30px rgba(30,55,46,.05); }
+.pmle-overview { margin: 0 0 28px; padding: 26px 28px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 28px; text-align: left; }.pmle-overview h2 { margin: 0 0 10px; font-size: 22px; }.pmle-overview p { margin: 8px 0 0; max-width: 650px; color: var(--muted); line-height: 1.6; }.pmle-links { display: grid; gap: 10px; min-width: 245px; }.pmle-links a { color: var(--green-dark); font-weight: 700; line-height: 1.4; }
 .progress-panel { padding: 28px; margin-bottom: 28px; }
 .progress-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
 .progress-heading h2 { margin: 0; font-size: 26px; }
@@ -94,24 +104,26 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .auth-state .brand-mark { width: 48px; height: 48px; margin-bottom: 24px; font-size: 22px; }
 .auth-state .eyebrow { margin-top: 0; }
 .auth-state .error-message { color: var(--red); }
+.auth-state { align-content: center; }.auth-state > .pmle-overview { width: min(calc(100vw - 32px), 760px); margin-top: 36px; }
 .settings-shell { width: min(100% - 32px, 760px); margin: 0 auto; padding: 48px 0 64px; }
 .settings-back { padding: 8px 0; border: 0; background: transparent; color: var(--green-dark); cursor: pointer; font-weight: 700; }
 .settings-heading { margin: 32px 0; }.settings-heading h1 { margin: 0 0 10px; font-size: clamp(30px, 5vw, 42px); }.settings-heading > p:last-child { color: var(--muted); }
 .settings-card { margin-bottom: 18px; padding: 26px; }.settings-card h2 { margin: 0 0 10px; font-size: 20px; }.settings-card > p { color: var(--muted); line-height: 1.6; }.settings-card .secondary-button { margin-top: 8px; }
 .account-profile { display: flex; align-items: center; gap: 14px; margin: 20px 0; }.account-profile > img, .account-profile > span { width: 48px; height: 48px; border-radius: 50%; }.account-profile > img { object-fit: cover; }.account-profile > span { display: grid; place-items: center; background: var(--mint); color: var(--green-dark); font-size: 20px; font-weight: 700; }.account-profile p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
 .settings-link { display: inline-block; color: var(--green-dark); font-weight: 700; }.danger-zone { border-color: #e2bbb5; }.delete-confirmation { display: grid; gap: 10px; margin-top: 18px; }.delete-confirmation label { font-size: 14px; }.delete-confirmation input { width: min(100%, 320px); min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: white; }.delete-confirmation > p { margin: 0; color: var(--muted); font-size: 13px; }.delete-confirmation > div { display: flex; gap: 10px; }.delete-confirmation .delete-button { margin: 0; border-color: var(--red); background: var(--red); }
-footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; } footer > div { display: flex; align-items: center; gap: 18px; } footer .mode-badge { padding: 5px 9px; font-size: 10px; } footer a { color: var(--green-dark); font-weight: 700; }
 
 @media (max-width: 680px) {
   .site-header { height: 62px; padding: 0 16px; }.app-shell { padding-top: 44px; }.intro { margin-bottom: 32px; }
-  .account-name { display: none; }.account-controls { gap: 7px; }.mode-badge { padding-inline: 9px; }.header-button { padding-inline: 10px; }
+  .account-name, .account-chevron { display: none; }.account-controls { gap: 7px; }.mode-badge { padding-inline: 9px; }.header-identity { padding: 4px; }.account-popover { right: -2px; }
   .progress-panel { padding: 21px; }.stat-grid { grid-template-columns: repeat(3, 1fr); row-gap: 18px; }.stat-grid div:nth-child(4) { border: 0; padding-left: 0; }
   .segmented-control { display: none; }.filter-select { display: grid; gap: 6px; font-size: 13px; font-weight: 700; }.filter-select select { min-height: 46px; border: 1px solid var(--line); border-radius: 10px; background: var(--cream); padding: 0 12px; color: var(--ink); }
   .question-heading-row { grid-template-columns: 1fr; }.bookmark-button { justify-self: start; }.choice { grid-template-columns: auto auto 1fr; }.choice-result { grid-column: 3; }
   .question-prompt { font-size: 17px; line-height: 1.65; }
   .save-panel, .tip-jar { align-items: stretch; flex-direction: column; }.save-actions { flex-direction: column-reverse; }.save-actions button { width: 100%; }.tip-jar a { margin: 0 16px 0 0; }
+  .pmle-overview { grid-template-columns: 1fr; align-items: start; padding: 22px; }.pmle-links { min-width: 0; }
   .settings-shell { padding-top: 30px; }.settings-card { padding: 22px; }.delete-confirmation > div { align-items: stretch; flex-direction: column-reverse; }.delete-confirmation button { width: 100%; }
-  footer { flex-direction: column; gap: 6px; }
+  footer, footer > div { align-items: flex-start; flex-direction: column; gap: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
