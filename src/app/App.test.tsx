@@ -17,6 +17,8 @@ class TestAuthService implements AuthService {
   private listener: AuthStateListener = () => undefined;
   signIn = vi.fn(async () => this.listener({ uid: 'user-a', displayName: 'Alice', email: 'alice@example.com' }));
   signOut = vi.fn(async () => this.listener(null));
+  reauthenticate = vi.fn(async () => undefined);
+  deleteAccount = vi.fn(async () => this.listener(null));
 
   constructor(private readonly initialUser: AuthUser | null) {}
 
@@ -73,9 +75,33 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
     expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Sign out and discard them?');
     expect(auth.signOut).not.toHaveBeenCalled();
+  });
+
+  it('shows account settings and deletes progress before the authenticated account', async () => {
+    const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice', email: 'alice@example.com' });
+    const store = memoryStore();
+    const order: string[] = [];
+    auth.reauthenticate.mockImplementation(async () => { order.push('reauthenticate'); });
+    store.reset.mockImplementation(async () => { order.push('reset'); });
+    auth.deleteAccount.mockImplementation(async () => { order.push('delete'); });
+    render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }));
+    expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
+    expect(screen.getByText('alice@example.com')).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));
+    const deleteButton = screen.getByRole('button', { name: 'Permanently delete account' });
+    expect(deleteButton).toBeDisabled();
+    await userEvent.type(screen.getByLabelText(/Type DELETE/), 'DELETE');
+    await userEvent.click(deleteButton);
+
+    await waitFor(() => expect(auth.deleteAccount).toHaveBeenCalledOnce());
+    expect(store.reset).toHaveBeenCalledWith('user-a');
+    expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
   });
 });

@@ -1,0 +1,77 @@
+import { useState } from 'react';
+import type { AuthUser } from '../auth/AuthService';
+
+export function AccountSettings({
+  user,
+  busy,
+  error,
+  paypalUrl,
+  onBack,
+  onReset,
+  onSignOut,
+  onDelete,
+}: {
+  user: AuthUser;
+  busy: boolean;
+  error: string | null;
+  paypalUrl?: string;
+  onBack: () => void;
+  onReset: () => void;
+  onSignOut: () => void;
+  onDelete: () => Promise<void>;
+}) {
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmation, setConfirmation] = useState('');
+  const supportUrl = paypalUrl && /^https?:\/\//.test(paypalUrl) ? paypalUrl : undefined;
+
+  return (
+    <main className="settings-shell">
+      <button className="settings-back" type="button" onClick={onBack}>← Back to quiz</button>
+      <div className="settings-heading">
+        <p className="eyebrow">Settings</p>
+        <h1>Account &amp; data</h1>
+        <p>Manage your Quiz Trail account and the progress saved to it.</p>
+      </div>
+
+      <section className="settings-card" aria-labelledby="account-heading">
+        <h2 id="account-heading">Your account</h2>
+        <div className="account-profile">
+          {user.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" /> : <span aria-hidden="true">{user.displayName.charAt(0).toUpperCase()}</span>}
+          <div><strong>{user.displayName}</strong>{user.email && <p>{user.email}</p>}</div>
+        </div>
+        <button className="secondary-button" type="button" disabled={busy} onClick={onSignOut}>Sign out</button>
+      </section>
+
+      <section className="settings-card" aria-labelledby="data-heading">
+        <h2 id="data-heading">Your quiz data</h2>
+        <p>Your answers, bookmarks, and saved return point are stored in Firebase and linked to your account. Changes are uploaded only when you choose Save progress.</p>
+        <button className="secondary-button danger-button" type="button" disabled={busy} onClick={onReset}>Reset quiz progress</button>
+      </section>
+
+      <section className="settings-card" aria-labelledby="support-heading">
+        <h2 id="support-heading">Support</h2>
+        <p>Need help or want to support Quiz Trail’s cloud costs?</p>
+        {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support via PayPal</a>}
+      </section>
+
+      <section className="settings-card danger-zone" aria-labelledby="delete-heading">
+        <h2 id="delete-heading">Delete account</h2>
+        <p>Permanently delete your Firebase account and all saved Quiz Trail progress. This cannot be undone.</p>
+        {!confirmingDelete ? (
+          <button className="secondary-button danger-button" type="button" disabled={busy} onClick={() => setConfirmingDelete(true)}>Delete account</button>
+        ) : (
+          <div className="delete-confirmation">
+            <label htmlFor="delete-confirmation">Type <strong>DELETE</strong> to confirm</label>
+            <input id="delete-confirmation" value={confirmation} disabled={busy} autoComplete="off" onChange={(event) => setConfirmation(event.target.value)} />
+            <p>Google will ask you to verify your identity before deletion.</p>
+            <div>
+              <button className="secondary-button" type="button" disabled={busy} onClick={() => { setConfirmingDelete(false); setConfirmation(''); }}>Cancel</button>
+              <button className="primary-button delete-button" type="button" disabled={busy || confirmation !== 'DELETE'} onClick={() => void onDelete()}>{busy ? 'Deleting…' : 'Permanently delete account'}</button>
+            </div>
+          </div>
+        )}
+        {error && <p className="error-message" role="alert">{error}</p>}
+      </section>
+    </main>
+  );
+}

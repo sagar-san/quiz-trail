@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
+import { AccountSettings } from '../components/AccountSettings';
 import { ProgressSummary } from '../components/ProgressSummary';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
@@ -35,6 +36,8 @@ export function App({
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [accountError, setAccountError] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -143,8 +146,27 @@ export function App({
     setAuthError(null);
     try {
       await auth.signOut();
+      setSettingsOpen(false);
     } catch {
       setAuthError('Sign out could not be completed. Please try again.');
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!user) return;
+    setAuthBusy(true);
+    setAccountError(null);
+    let progressDeleted = false;
+    try {
+      await auth.reauthenticate();
+      await store.reset(user.uid);
+      progressDeleted = true;
+      await auth.deleteAccount();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Your account could not be deleted. Please try again.';
+      setAccountError(progressDeleted ? `Your progress was deleted, but your account remains. ${message}` : message);
     } finally {
       setAuthBusy(false);
     }
@@ -169,18 +191,29 @@ export function App({
   return (
     <>
       <header className="site-header">
-        <a href="#quiz" className="brand"><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <a href="#quiz" className="brand" onClick={() => setSettingsOpen(false)}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
           <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
           {auth.mode === 'firebase' && (
             <>
               <span className="account-name" title={user.email}>{user.displayName}</span>
-              <button className="header-button" type="button" disabled={authBusy} onClick={() => void signOut()}>Sign out</button>
+              <button className="header-button" type="button" disabled={authBusy} aria-current={settingsOpen ? 'page' : undefined} onClick={() => { setAccountError(null); setSettingsOpen(true); }}>Settings</button>
             </>
           )}
         </div>
       </header>
-      <main id="quiz" className="app-shell">
+      {settingsOpen && auth.mode === 'firebase' ? (
+        <AccountSettings
+          user={user}
+          busy={authBusy}
+          error={accountError}
+          paypalUrl={import.meta.env.VITE_PAYPAL_URL}
+          onBack={() => setSettingsOpen(false)}
+          onReset={() => void reset()}
+          onSignOut={() => void signOut()}
+          onDelete={deleteAccount}
+        />
+      ) : <main id="quiz" className="app-shell">
         <section className="intro">
           <p className="eyebrow">PMLE practice</p>
           <h1>One question at a time. <em>Keep moving forward.</em></h1>
@@ -224,7 +257,7 @@ export function App({
           onReset={() => void reset()}
         />
         <TipJar paypalUrl={import.meta.env.VITE_PAYPAL_URL} venmoUrl={import.meta.env.VITE_VENMO_URL} />
-      </main>
+      </main>}
       <footer><span>Quiz Trail</span><span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span></footer>
     </>
   );

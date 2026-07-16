@@ -1,7 +1,9 @@
 import {
   GoogleAuthProvider,
   browserLocalPersistence,
+  deleteUser,
   onAuthStateChanged,
+  reauthenticateWithPopup,
   setPersistence,
   signInWithPopup,
   signOut,
@@ -68,5 +70,19 @@ export class FirebaseAuthService implements AuthService {
 
   async signOut(): Promise<void> {
     await signOut(this.auth);
+  }
+
+  async reauthenticate(): Promise<void> {
+    if (!this.auth.currentUser) throw new Error('Your session has ended. Sign in again before deleting your account.');
+    try {
+      await reauthenticateWithPopup(this.auth.currentUser, new GoogleAuthProvider());
+    } catch (error) {
+      throw new Error(describeAuthError(error), { cause: error });
+    }
+  }
+
+  async deleteAccount(): Promise<void> {
+    if (!this.auth.currentUser) throw new Error('Your session has ended. Sign in again before deleting your account.');
+    await deleteUser(this.auth.currentUser);
   }
 }

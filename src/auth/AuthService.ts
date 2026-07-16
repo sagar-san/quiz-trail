@@ -12,6 +12,8 @@ export interface AuthService {
   subscribe(listener: AuthStateListener): () => void;
   signIn(): Promise<void>;
   signOut(): Promise<void>;
+  reauthenticate(): Promise<void>;
+  deleteAccount(): Promise<void>;
 }
 
 const localUser: AuthUser = { uid: 'local-browser', displayName: 'Local browser' };
@@ -26,4 +28,6 @@ export class LocalAuthService implements AuthService {
 
   async signIn(): Promise<void> {}
   async signOut(): Promise<void> {}
+  async reauthenticate(): Promise<void> {}
+  async deleteAccount(): Promise<void> {}
 }
