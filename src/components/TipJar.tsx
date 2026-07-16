@@ -16,7 +16,7 @@ export function TipJar({ paypalUrl, venmoUrl }: { paypalUrl?: string; venmoUrl?:
   if (!links.length) return null;
   return (
     <aside className="tip-jar">
-      <div><p className="eyebrow">Enjoying Quiz Trail?</p><p>Optional support helps keep this study tool maintained.</p></div>
+      <div><p className="eyebrow">Enjoying Quiz Trail?</p><p>Optional support helps cover our cloud costs.</p></div>
       <div>{links.map((link) => <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer">Support via {link.label}</a>)}</div>
     </aside>
   );

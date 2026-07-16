@@ -33,6 +33,13 @@ describe('quiz domain', () => {
     expect(state.currentQuestionId).toBeNull();
   });
 
+  it('does not create unsaved changes when navigating after a save', () => {
+    let state = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
+    state = quizReducer(state, { type: 'saveSucceeded' });
+    state = quizReducer(state, { type: 'questionChanged', questionId: 'PMLE-0002' });
+    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0002', dirty: false, saveStatus: 'saved' });
+  });
+
   it('loads saved outcomes without overriding the newly shuffled first question', () => {
     const progress = { schemaVersion: 1 as const, questionBankVersion: 'old', progress: { 'PMLE-0002': false }, savedForLater: ['PMLE-0002'], lastQuestionId: 'PMLE-0002' };
     let state = quizReducer(loaded, { type: 'progressLoaded', progress, reconciliationNotice: 'Updated' });

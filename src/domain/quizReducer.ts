@@ -45,7 +45,7 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
     case 'filterChanged':
       return { ...state, filter: action.filter, currentQuestionId: chooseVisibleQuestion(state, action.filter) };
     case 'questionChanged':
-      return { ...state, currentQuestionId: action.questionId, dirty: true, saveStatus: 'idle' };
+      return { ...state, currentQuestionId: action.questionId };
     case 'progressLoaded': {
       const loaded = {
         ...state,
