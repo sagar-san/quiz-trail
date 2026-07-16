@@ -4,12 +4,12 @@ Last updated: 2026-07-16
 
 ## Current status
 
-- Application and documentation work through `ae404a3` (`docs: simplify project readme`) is synchronized with `origin/main`; only this handoff update remains uncommitted.
+- Production release commit `8e2acb1` (`feat: launch account settings and PMLE homepage`) is synchronized with `origin/main` and deployed to Firebase Hosting.
 - GitHub remote: `git@github.com:Ameenota/quiz-trail.git`.
 - Firebase production project: `quiz-trail` (project number `724933345983`). The product owner explicitly chose to use this single live project as production and accept occasional downtime; local emulators are the development environment.
 - The Firebase CLI is authenticated locally as `ssanghani@gmail.com` using the repository-scoped ignored config directory.
 - Firebase Hosting and Firestore rules/indexes were successfully deployed and smoke-tested at <https://quiz-trail.web.app>.
-- The live deployment predates the Account & Data settings feature. Commit `6e3c1df` is pushed to GitHub but still needs a new cloud-mode build and Firebase Hosting deployment before Settings appears publicly.
+- The live deployment includes Account & Data settings, secure account deletion, the public PMLE overview, updated HTML metadata, donation/source links, and the avatar account menu.
 - The product owner tested the live Google sign-in, Firestore save, and resume flow successfully and found no issues.
 - Firebase emulators and a Firebase-mode Vite server were started for review. Confirm whether they are still running before starting duplicate processes.
 - The Firebase alias is now `production`; the prior `staging` alias was retired. No billing, App Check, OAuth consent, or custom-domain changes were made.
@@ -48,7 +48,7 @@ Last updated: 2026-07-16
 
 ## Remaining work
 
-- Review the Settings experience locally, then explicitly approve and deploy commit `6e3c1df` or later to Firebase Hosting.
+- Continue monitoring the live Settings and account-deletion experience; release `8e2acb1` is deployed.
 - Add a “Report this question” workflow and decide where reports are submitted.
 - Configure App Check in monitoring/non-enforcing mode, then review legitimate traffic before considering enforcement.
 - Treat `quiz-trail.web.app` as the supported production domain. A custom domain is optional.
