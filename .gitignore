@@ -9,6 +9,7 @@ test-results/
 .DS_Store
 *.local
 .tmp/
+.firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
