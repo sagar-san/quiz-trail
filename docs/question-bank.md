@@ -12,6 +12,13 @@ After editing the CSV, run:
 npm run preflight
 ```
 
+To validate a candidate file before replacing the canonical bank, pass its path. Add
+`--compare` to summarize permanent-ID, prompt, and answer changes against the current bank:
+
+```bash
+npm run preflight -- public/data/questions_candidate.csv --compare public/data/questions.csv
+```
+
 An invalid row rejects the entire bank, preventing a silently incomplete dataset from reaching learners. The browser derives the question-bank version automatically from the exact CSV bytes using SHA-256; there is no manual version field to update.
 
 `question_id` is permanent identity:
