@@ -33,10 +33,12 @@ describe('quiz domain', () => {
     expect(state.currentQuestionId).toBeNull();
   });
 
-  it('loads, saves, fails, and resets state', () => {
+  it('loads saved outcomes without overriding the newly shuffled first question', () => {
     const progress = { schemaVersion: 1 as const, questionBankVersion: 'old', progress: { 'PMLE-0002': false }, savedForLater: ['PMLE-0002'], lastQuestionId: 'PMLE-0002' };
     let state = quizReducer(loaded, { type: 'progressLoaded', progress, reconciliationNotice: 'Updated' });
-    expect(state).toMatchObject({ dirty: false, currentQuestionId: 'PMLE-0002', reconciliationNotice: 'Updated' });
+    expect(state).toMatchObject({ dirty: false, currentQuestionId: 'PMLE-0001', reconciliationNotice: 'Updated' });
+    expect(state.progress).toEqual({ 'PMLE-0002': false });
+    expect(state.savedForLater).toEqual(['PMLE-0002']);
     state = quizReducer(state, { type: 'saveStarted' });
     expect(state.saveStatus).toBe('saving');
     state = quizReducer(state, { type: 'saveFailed', message: 'nope' });

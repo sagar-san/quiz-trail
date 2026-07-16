@@ -10,19 +10,22 @@ import { initialQuizState, quizReducer } from '../domain/quizReducer';
 import { selectCounts, selectFilteredQuestions, toUserProgress } from '../domain/selectors';
 import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore';
 import type { ProgressStore } from '../storage/ProgressStore';
+import { LocalStorageQuizPreferences, type QuizPreferences } from '../storage/QuizPreferences';
 import { reconcileProgress } from '../storage/reconcileProgress';
 
 export interface AppProps {
   bankLoader?: () => Promise<LoadedQuestionBank>;
   progressStore?: ProgressStore;
+  preferences?: QuizPreferences;
 }
 
-export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) {
+export function App({ bankLoader = loadQuestionBank, progressStore, preferences }: AppProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
   const [loading, setLoading] = useState(true);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
   const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
+  const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
 
   useEffect(() => {
     let active = true;
@@ -31,6 +34,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
         const bank = await bankLoader();
         if (!active) return;
         dispatch({ type: 'bankLoaded', questions: bank.questions, questionBankVersion: bank.version });
+        dispatch({ type: 'filterChanged', filter: preferenceStore.loadFilter() });
         try {
           const saved = await store.load();
           if (saved && active) {
@@ -48,7 +52,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
     }
     void start();
     return () => { active = false; };
-  }, [bankLoader, store]);
+  }, [bankLoader, preferenceStore, store]);
 
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -67,6 +71,10 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
   const currentIndex = displayQuestions.findIndex((question) => question.questionId === state.currentQuestionId);
   const current = displayQuestions[currentIndex] ?? displayQuestions[0];
   const counts = selectCounts(state);
+  const changeFilter = (filter: typeof state.filter) => {
+    preferenceStore.saveFilter(filter);
+    dispatch({ type: 'filterChanged', filter });
+  };
 
   const save = async () => {
     dispatch({ type: 'saveStarted' });
@@ -106,7 +114,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
         </section>
         <ProgressSummary counts={counts} />
         {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
-        <QuizFilters active={state.filter} onChange={(filter) => dispatch({ type: 'filterChanged', filter })} />
+        <QuizFilters active={state.filter} onChange={changeFilter} />
         {current ? (
           <>
             <QuestionCard
@@ -130,7 +138,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore }: AppProps) 
           <section className="empty-state">
             <span aria-hidden="true">✓</span><h2>Nothing here right now</h2>
             <p>This view has no questions yet. Try another view to keep studying.</p>
-            <button type="button" className="primary-button" onClick={() => dispatch({ type: 'filterChanged', filter: counts.remaining ? 'unanswered' : 'all' })}>Go to {counts.remaining ? 'Unanswered' : 'All'}</button>
+            <button type="button" className="primary-button" onClick={() => changeFilter(counts.remaining ? 'unanswered' : 'all')}>Go to {counts.remaining ? 'Unanswered' : 'All'}</button>
           </section>
         )}
         <SaveProgressButton dirty={state.dirty} status={state.saveStatus} error={state.saveError} onSave={() => void save()} onReset={() => void reset()} />

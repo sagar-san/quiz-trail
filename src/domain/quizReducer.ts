@@ -7,7 +7,7 @@ export const initialQuizState: QuizState = {
   progress: {},
   savedForLater: [],
   currentQuestionId: null,
-  filter: 'all',
+  filter: 'unanswered',
   dirty: false,
   saveStatus: 'idle',
   saveError: null,
@@ -51,7 +51,10 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
         ...state,
         progress: action.progress.progress,
         savedForLater: action.progress.savedForLater,
-        currentQuestionId: action.progress.lastQuestionId,
+        // A fresh page load creates a fresh shuffled order. Restore outcomes and
+        // bookmarks, but start at that session's first question rather than
+        // overriding the shuffle with the previously saved return point.
+        currentQuestionId: state.questions[0]?.questionId ?? null,
         dirty: false,
         saveStatus: 'saved' as const,
         reconciliationNotice: action.reconciliationNotice ?? null,

@@ -15,7 +15,8 @@ Last updated: 2026-07-16
 - Support both `single_choice` and `multiple_choice`; multiple choice uses exact-set grading.
 - Keep answer choices in their original A–E order.
 - Shuffle question order once on every page load. The shuffled order remains stable for that tab session, while saved progress stays keyed by permanent question IDs.
-- Initial filter is All so feedback remains visible after submission.
+- Initial filter is Unanswered. A newly answered question remains visible long enough to read its feedback before navigation.
+- The active filter is saved immediately in a separate browser preference and restored on refresh; it does not require Save Progress.
 - Progress saves explicitly to browser `localStorage`; only the last explicitly saved state survives reload.
 - The introductory headline is intentionally restrained and inline. “Keep moving forward.” is smaller than “One question at a time.”
 - Long question prompts use readable body-sized text rather than large heading typography.
@@ -26,12 +27,15 @@ Last updated: 2026-07-16
 - Added Fisher–Yates per-load question shuffling and a deterministic unit test.
 - Updated browser tests so they do not assume a fixed first question or correct first option.
 - Refined introductory and question-prompt typography based on product-owner feedback.
+- Fixed the refresh bug where saved `lastQuestionId` overrode the newly shuffled first question. Saved outcomes and bookmarks restore, but each reload starts from the new shuffled order.
+- Added persistent browser filter preferences with a safe Unanswered fallback.
 
 ## Verification
 
 - `npm run typecheck`: pass
 - `npm run lint`: pass
-- `npm run test:coverage`: pass — 26 tests, 92.24% line coverage
+- `npm run test`: pass — 28 tests across 7 test files
+- Latest full coverage gate before the filter-preference addition: pass — 26 tests, 92.24% line coverage
 - `npm run build`: pass
 - `npm run e2e`: pass — 4 Chromium tests across desktop and mobile, including accessibility and horizontal-overflow checks
 - CSV preflight: 339 valid rows; 334 single-choice, 5 multiple-choice; 0 invalid rows
@@ -39,7 +43,7 @@ Last updated: 2026-07-16
 ## Known limitations
 
 - Phase 1 progress is browser/device-local and disappears if site data is cleared.
-- Clicking Previous or Next changes the saved return point and therefore marks progress dirty.
+- Clicking Previous or Next changes the saved return point and therefore marks progress dirty, although that return point no longer overrides the next page load's shuffled start.
 - Browser unload warnings are best-effort; reload should not warn when the UI still says “Progress saved.”
 - PayPal and Venmo controls remain hidden until valid environment URLs are supplied.
 
