@@ -13,5 +13,5 @@
     "strict": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "eslint.config.js", "scripts"]
+  "include": ["vite.config.ts", "vitest.auth.config.ts", "vitest.rules.config.ts", "playwright.config.ts", "playwright.firebase.config.ts", "eslint.config.js", "scripts"]
 }

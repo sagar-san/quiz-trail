@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
+import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
+import type { DataMode } from '../config/dataMode';
 import { ProgressSummary } from '../components/ProgressSummary';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
@@ -17,26 +19,50 @@ export interface AppProps {
   bankLoader?: () => Promise<LoadedQuestionBank>;
   progressStore?: ProgressStore;
   preferences?: QuizPreferences;
+  authService?: AuthService;
+  dataMode?: DataMode;
 }
 
-export function App({ bankLoader = loadQuestionBank, progressStore, preferences }: AppProps) {
+export function App({
+  bankLoader = loadQuestionBank,
+  progressStore,
+  preferences,
+  authService,
+  dataMode = 'local',
+}: AppProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
-  const [loading, setLoading] = useState(true);
+  const [authResolved, setAuthResolved] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
   const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
+  const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
+
+  useEffect(() => auth.subscribe((nextUser) => {
+    setUser(nextUser);
+    setAuthResolved(true);
+    setAuthError(null);
+  }), [auth]);
 
   useEffect(() => {
+    if (!user) return;
     let active = true;
     async function start() {
+      setLoading(true);
+      setFatalError(null);
+      setStorageError(null);
+      dispatch({ type: 'reset' });
       try {
         const bank = await bankLoader();
         if (!active) return;
         dispatch({ type: 'bankLoaded', questions: bank.questions, questionBankVersion: bank.version });
         dispatch({ type: 'filterChanged', filter: preferenceStore.loadFilter() });
         try {
-          const saved = await store.load();
+          const saved = await store.load(user!.uid);
           if (saved && active) {
             const reconciled = reconcileProgress(saved, bank.questions, bank.version);
             dispatch({ type: 'progressLoaded', progress: reconciled.progress, reconciliationNotice: reconciled.notice });
@@ -52,7 +78,7 @@ export function App({ bankLoader = loadQuestionBank, progressStore, preferences 
     }
     void start();
     return () => { active = false; };
-  }, [bankLoader, preferenceStore, store]);
+  }, [bankLoader, preferenceStore, store, user]);
 
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -79,17 +105,19 @@ export function App({ bankLoader = loadQuestionBank, progressStore, preferences 
   const save = async () => {
     dispatch({ type: 'saveStarted' });
     try {
-      await store.save(toUserProgress(state));
+      await store.save(toUserProgress(state), user?.uid);
       dispatch({ type: 'saveSucceeded' });
     } catch (error) {
       dispatch({ type: 'saveFailed', message: error instanceof Error ? error.message : 'Progress could not be saved.' });
     }
   };
   const reset = async () => {
-    const warning = state.dirty ? 'You have unsaved changes. Reset all local progress anyway?' : 'Reset all progress saved in this browser?';
+    const warning = state.dirty
+      ? `You have unsaved changes. Reset all ${dataMode === 'local' ? 'local' : 'cloud'} progress anyway?`
+      : `Reset all progress saved ${dataMode === 'local' ? 'in this browser' : 'for this account'}?`;
     if (!window.confirm(warning)) return;
     try {
-      await store.reset();
+      await store.reset(user?.uid);
       dispatch({ type: 'reset' });
       setStorageError(null);
     } catch (error) {
@@ -97,6 +125,44 @@ export function App({ bankLoader = loadQuestionBank, progressStore, preferences 
     }
   };
 
+  const signIn = async () => {
+    setAuthBusy(true);
+    setAuthError(null);
+    try {
+      await auth.signIn();
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Google sign-in could not be completed.');
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const signOut = async () => {
+    if (state.dirty && !window.confirm('You have unsaved changes. Sign out and discard them?')) return;
+    setAuthBusy(true);
+    setAuthError(null);
+    try {
+      await auth.signOut();
+    } catch {
+      setAuthError('Sign out could not be completed. Please try again.');
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
+  if (!user) return (
+    <main className="centered-state auth-state">
+      <span className="brand-mark" aria-hidden="true">Q</span>
+      <p className="eyebrow">PMLE practice</p>
+      <h1>Continue your trail</h1>
+      <p>Sign in with Google to load and save your progress across devices.</p>
+      <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
+        {authBusy ? 'Opening Google…' : 'Sign in with Google'}
+      </button>
+      {authError && <p className="error-message" role="alert">{authError}</p>}
+    </main>
+  );
   if (loading) return <main className="centered-state"><div className="loader" /><h1>Loading your trail…</h1><p>Preparing the question bank.</p></main>;
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
 
@@ -104,7 +170,15 @@ export function App({ bankLoader = loadQuestionBank, progressStore, preferences 
     <>
       <header className="site-header">
         <a href="#quiz" className="brand"><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
-        <span className="mode-badge">Local mode</span>
+        <div className="account-controls">
+          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
+          {auth.mode === 'firebase' && (
+            <>
+              <span className="account-name" title={user.email}>{user.displayName}</span>
+              <button className="header-button" type="button" disabled={authBusy} onClick={() => void signOut()}>Sign out</button>
+            </>
+          )}
+        </div>
       </header>
       <main id="quiz" className="app-shell">
         <section className="intro">
@@ -141,10 +215,17 @@ export function App({ bankLoader = loadQuestionBank, progressStore, preferences 
             <button type="button" className="primary-button" onClick={() => changeFilter(counts.remaining ? 'unanswered' : 'all')}>Go to {counts.remaining ? 'Unanswered' : 'All'}</button>
           </section>
         )}
-        <SaveProgressButton dirty={state.dirty} status={state.saveStatus} error={state.saveError} onSave={() => void save()} onReset={() => void reset()} />
+        <SaveProgressButton
+          dirty={state.dirty}
+          status={state.saveStatus}
+          error={state.saveError}
+          storageNote={dataMode === 'local' ? 'Saved only in this browser.' : 'Saved securely to your account when you choose Save progress.'}
+          onSave={() => void save()}
+          onReset={() => void reset()}
+        />
         <TipJar paypalUrl={import.meta.env.VITE_PAYPAL_URL} venmoUrl={import.meta.env.VITE_VENMO_URL} />
       </main>
-      <footer><span>Quiz Trail · Phase 1</span><span>Progress stays on this device</span></footer>
+      <footer><span>Quiz Trail</span><span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span></footer>
     </>
   );
 }

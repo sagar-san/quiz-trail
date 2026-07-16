@@ -9,6 +9,9 @@ test-results/
 .DS_Store
 *.local
 .tmp/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
 
 # Legacy source copy; the application uses public/data/questions.csv exclusively.
 /quiz-bank.csv

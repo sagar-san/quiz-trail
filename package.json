@@ -5,15 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:firebase": "VITE_DATA_MODE=firebase-emulator vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:auth": "XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache firebase emulators:exec --only auth \"vitest run --config vitest.auth.config.ts\"",
+    "test:rules": "PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache firebase emulators:exec --only firestore \"vitest run --config vitest.rules.config.ts\"",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
+    "e2e:firebase": "playwright test --config playwright.firebase.config.ts",
+    "emulators": "PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache firebase emulators:start --only auth,firestore,hosting",
     "preflight": "node --experimental-strip-types scripts/preflight-csv.ts"
   },
   "dependencies": {
+    "firebase": "^12.16.0",
     "papaparse": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -21,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@playwright/test": "latest",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
@@ -35,6 +42,7 @@
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
+    "firebase-tools": "^15.24.0",
     "globals": "latest",
     "jsdom": "latest",
     "typescript": "latest",

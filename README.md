@@ -1,13 +1,14 @@
 # Quiz Trail
 
-Quiz Trail is a focused, responsive PMLE practice app. Phase 1 loads the canonical CSV question bank in the browser, supports single- and multiple-choice questions, gives immediate feedback, filters progress, and explicitly saves a compact progress record to `localStorage`.
+Quiz Trail is a focused, responsive PMLE practice app. It loads the canonical CSV question bank in the browser, supports single- and multiple-choice questions, gives immediate feedback, filters progress, and explicitly saves a compact progress record.
 
-The current bank contains 339 questions and is expected to grow toward 500. Phase 1 deliberately contains no Firebase SDK, cloud configuration, user accounts, or backend.
+The current bank contains 339 questions and is expected to grow toward 500. Phase 1 local persistence is complete. Phase 2 Firebase Authentication and Firestore integration is in progress, beginning with local emulators and restrictive security rules.
 
 ## Prerequisites
 
 - Node.js 22 LTS (`.nvmrc` is included)
 - npm
+- Java 21 or newer for the Firestore emulator
 - Chromium installed for Playwright (`npx playwright install chromium`)
 
 ## Setup
@@ -19,19 +20,34 @@ cp .env.example .env
 npm run dev
 ```
 
-Contribution links are optional. Set `VITE_PAYPAL_URL` and `VITE_VENMO_URL` to valid HTTP(S) URLs to display them; blank or invalid values are hidden.
+Contribution links are optional. Set `VITE_PAYPAL_URL` and `VITE_VENMO_URL` to valid HTTP(S) URLs to display them; blank or invalid values are hidden. Firebase variable names are documented in `.env.example`; real environment values stay in ignored environment files.
+
+`VITE_DATA_MODE` defaults to `local`, including when it is omitted. A fresh checkout therefore needs no Firebase configuration, Java runtime, emulator, or account to run the quiz. The other accepted values are `firebase-emulator` and `firebase`; their application adapters are being added during Phase 2.
 
 ## Commands
 
 ```bash
 npm run preflight       # validate and summarize the canonical CSV
+npm run dev:firebase    # run Vite against already-running Firebase emulators
 npm run typecheck
 npm run lint
 npm run test
+npm run test:auth      # test authentication lifecycle against Auth emulator
+npm run test:rules     # start Firestore emulator and test security rules
 npm run test:coverage
 npm run build
 npm run e2e
+npm run e2e:firebase   # with emulators + dev:firebase already running
+npm run emulators      # Auth, Firestore, Hosting, and Emulator UI
 ```
+
+The local services use Auth `9099`, Firestore `8080`, Hosting `5002`, and Emulator UI `4000`. Hosting uses `5002` because macOS commonly reserves `5000` for AirPlay Receiver.
+
+Set `VITE_DATA_MODE=firebase-emulator` when running Firebase application adapters against local emulators. `VITE_DATA_MODE=firebase` selects the configured real Firebase project. Firebase initialization refuses to run in the default `local` mode, preventing an accidental cloud connection. The committed `staging` Firebase alias points to project `quiz-trail`; deployment is always a separate, explicitly approved operation.
+
+Firebase modes use Google authentication with browser-persistent Firebase sessions and store one compact Firestore document at `userProgress/{uid}`. Saves are explicit. Transactional revision checks stop an older tab or device from silently overwriting newer progress.
+
+On Apple Silicon, the emulator commands automatically include Homebrew's `openjdk@21` location. Other platforms should make a Java 21+ `java` executable available on `PATH`.
 
 ## Question bank
 
@@ -57,7 +73,7 @@ Run `npm run preflight` after every CSV change. The browser computes a SHA-256-d
 
 ## Architecture
 
-The UI dispatches actions to a pure quiz reducer and reads derived selectors. CSV parsing, browser persistence, and identity are adapters behind narrow contracts. React components never access `localStorage` directly. This seam allows Phase 2 to replace local identity and storage with Firebase Authentication and Firestore without rewriting the quiz domain.
+The UI dispatches actions to a pure quiz reducer and reads derived selectors. CSV parsing, persistence, and identity are adapters behind narrow contracts. React components never access `localStorage` or Firestore directly. This seam allows Phase 2 to replace local identity and storage with Firebase Authentication and Firestore without rewriting the quiz domain.
 
 Progress stores only outcomes keyed by stable question ID, saved-for-later IDs, the last question ID, schema version, and question-bank version. It never stores question text or explanations.
 

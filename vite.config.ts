@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
+    exclude: ['e2e/**', 'tests/firebase.auth.test.ts', 'tests/firestore.*.test.ts', 'node_modules/**', 'dist/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

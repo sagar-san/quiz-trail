@@ -30,6 +30,9 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .brand { color: var(--ink); text-decoration: none; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px; }
 .brand-mark { width: 34px; height: 34px; border-radius: 50% 50% 50% 8px; background: var(--green); color: white; display: grid; place-items: center; }
 .mode-badge { border: 1px solid #b8c8c0; border-radius: 999px; padding: 7px 12px; color: var(--green-dark); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.account-controls { display: flex; align-items: center; gap: 12px; }
+.account-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; }
+.header-button { min-height: 40px; padding: 0 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--cream); color: var(--ink); cursor: pointer; font-weight: 700; }
 .app-shell { width: min(100% - 32px, 880px); margin: 0 auto; padding: 72px 0 48px; }
 .intro { max-width: 700px; margin-bottom: 44px; }
 .eyebrow { margin: 0 0 10px; color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
@@ -88,10 +91,14 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .notice { margin-bottom: 20px; padding: 14px 16px; background: #fff5e8; border: 1px solid #e8c79b; border-radius: 10px; }
 .empty-state, .centered-state { text-align: center; padding: 64px 24px; }.empty-state { background: var(--cream); border: 1px solid var(--line); border-radius: 18px; }.empty-state > span { font-size: 34px; color: var(--green); }.empty-state h2 { margin-bottom: 8px; }.empty-state p { color: var(--muted); }.empty-state .primary-button { display: inline-flex; align-items: center; }
 .centered-state { min-height: 100vh; display: grid; place-content: center; justify-items: center; }.centered-state h1 { margin: 12px 0 4px; }.centered-state p { color: var(--muted); max-width: 500px; }.loader { width: 38px; height: 38px; border: 4px solid var(--mint); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+.auth-state .brand-mark { width: 48px; height: 48px; margin-bottom: 24px; font-size: 22px; }
+.auth-state .eyebrow { margin-top: 0; }
+.auth-state .error-message { color: var(--red); }
 footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
 
 @media (max-width: 680px) {
   .site-header { height: 62px; padding: 0 16px; }.app-shell { padding-top: 44px; }.intro { margin-bottom: 32px; }
+  .account-name { display: none; }.account-controls { gap: 7px; }.mode-badge { padding-inline: 9px; }.header-button { padding-inline: 10px; }
   .progress-panel { padding: 21px; }.stat-grid { grid-template-columns: repeat(3, 1fr); row-gap: 18px; }.stat-grid div:nth-child(4) { border: 0; padding-left: 0; }
   .segmented-control { display: none; }.filter-select { display: grid; gap: 6px; font-size: 13px; font-weight: 700; }.filter-select select { min-height: 46px; border: 1px solid var(--line); border-radius: 10px; background: var(--cream); padding: 0 12px; color: var(--ink); }
   .question-heading-row { grid-template-columns: 1fr; }.bookmark-button { justify-self: start; }.choice { grid-template-columns: auto auto 1fr; }.choice-result { grid-column: 3; }

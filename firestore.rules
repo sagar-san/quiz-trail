@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function ownsProgress(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function hasValidProgressShape(data) {
+      return data.keys().hasOnly([
+          'schemaVersion',
+          'questionBankVersion',
+          'progress',
+          'savedForLater',
+          'lastQuestionId',
+          'revision',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion',
+          'questionBankVersion',
+          'progress',
+          'savedForLater',
+          'lastQuestionId',
+          'revision',
+          'updatedAt'
+        ])
+        && data.schemaVersion == 1
+        && data.questionBankVersion is string
+        && data.questionBankVersion.size() <= 128
+        && data.progress is map
+        && data.progress.size() <= 500
+        && data.savedForLater is list
+        && data.savedForLater.size() <= 500
+        && (data.lastQuestionId == null || data.lastQuestionId is string)
+        && data.revision is int
+        && data.revision >= 1
+        && data.updatedAt == request.time;
+    }
+
+    match /userProgress/{userId} {
+      allow read: if ownsProgress(userId);
+      allow create: if ownsProgress(userId)
+        && hasValidProgressShape(request.resource.data)
+        && request.resource.data.revision == 1;
+      allow update: if ownsProgress(userId)
+        && hasValidProgressShape(request.resource.data)
+        && request.resource.data.revision == resource.data.revision + 1;
+      allow delete: if ownsProgress(userId);
+    }
+  }
+}
