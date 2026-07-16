@@ -4,6 +4,8 @@ Last updated: 2026-07-16
 
 ## Current status
 
+- Session ended at checkpoint commit `b70f7ec` (`feat: add firebase auth and cloud progress`). The working tree was clean and all local services were stopped.
+- Product owner reports running the app on a phone during review. No additional implementation work is currently in progress.
 - Phase 1 local MVP is implemented on `main`.
 - Product owner granted the Phase 2 development GO on 2026-07-16.
 - Phase 2 Firebase foundation is committed on `main`: SDK/tooling dependencies, validated web configuration, explicit emulator wiring, project alias, Hosting configuration, restrictive Firestore rules, and emulator-backed rules tests.
