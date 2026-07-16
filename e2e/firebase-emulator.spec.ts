@@ -11,10 +11,11 @@ async function signInWithNewEmulatorAccount(page: Page) {
   const popupPromise = page.waitForEvent('popup');
   await page.getByRole('button', { name: 'Sign in with Google' }).click();
   const popup = await popupPromise;
-  await popup.locator('#add-account-button button').click();
-  await popup.locator('#email-input').fill('trail-tester@example.com', { force: true });
-  await popup.locator('#display-name-input').fill('Trail Tester', { force: true });
-  await popup.locator('#sign-in').click({ force: true });
+  await popup.locator('.js-new-account').click();
+  await expect(popup.locator('#email-input')).toBeVisible();
+  await popup.locator('#email-input').fill('trail-tester@example.com');
+  await popup.locator('#display-name-input').fill('Trail Tester');
+  await popup.locator('#sign-in').click();
   await popup.waitForEvent('close');
 }
 
@@ -32,7 +33,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
   await signInWithNewEmulatorAccount(page);
   await expect(page.getByText('Trail Tester')).toBeVisible();
-  await expect(page.getByText('339 questions')).toBeVisible();
+  await expect(page.getByText('383 questions')).toBeVisible();
 
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();

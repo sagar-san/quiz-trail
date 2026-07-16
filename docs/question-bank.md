@@ -2,6 +2,8 @@
 
 `public/data/questions.csv` is the application's only question source. Do not maintain a second copy elsewhere in the repository.
 
+Additional editorial columns are allowed and preserved even when the app does not consume them. The current bank includes `terminology_status` and `terminology_notes` for content maintenance.
+
 ## Updating questions
 
 After editing the CSV, run:

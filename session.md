@@ -28,7 +28,7 @@ Last updated: 2026-07-16
 
 ## Product and data decisions
 
-- `public/data/questions.csv` is the canonical question source. The current bank has 339 valid questions: 334 single-choice and 5 multiple-choice.
+- `public/data/questions.csv` is the canonical question source. The current bank has 383 valid questions: 372 single-choice and 11 multiple-choice. The CSV also preserves the editorial columns `terminology_status` and `terminology_notes`, which the app does not currently display.
 - Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
 - The browser derives the question-bank version automatically from the CSV bytes; no manual version update is required.
 - Progress saves only when Save Progress is selected. Local mode uses browser storage; Firebase modes use `userProgress/{uid}` in Firestore.

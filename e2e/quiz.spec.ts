@@ -3,7 +3,7 @@ import axe from 'axe-core';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText('339 questions')).toBeVisible();
+  await expect(page.getByText('383 questions')).toBeVisible();
 });
 
 test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {

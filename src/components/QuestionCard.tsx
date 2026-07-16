@@ -14,11 +14,49 @@ interface QuestionCardProps {
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
   selected.length === correct.length && selected.every((answer) => correct.includes(answer));
 
+function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[]) {
+  const choices = question.options.map((option) => `- **${option.key}.** ${option.text}`).join('\n');
+  return [
+    '# PMLE Practice Question Review',
+    '',
+    `**Question ID:** ${question.questionId}`,
+    '',
+    '## Question',
+    '',
+    question.prompt,
+    '',
+    '## Answer choices',
+    '',
+    choices,
+    '',
+    '## Answers to evaluate',
+    '',
+    `- **Learner answer:** ${selected.join(', ')}`,
+    `- **Provided expected answer:** ${question.correctAnswers.join(', ')}`,
+    '',
+    '## Provided explanation',
+    '',
+    question.explanation,
+    '',
+    ...(question.referenceUrl ? ['## Provided reference', '', question.referenceUrl, ''] : []),
+    '## Review instructions',
+    '',
+    '1. Independently solve the question before evaluating the provided expected answer.',
+    '2. Treat the expected answer and explanation as claims, not authoritative facts.',
+    '3. Explain the correct reasoning and why each distractor is right or wrong.',
+    '4. Flag anything outdated, ambiguous, or inaccurate.',
+    '5. Feel free to disagree and push back when warranted.',
+    '6. Prefer and cite current official Google Cloud documentation.',
+  ].join('\n');
+}
+
 export function QuestionCard({ question, position, total, saved, priorOutcome, onSubmit, onToggleSaved }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const multiple = question.questionType === 'multiple_choice';
+  const reviewPrompt = buildReviewPrompt(question, selected);
   const toggleChoice = (key: ChoiceKey) => {
     if (submitted) return;
     setSelected((current) => multiple
@@ -29,6 +67,14 @@ export function QuestionCard({ question, position, total, saved, priorOutcome, o
     if (!selected.length) return;
     onSubmit(sameAnswers(selected, question.correctAnswers));
     setSubmitted(true);
+  };
+  const copyReviewPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(reviewPrompt);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('failed');
+    }
   };
 
   return (
@@ -89,6 +135,22 @@ export function QuestionCard({ question, position, total, saved, priorOutcome, o
           {question.referenceUrl && (
             <a href={question.referenceUrl} target="_blank" rel="noopener noreferrer">Read the reference <span aria-hidden="true">↗</span></a>
           )}
+          <div className="ai-review-action">
+            <div>
+              <strong>Want another explanation?</strong>
+              <span>
+                Copy the question context, then paste it into{' '}
+                <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>,{' '}
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>,{' '}
+                <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a>, or your preferred AI app.
+              </span>
+            </div>
+            <button type="button" className="secondary-button" onClick={() => void copyReviewPrompt()}>
+              {copyStatus === 'copied' ? 'Copied!' : 'Copy AI review prompt'}
+            </button>
+          </div>
+          {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
+          <p className="ai-review-note">Only question content is copied. AI responses may be inaccurate.</p>
         </div>
       )}
     </article>

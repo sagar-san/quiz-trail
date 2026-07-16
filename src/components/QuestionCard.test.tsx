@@ -7,6 +7,8 @@ import { QuestionCard } from './QuestionCard';
 describe('QuestionCard', () => {
   it('submits a single answer and reveals accessible feedback', async () => {
     const submit = vi.fn();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     render(<QuestionCard question={questions[0]} position={1} total={3} saved={false} onSubmit={submit} onToggleSaved={vi.fn()} />);
     const button = screen.getByRole('button', { name: 'Submit answer' });
     expect(button).toBeDisabled();
@@ -14,6 +16,17 @@ describe('QuestionCard', () => {
     await userEvent.click(button);
     expect(submit).toHaveBeenCalledWith(true);
     expect(screen.getByRole('status')).toHaveTextContent('Correct');
+    await userEvent.click(screen.getByRole('button', { name: 'Copy AI review prompt' }));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('# PMLE Practice Question Review'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('## Answer choices'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('**Learner answer:** A'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('**Provided expected answer:** A'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('claims, not authoritative facts'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Feel free to disagree and push back'));
+    expect(await screen.findByRole('button', { name: 'Copied!' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'ChatGPT' })).toHaveAttribute('href', 'https://chatgpt.com/');
+    expect(screen.getByRole('link', { name: 'Gemini' })).toHaveAttribute('href', 'https://gemini.google.com/app');
+    expect(screen.getByRole('link', { name: 'Claude' })).toHaveAttribute('href', 'https://claude.ai/new');
   });
 
   it('requires the exact multiple-choice set and toggles saved state', async () => {

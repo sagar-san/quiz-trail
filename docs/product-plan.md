@@ -1,6 +1,6 @@
 # PMLE Quiz App Product Plan
 
-A focused, resumable study experience for a growing PMLE bank (339 questions today, targeting approximately 500)
+A focused, resumable study experience for a growing PMLE bank (383 questions today, targeting approximately 500)
 
 | **Status**           | MVP scope defined                      |
 |----------------------|----------------------------------------|
@@ -16,7 +16,7 @@ Make a large PMLE question bank practical to complete over time. The product sho
 
 # 2. Target user and job to be done
 
-**Primary user:** A PMLE learner who wants to complete the growing question bank—339 questions at launch, targeting approximately 500—over multiple study sessions.
+**Primary user:** A PMLE learner who wants to complete the growing question bank—383 questions today, targeting approximately 500—over multiple study sessions.
 
 **Job to be done:** When I have a few minutes to study, help me answer 5–10 questions, understand whether I was correct, save my place, and return later without losing progress.
 
