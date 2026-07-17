@@ -4,13 +4,13 @@ Last updated: 2026-07-16
 
 ## Current status
 
-- Production release commit `ca1c1bc` (`feat: expand question bank and add AI review prompt`) is synchronized with `origin/main` and deployed to Firebase Hosting.
-- The working tree now contains an uncommitted, undeployed learner analytics summary for the 408-question bank. It uses CSV metadata plus the existing ID-keyed outcome/bookmark state and does not change Firestore, its rules, or the saved-progress schema.
+- Production release commit `97a336b` (`feat: add learner analytics summary`) is synchronized with `origin/main` and deployed to Firebase Hosting.
+- The live analytics summary uses CSV metadata plus the existing ID-keyed outcome/bookmark state and does not change Firestore, its rules, or the saved-progress schema.
 - GitHub remote: `git@github.com:Ameenota/quiz-trail.git`.
 - Firebase production project: `quiz-trail` (project number `724933345983`). The product owner explicitly chose to use this single live project as production and accept occasional downtime; local emulators are the development environment.
 - The Firebase CLI is authenticated locally as `ssanghani@gmail.com` using the repository-scoped ignored config directory.
-- Firebase Hosting and Firestore rules/indexes were successfully deployed and smoke-tested at <https://quiz-trail.web.app>.
-- The live deployment includes Account & Data settings, secure account deletion, the public PMLE overview, updated HTML metadata, donation/source links, the avatar account menu, public support through GitHub Issues, and a post-answer AI review prompt that users can copy into ChatGPT, Gemini, Claude, or another AI app.
+- Firebase Hosting was deployed and smoke-tested at <https://quiz-trail.web.app>; Firestore rules and indexes were unchanged.
+- The live deployment includes learner analytics, local/cloud Settings, secure account deletion, the public PMLE overview, donation/source links, the avatar account menu, public support through GitHub Issues, and a post-answer AI review prompt.
 - The product owner tested the live Google sign-in, Firestore save, and resume flow successfully and found no issues.
 - Firebase emulators and a Firebase-mode Vite server were started for review. Confirm whether they are still running before starting duplicate processes.
 - The Firebase alias is now `production`; the prior `staging` alias was retired. No billing, App Check, OAuth consent, or custom-domain changes were made.
@@ -52,9 +52,12 @@ Last updated: 2026-07-16
 - `npm run test`: pass — 53 tests across 11 files
 - `npm run preflight`: pass — 408 rows; 397 single-choice; 11 multiple-choice; 0 invalid; SHA-256 `2245e7b2491625c18b5203bf60bf81b44076e513f4b6a4d20386f579d5a4b0b0`
 - `npm run e2e`: pass — 6 desktop/mobile tests, including summary accessibility, overflow, and review-queue navigation
-- `npm run e2e:firebase`: pass — sign-in, Firestore save, sign-out/in restore, Settings, Google reauthentication, account deletion, and the 383-question count
+- Auth emulator test: pass — 1 test
+- Firestore rules and progress tests: pass — 9 tests
+- `npm run e2e:firebase`: pass — sign-in, Firestore save, sign-out/in restore, Settings, Google reauthentication, account deletion, and the 408-question count
 - Cloud-mode production build: pass
-- Deployed Hosting root and canonical CSV: HTTP 200; live CSV hash exactly matches the canonical file and is served with `Cache-Control: no-cache`
+- Deployed Hosting root and canonical CSV: HTTP 200; live CSV hash `2245e7b2491625c18b5203bf60bf81b44076e513f4b6a4d20386f579d5a4b0b0` exactly matches the canonical file and is served with `Cache-Control: no-cache`
+- Production browser smoke check: sign-in screen and public PMLE overview render with no console errors
 
 ## Remaining work
 
