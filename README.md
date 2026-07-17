@@ -26,11 +26,11 @@ Open [http://localhost:5173](http://localhost:5173). Local development defaults 
 
 ## Project documentation
 
-- [App overview](docs/app-overview.md) — product behavior, architecture, and important boundaries
-- [Release runbook](docs/release-runbook.md) — local startup, verification, production deployment, and rollback
-- [Development guide](docs/development-guide.md) — commands, Firebase modes, testing, and deployment notes
-- [Question bank guide](docs/question-bank.md) — CSV format and safe content updates
-- [Product plan](docs/product-plan.md)
-- [Implementation plan](docs/implementation-plan.md)
+- [Documentation map](docs/README.md) — sources of truth and when to update them
+- [Product](docs/product.md) — supported behavior, scope, and product boundaries
+- [Architecture](docs/architecture.md) — implemented system design, contracts, and data flow
+- [Development guide](docs/development.md) — setup, commands, modes, and testing
+- [Question bank guide](docs/question-bank.md) — CSV contract and safe content updates
+- [Release runbook](docs/release-runbook.md) — Firebase verification, deployment, and rollback
 
 The canonical question bank is [`public/data/questions.csv`](public/data/questions.csv).

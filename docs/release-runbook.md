@@ -1,6 +1,6 @@
 # Quiz Trail release runbook
 
-Use this guide to start the app, run Firebase integration checks, deploy production, or recover a release. Read `session.md` and check `git status --short` first.
+Use this guide to start the app, run Firebase integration checks, deploy production, or recover a release. Read `docs/status.md` and check `git status --short` first.
 
 ## Targets and safety
 
@@ -156,7 +156,7 @@ curl -sS https://quiz-trail.web.app/
 
 Confirm HTTP 200 responses, expected HTML metadata and asset names, and `Cache-Control: no-cache` for the CSV. In a browser, test sign-in, one answer, Save Progress, reload/restore, avatar menu, and Settings when those flows changed.
 
-Record the deployed commit, verification results, and remaining work in `session.md`, then commit and push that handoff update.
+Record the deployed commit, verification results, and remaining work in `docs/status.md`, then commit and push that handoff update.
 
 ## Rollback
 

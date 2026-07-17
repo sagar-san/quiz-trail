@@ -31,10 +31,10 @@ An invalid row rejects the entire bank, preventing a silently incomplete dataset
 ## Required columns
 
 ```text
-question_id,question_type,question,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation,reference_url,chatgpt_verified
+question_id,question_type,question,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation,reference_url,chatgpt_verified,terminology_status,terminology_notes,exam_section,exam_objectives,topics,difficulty,question_source,review_status,is_outdated
 ```
 
-Analytics also requires `exam_section`, `exam_objectives`, `topics`, `difficulty`, `question_source`, `review_status`, `is_outdated`, `terminology_status`, and `terminology_notes`. Question content and metadata remain in the CSV; learner progress continues to join by permanent `question_id`.
+Question content and metadata remain in the CSV; learner progress continues to join by permanent `question_id`.
 
 ## Validation rules
 

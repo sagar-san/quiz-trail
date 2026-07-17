@@ -48,15 +48,9 @@ Local emulator ports:
 
 Hosting uses port 5002 because macOS commonly reserves port 5000 for AirPlay Receiver. On Apple Silicon, repository emulator scripts include Homebrew's `openjdk@21` path automatically. Other platforms need Java 21+ available on `PATH`.
 
-## Architecture and persistence
+## Architecture
 
-The React UI dispatches actions to a pure quiz reducer and reads derived selectors. Question loading, persistence, and authentication sit behind narrow adapter contracts, keeping the quiz domain independent from Firebase and browser storage.
-
-Cloud mode uses Google authentication and stores one progress document per user at `userProgress/{uid}`. The document contains outcomes keyed by stable question ID, saved-for-later IDs, a return point, schema version, and question-bank version. It does not duplicate question content.
-
-Saving is explicit. Firestore transaction revisions prevent an older tab or device from silently overwriting newer saved progress. Security rules restrict users to their own progress document.
-
-Question order is shuffled once per page load and remains stable for that tab. Progress and bookmarks survive shuffling because they are keyed by permanent question IDs. The active question filter is a separate browser preference and is saved immediately.
+See [`architecture.md`](architecture.md) for the implemented component boundaries, state model, persistence contract, authentication flow, and Firebase design. Development commands and environment setup remain owned by this guide.
 
 ## Firebase and deployment
 

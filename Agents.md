@@ -1,33 +1,92 @@
-# Agent Instructions
+# Agent instructions
 
-## Workspace permissions
+## Project summary
 
-- Agents may read, create, edit, move, and delete files, and run commands freely within this repository directory.
-- Agents must always ask the human for explicit permission before reading, writing, moving, deleting, or otherwise touching anything outside this repository directory.
+Quiz Trail is a React and TypeScript practice application for Google Cloud's Professional Machine Learning Engineer certification. Questions come from `public/data/questions.csv`. Progress can be stored in the browser or in Firebase.
 
-## Privileged operations
+## Safety and permissions
 
-- Keep a human in the loop for every operation involving `sudo`.
-- Never run a `sudo` command without first showing the exact command and receiving explicit human approval.
-- Do not bypass, weaken, or work around these permission requirements.
+- Work freely only inside this repository.
+- Ask for explicit human permission before reading, writing, moving, deleting, or otherwise touching anything outside this repository.
+- Never run `sudo` without first showing the exact command and receiving explicit approval.
+- Never print or record secrets, credentials, tokens, API keys, or sensitive environment values in tracked files.
+- Production deployment, live Firestore rule or data changes, billing changes, App Check enforcement, OAuth consent changes, domain verification, and other console-sensitive actions require explicit product-owner approval.
+- A backlog item or prior approval for a different operation does not authorize a sensitive action.
 
-## Session continuity
+## Working-tree safety
 
-- At the start of every working session, read `session.md` before planning or making changes.
-- Also read `TODO.md` at the start of a session when it exists, and account for relevant deferred work when planning.
-- Read `docs/app-overview.md` before changing application behavior, persistence, authentication, or user-facing flows.
-- Read `docs/question-bank.md` before editing or replacing question data.
-- Read `docs/release-runbook.md` before starting Firebase services, running Firebase integration tests, building a cloud release, deploying, or rolling back.
-- Treat `session.md` as the repository's current handoff context, while verifying its claims against the working tree when relevant.
-- When the human says the session is ending or reminds the agent to save the session, update `session.md` before stopping.
-- The session handoff should concisely record the current status, completed work, important decisions, unresolved issues, verification results, and recommended next steps.
-- Do not record secrets, credentials, tokens, or other sensitive values in `session.md`.
+- Inspect the working tree before editing.
+- Preserve unrelated human or agent changes. Do not overwrite, discard, or revert them without approval.
+- Verify mutable claims against the working tree or runtime state when possible; handoff notes are context, not proof.
+- Do not use destructive Git commands or rewrite shared history unless the human explicitly requests it.
 
-## TODO tracking
+## Documentation workflow
 
-- Use `TODO.md` for durable deferred work, follow-up items, and future console or production-readiness actions. Keep detailed implementation sequencing in `docs/implementation-plan.md` and current handoff context in `session.md`.
-- Update `TODO.md` when the human defers an in-scope item, when new follow-up work is discovered, or when a tracked item is completed or superseded.
-- Preserve explicit approval boundaries in TODO entries. A TODO item records future work; it does not itself authorize production deployments, billing changes, App Check enforcement, OAuth consent changes, domain verification, or other console-sensitive actions.
-- Do not begin unrelated TODO items merely because they are listed. Work only on items within the human's current request or separately approved scope.
-- Mark completed items with `[x]` instead of silently deleting them, unless the human asks to clean up completed history. Add a brief note when an item is superseded or intentionally canceled.
-- Never record secrets, credentials, tokens, API keys, or other sensitive values in `TODO.md`.
+`AGENTS.md` is the documentation router. Do not recursively read `docs/` or preload every document.
+
+### Session startup
+
+For implementation, diagnosis, or repository planning:
+
+1. Read `docs/status.md`.
+2. Inspect the working tree.
+3. Read only the additional documents selected by the routing table.
+
+For a simple question or narrow read-only inspection, read `docs/status.md` only when current handoff context is relevant.
+
+### Reading routes
+
+| Work being performed | Required document |
+|---|---|
+| User-visible behavior, scope, or flows | `docs/product.md` |
+| Architecture, state, persistence, authentication, or system boundaries | `docs/architecture.md` |
+| Revisiting an established product or technical choice | `docs/decisions.md` |
+| Setup, commands, tests, or development conventions | `docs/development.md` |
+| Question data, content, CSV schema, or permanent IDs | `docs/question-bank.md` |
+| Firebase services or tests, cloud builds, deployment, or rollback | `docs/release-runbook.md` |
+| Deferred work explicitly placed in scope by the human | `docs/backlog.md` |
+
+A task may require more than one document, but identify its relevance before opening it. Do not read a document merely because it exists. A document's links do not automatically require following every link. Files under `docs/archive/` are historical and must not be used as current requirements unless a current source of truth explicitly directs the agent there.
+
+### Documentation updates
+
+Update documentation only when the current task changes facts owned by that document:
+
+- Update `docs/product.md` when supported behavior, scope, or product boundaries change.
+- Update `docs/architecture.md` when the implemented design, data flow, contracts, or system boundaries change.
+- Update `docs/decisions.md` only when a meaningful durable decision is accepted, rejected, or superseded. Do not log routine implementation choices.
+- Update `docs/development.md`, `docs/question-bank.md`, or `docs/release-runbook.md` only when their workflows or contracts change.
+- Update `docs/backlog.md` only when work is intentionally deferred, completed, canceled, or superseded. Mark completed items with `[x]` unless the human asks to clean up history.
+- Update `docs/status.md` when handing off meaningful unfinished or newly completed work, when the human says the session is ending, or when the human asks to save the session.
+
+Do not update every document after every task. Do not change a date without a substantive update, duplicate the same fact across documents, turn status into a changelog, or treat documentation maintenance as authorization for unrelated work.
+
+## Important invariants
+
+- `public/data/questions.csv` is the application's only question source.
+- Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
+- Progress saves only when Save Progress is selected; the active filter is a separate immediately stored preference.
+- Do not change persistence or authentication contracts without reading `docs/architecture.md` and reviewing the relevant decision in `docs/decisions.md`.
+- Do not expose internal editorial metadata to learners without deliberate product review.
+
+## Verification
+
+Run checks proportionate to the change:
+
+| Change | Minimum verification |
+|---|---|
+| Documentation only | Review links, paths, and internal consistency |
+| TypeScript or application logic | Typecheck and relevant tests |
+| Styling or user-facing UI | Relevant tests plus browser or end-to-end verification |
+| Question CSV or schema | Question-bank preflight and relevant tests |
+| Firebase rules, authentication, or cloud persistence | Relevant emulator tests |
+| Release-related work | Follow `docs/release-runbook.md` |
+
+Report which checks ran and which did not. Do not claim completion while required verification is failing.
+
+## Handoff hygiene
+
+- Keep `docs/status.md` concise: current state, unfinished work, recent relevant verification, blockers or cautions, and recommended next steps.
+- Move durable facts into their owning document and remove them from status when they no longer help the next handoff.
+- Do not record transient process claims such as a server still running across sessions; tell the next agent to verify runtime state.
+- Never record secrets or sensitive values in `docs/status.md` or `docs/backlog.md`.
