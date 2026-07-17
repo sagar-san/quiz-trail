@@ -1,7 +1,8 @@
 export const choiceKeys = ['A', 'B', 'C', 'D', 'E'] as const;
 export type ChoiceKey = (typeof choiceKeys)[number];
 export type QuestionType = 'single_choice' | 'multiple_choice';
-export type QuizFilter = 'all' | 'unanswered' | 'incorrect' | 'saved';
+export type QuizFilter = 'all' | 'unanswered' | 'incorrect' | 'saved' | 'outdated';
+export type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 export interface QuizQuestion {
   questionId: string;
@@ -12,6 +13,15 @@ export interface QuizQuestion {
   explanation: string;
   referenceUrl?: string;
   chatgptVerified?: boolean;
+  examSection: string;
+  examObjectives: string[];
+  topics: string[];
+  difficulty: Difficulty;
+  questionSource: string;
+  reviewStatus: string;
+  isOutdated: boolean;
+  terminologyStatus: string;
+  terminologyNotes: string;
 }
 
 export interface UserProgress {

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
+import { AnalyticsSummary } from '../components/AnalyticsSummary';
 import { ProgressSummary } from '../components/ProgressSummary';
 import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
@@ -40,6 +41,7 @@ export function App({
   const [accountError, setAccountError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'practice' | 'summary'>('practice');
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -119,9 +121,14 @@ export function App({
   const currentIndex = displayQuestions.findIndex((question) => question.questionId === state.currentQuestionId);
   const current = displayQuestions[currentIndex] ?? displayQuestions[0];
   const counts = selectCounts(state);
+  const debugMetadata = new URLSearchParams(window.location.search).get('debug') === 'true';
   const changeFilter = (filter: typeof state.filter) => {
     preferenceStore.saveFilter(filter);
     dispatch({ type: 'filterChanged', filter });
+  };
+  const openReviewQueue = (filter: typeof state.filter) => {
+    changeFilter(filter);
+    setActiveView('practice');
   };
 
   const save = async () => {
@@ -211,8 +218,10 @@ export function App({
   return (
     <>
       <header className="site-header">
-        <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView('practice'); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
+          <button className="header-button" type="button" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView((view) => view === 'summary' ? 'practice' : 'summary'); }}>{activeView === 'summary' && !settingsOpen ? 'Practice' : 'Summary'}</button>
+          {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setActiveView('practice'); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
             <div className="account-menu" ref={accountMenu}>
               <button className="header-identity" type="button" title={user.email ?? user.displayName} aria-label={`Open account menu for ${user.displayName}`} aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen((open) => !open)}>
@@ -232,9 +241,10 @@ export function App({
           )}
         </div>
       </header>
-      {settingsOpen && auth.mode === 'firebase' ? (
+      {settingsOpen ? (
         <AccountSettings
           user={user}
+          mode={auth.mode}
           busy={authBusy}
           error={accountError}
           paypalUrl={import.meta.env.VITE_PAYPAL_URL}
@@ -244,12 +254,21 @@ export function App({
           onDelete={deleteAccount}
         />
       ) : <main id="quiz" className="app-shell">
+        {activeView === 'summary' ? (
+          <AnalyticsSummary
+            questions={state.questions}
+            progress={state.progress}
+            savedForLater={state.savedForLater}
+            onBack={() => setActiveView('practice')}
+            onReview={openReviewQueue}
+          />
+        ) : <>
         <section className="intro">
           <p className="eyebrow">PMLE practice</p>
           <h1>One question at a time. <em>Keep moving forward.</em></h1>
           <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
         </section>
-        <ProgressSummary counts={counts} />
+        <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
         {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
         <QuizFilters active={state.filter} onChange={changeFilter} />
         {current ? (
@@ -261,6 +280,7 @@ export function App({
               total={displayQuestions.length}
               saved={state.savedForLater.includes(current.questionId)}
               priorOutcome={state.progress[current.questionId]}
+              showInternalMetadata={debugMetadata}
               onSubmit={(correct) => dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct })}
               onToggleSaved={() => dispatch({ type: 'savedToggled', questionId: current.questionId })}
             />
@@ -278,13 +298,13 @@ export function App({
             <button type="button" className="primary-button" onClick={() => changeFilter(counts.remaining ? 'unanswered' : 'all')}>Go to {counts.remaining ? 'Unanswered' : 'All'}</button>
           </section>
         )}
+        </>}
         <SaveProgressButton
           dirty={state.dirty}
           status={state.saveStatus}
           error={state.saveError}
           storageNote={dataMode === 'local' ? 'Saved only in this browser.' : 'Saved securely to your account when you choose Save progress.'}
           onSave={() => void save()}
-          onReset={() => void reset()}
         />
         <TipJar paypalUrl={import.meta.env.VITE_PAYPAL_URL} venmoUrl={import.meta.env.VITE_VENMO_URL} />
       </main>}

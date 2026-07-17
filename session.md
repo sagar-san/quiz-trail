@@ -5,6 +5,7 @@ Last updated: 2026-07-16
 ## Current status
 
 - Production release commit `ca1c1bc` (`feat: expand question bank and add AI review prompt`) is synchronized with `origin/main` and deployed to Firebase Hosting.
+- The working tree now contains an uncommitted, undeployed learner analytics summary for the 408-question bank. It uses CSV metadata plus the existing ID-keyed outcome/bookmark state and does not change Firestore, its rules, or the saved-progress schema.
 - GitHub remote: `git@github.com:Ameenota/quiz-trail.git`.
 - Firebase production project: `quiz-trail` (project number `724933345983`). The product owner explicitly chose to use this single live project as production and accept occasional downtime; local emulators are the development environment.
 - The Firebase CLI is authenticated locally as `ssanghani@gmail.com` using the repository-scoped ignored config directory.
@@ -25,13 +26,18 @@ Last updated: 2026-07-16
 - Added and pushed the GitHub remote.
 - Simplified `README.md` and moved technical and question-bank details into `docs/development-guide.md` and `docs/question-bank.md`.
 - Updated `TODO.md`: Settings and account deletion are complete; “Report this question” remains deferred.
-- Replaced the canonical question bank with 383 valid questions: 372 single-choice and 11 multiple-choice. The update added 44 stable IDs and removed none.
-- Preserved the new editorial CSV columns `terminology_status` and `terminology_notes`; the app safely ignores them at runtime.
+- Replaced the canonical question bank with 408 valid questions: 397 single-choice and 11 multiple-choice.
+- Added learner analytics metadata parsing and validation for exam section, objectives, topics, difficulty, source, review status, outdated flags, and terminology fields.
+- Added a learner-facing Summary view with overall coverage and current accuracy, exam-section/objective/topic/difficulty breakdowns, sample-gated section strengths and weak areas, and review-queue links.
+- Added an Outdated question filter limited to answered questions, plus post-answer subject metadata details. Source, review-status, and terminology fields remain internal and appear post-answer only with `?debug=true`.
+- Deferred attempt counts and first/latest accuracy to `TODO.md`; the MVP uses the latest recorded outcome without any persistence migration.
+- Added a deterministic bank-version fallback for insecure local-network HTTP, where mobile browsers do not expose Web Crypto; production HTTPS still uses SHA-256.
+- Removed the destructive reset action from the Save Progress panel. Reset all progress now lives only in Settings, which is directly accessible in local mode and remains under the account menu in cloud mode.
 - Added a structured Markdown AI review prompt after answer submission. It includes only question context, asks the model to solve independently, treats the supplied answer as a claim, and encourages evidence-based pushback using official Google Cloud sources.
 
 ## Product and data decisions
 
-- `public/data/questions.csv` is the canonical question source. The current bank has 383 valid questions: 372 single-choice and 11 multiple-choice. The CSV also preserves the editorial columns `terminology_status` and `terminology_notes`, which the app does not currently display.
+- `public/data/questions.csv` is the canonical question source. The current bank has 408 valid questions: 397 single-choice and 11 multiple-choice. Subject metadata drives learner analytics; editorial and terminology details appear only after a learner answers.
 - Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
 - The browser derives the question-bank version automatically from the CSV bytes; no manual version update is required.
 - Progress saves only when Save Progress is selected. Local mode uses browser storage; Firebase modes use `userProgress/{uid}` in Firestore.
@@ -43,9 +49,9 @@ Last updated: 2026-07-16
 
 - `npm run typecheck`: pass
 - `npm run lint`: pass
-- `npm run test`: pass — 41 tests across 10 files
-- `npm run preflight`: pass — 383 rows; 372 single-choice; 11 multiple-choice; 0 invalid; SHA-256 `91f81a4493f68f9496ba4a14e73844f21888d9f33123b6255d80c52c31c1f00f`
-- `npm run e2e`: pass — 4 desktop/mobile tests with the 383-question bank
+- `npm run test`: pass — 53 tests across 11 files
+- `npm run preflight`: pass — 408 rows; 397 single-choice; 11 multiple-choice; 0 invalid; SHA-256 `2245e7b2491625c18b5203bf60bf81b44076e513f4b6a4d20386f579d5a4b0b0`
+- `npm run e2e`: pass — 6 desktop/mobile tests, including summary accessibility, overflow, and review-queue navigation
 - `npm run e2e:firebase`: pass — sign-in, Firestore save, sign-out/in restore, Settings, Google reauthentication, account deletion, and the 383-question count
 - Cloud-mode production build: pass
 - Deployed Hosting root and canonical CSV: HTTP 200; live CSV hash exactly matches the canonical file and is served with `Cache-Control: no-cache`

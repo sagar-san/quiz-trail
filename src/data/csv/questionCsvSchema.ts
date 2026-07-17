@@ -13,6 +13,15 @@ export const expectedHeaders = [
   'explanation',
   'reference_url',
   'chatgpt_verified',
+  'terminology_status',
+  'terminology_notes',
+  'exam_section',
+  'exam_objectives',
+  'topics',
+  'difficulty',
+  'question_source',
+  'review_status',
+  'is_outdated',
 ] as const;
 
 export const questionCsvRowSchema = z.object({
@@ -28,6 +37,15 @@ export const questionCsvRowSchema = z.object({
   explanation: z.string(),
   reference_url: z.string(),
   chatgpt_verified: z.string(),
+  terminology_status: z.string(),
+  terminology_notes: z.string(),
+  exam_section: z.string(),
+  exam_objectives: z.string(),
+  topics: z.string(),
+  difficulty: z.string(),
+  question_source: z.string(),
+  review_status: z.string(),
+  is_outdated: z.string(),
 });
 
 export type QuestionCsvRow = z.infer<typeof questionCsvRowSchema>;

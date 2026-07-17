@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { choiceKeys, type ChoiceKey, type QuestionType, type QuizQuestion } from '../../domain/types.ts';
+import { choiceKeys, type ChoiceKey, type Difficulty, type QuestionType, type QuizQuestion } from '../../domain/types.ts';
 import { expectedHeaders, questionCsvRowSchema, type QuestionCsvRow } from './questionCsvSchema.ts';
 
 export class QuestionBankError extends Error {
@@ -11,6 +11,7 @@ export class QuestionBankError extends Error {
 
 const cleanHeader = (header: string) => header.replace(/^\uFEFF/, '').trim();
 const clean = (value: string) => value.trim();
+const splitCategories = (value: string) => value.split(';').map(clean).filter(Boolean);
 
 function parseAnswers(value: string): ChoiceKey[] {
   return value
@@ -64,6 +65,27 @@ function normalizeRow(row: QuestionCsvRow, rowNumber: number): QuizQuestion {
     throw new QuestionBankError(`${prefix}: chatgpt_verified must be TRUE, FALSE, or blank.`);
   }
 
+  const examSection = clean(row.exam_section);
+  const examObjectives = splitCategories(row.exam_objectives);
+  const topics = splitCategories(row.topics);
+  const difficulty = clean(row.difficulty) as Difficulty;
+  const questionSource = clean(row.question_source);
+  const reviewStatus = clean(row.review_status);
+  const terminologyStatus = clean(row.terminology_status);
+  const terminologyNotes = clean(row.terminology_notes);
+  const outdated = clean(row.is_outdated).toUpperCase();
+  if (!examSection) throw new QuestionBankError(`${prefix}: exam_section is required.`);
+  if (!examObjectives.length) throw new QuestionBankError(`${prefix}: exam_objectives is required.`);
+  if (!topics.length) throw new QuestionBankError(`${prefix}: topics is required.`);
+  if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) {
+    throw new QuestionBankError(`${prefix}: difficulty must be Easy, Medium, or Hard.`);
+  }
+  if (!questionSource) throw new QuestionBankError(`${prefix}: question_source is required.`);
+  if (!reviewStatus) throw new QuestionBankError(`${prefix}: review_status is required.`);
+  if (!['TRUE', 'FALSE'].includes(outdated)) {
+    throw new QuestionBankError(`${prefix}: is_outdated must be TRUE or FALSE.`);
+  }
+
   return {
     questionId: id,
     questionType: type,
@@ -73,6 +95,15 @@ function normalizeRow(row: QuestionCsvRow, rowNumber: number): QuizQuestion {
     explanation,
     ...(referenceUrl ? { referenceUrl } : {}),
     ...(verified ? { chatgptVerified: verified === 'TRUE' } : {}),
+    examSection,
+    examObjectives,
+    topics,
+    difficulty,
+    questionSource,
+    reviewStatus,
+    isOutdated: outdated === 'TRUE',
+    terminologyStatus,
+    terminologyNotes,
   };
 }
 

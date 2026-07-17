@@ -7,6 +7,7 @@ interface QuestionCardProps {
   total: number;
   saved: boolean;
   priorOutcome?: boolean;
+  showInternalMetadata?: boolean;
   onSubmit: (correct: boolean) => void;
   onToggleSaved: () => void;
 }
@@ -50,7 +51,7 @@ function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[]) {
   ].join('\n');
 }
 
-export function QuestionCard({ question, position, total, saved, priorOutcome, onSubmit, onToggleSaved }: QuestionCardProps) {
+export function QuestionCard({ question, position, total, saved, priorOutcome, showInternalMetadata = false, onSubmit, onToggleSaved }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -135,6 +136,19 @@ export function QuestionCard({ question, position, total, saved, priorOutcome, o
           {question.referenceUrl && (
             <a href={question.referenceUrl} target="_blank" rel="noopener noreferrer">Read the reference <span aria-hidden="true">↗</span></a>
           )}
+          <details className="content-details" aria-label="Question content details">
+            <summary>Question details <span aria-hidden="true">⌄</span></summary>
+            <dl>
+              <div><dt>Exam section</dt><dd>{question.examSection}</dd></div>
+              <div><dt>Objectives</dt><dd>{question.examObjectives.join(', ')}</dd></div>
+              <div><dt>Topics</dt><dd>{question.topics.join(', ')}</dd></div>
+              <div><dt>Difficulty</dt><dd>{question.difficulty}</dd></div>
+              {showInternalMetadata && <div><dt>Source</dt><dd>{question.questionSource}</dd></div>}
+              {showInternalMetadata && <div><dt>Review status</dt><dd>{question.reviewStatus}</dd></div>}
+              {showInternalMetadata && (question.terminologyStatus || question.terminologyNotes) && <div><dt>Terminology</dt><dd>{question.terminologyStatus || 'See note'}{question.terminologyNotes ? ` — ${question.terminologyNotes}` : ''}</dd></div>}
+              {question.isOutdated && <div><dt>Currency</dt><dd>Flagged as outdated</dd></div>}
+            </dl>
+          </details>
           <div className="ai-review-action">
             <div>
               <strong>Want another explanation?</strong>

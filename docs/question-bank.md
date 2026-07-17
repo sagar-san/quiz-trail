@@ -2,7 +2,7 @@
 
 `public/data/questions.csv` is the application's only question source. Do not maintain a second copy elsewhere in the repository.
 
-Additional editorial columns are allowed and preserved even when the app does not consume them. The current bank includes `terminology_status` and `terminology_notes` for content maintenance.
+The app consumes subject metadata for learner analytics and post-answer context. Semicolon-separated `exam_objectives` and `topics` values are treated as independent categories. Source, review-status, and terminology fields remain internal and appear post-answer only when `?debug=true` is present.
 
 ## Updating questions
 
@@ -33,6 +33,8 @@ An invalid row rejects the entire bank, preventing a silently incomplete dataset
 ```text
 question_id,question_type,question,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation,reference_url,chatgpt_verified
 ```
+
+Analytics also requires `exam_section`, `exam_objectives`, `topics`, `difficulty`, `question_source`, `review_status`, `is_outdated`, `terminology_status`, and `terminology_notes`. Question content and metadata remain in the CSV; learner progress continues to join by permanent `question_id`.
 
 ## Validation rules
 

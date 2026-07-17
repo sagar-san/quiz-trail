@@ -42,7 +42,9 @@ describe('App', () => {
     await waitFor(() => expect(store.save).toHaveBeenCalled());
     expect(screen.getByText('Progress saved')).toBeVisible();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    await userEvent.click(screen.getByRole('button', { name: 'Reset progress' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(screen.getByRole('heading', { name: 'Data & support' })).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Reset all progress' }));
     await waitFor(() => expect(store.reset).toHaveBeenCalled());
   });
 
@@ -53,6 +55,17 @@ describe('App', () => {
     const store = memoryStore(); store.load = vi.fn().mockRejectedValue(new Error('Bad storage'));
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('Bad storage')).toBeVisible();
+  });
+
+  it('opens a metadata-driven learning summary and returns to a review queue', async () => {
+    render(<App bankLoader={loader} progressStore={memoryStore()} />);
+    expect(await screen.findByText('3 questions')).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'View full summary →' }));
+    expect(screen.getByRole('heading', { name: 'See where you stand.' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'By exam section' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Review queue' })).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: /Unanswered/ }));
+    expect(screen.getByRole('button', { name: 'Submit answer' })).toBeVisible();
   });
 
   it('requires sign-in in Firebase mode and shows the signed-in identity', async () => {

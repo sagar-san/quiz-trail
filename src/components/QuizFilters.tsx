@@ -5,6 +5,7 @@ const filters: Array<{ value: QuizFilter; label: string }> = [
   { value: 'unanswered', label: 'Unanswered' },
   { value: 'incorrect', label: 'Incorrect' },
   { value: 'saved', label: 'Saved' },
+  { value: 'outdated', label: 'Outdated' },
 ];
 
 export function QuizFilters({ active, onChange }: { active: QuizFilter; onChange: (filter: QuizFilter) => void }) {

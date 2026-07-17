@@ -4,14 +4,12 @@ export function SaveProgressButton({
   error,
   storageNote,
   onSave,
-  onReset,
 }: {
   dirty: boolean;
   status: 'idle' | 'saving' | 'saved' | 'failed';
   error: string | null;
   storageNote: string;
   onSave: () => void;
-  onReset: () => void;
 }) {
   const label = status === 'saving' ? 'Saving…' : 'Save progress';
   return (
@@ -25,7 +23,6 @@ export function SaveProgressButton({
         {error && <p className="error-message">{error}</p>}
       </div>
       <div className="save-actions">
-        <button type="button" className="secondary-button danger-button" onClick={onReset}>Reset progress</button>
         <button type="button" className="primary-button" disabled={!dirty || status === 'saving'} onClick={onSave}>{label}</button>
       </div>
     </section>

@@ -14,6 +14,10 @@ Durable follow-up items that are intentionally deferred. Detailed implementation
 - [x] Add account deletion that removes both the signed-in user's Firebase Authentication identity and `userProgress/{uid}` Firestore document, with strong confirmation and Google reauthentication when Firebase requires a recent login.
 - [ ] Add a “Report this question” action and define where reports are submitted, including the question ID and useful review context.
 
+## Learning analytics
+
+- [ ] Track attempt counts and first/latest outcomes per `question_id`, then add first-attempt accuracy and improvement reporting. This requires a separately reviewed progress-schema and Firestore-rules migration; the current analytics MVP intentionally reports only the latest recorded outcome.
+
 ## Operational readiness
 
 - [x] Use the existing `quiz-trail` Firebase project as production; a separate staging project is intentionally unnecessary for this small free app. Use emulators for development and accept occasional live downtime.

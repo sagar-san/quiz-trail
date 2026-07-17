@@ -20,6 +20,9 @@ describe('quiz domain', () => {
     expect(filterQuestions(questions, state.progress, state.savedForLater, 'unanswered').map((q) => q.questionId)).toEqual(['PMLE-0002', 'PMLE-0003']);
     expect(filterQuestions(questions, state.progress, state.savedForLater, 'incorrect')[0].questionId).toBe('PMLE-0001');
     expect(filterQuestions(questions, state.progress, state.savedForLater, 'saved')[0].questionId).toBe('PMLE-0002');
+    expect(filterQuestions(questions, state.progress, state.savedForLater, 'outdated')).toEqual([]);
+    state = quizReducer(state, { type: 'answerSubmitted', questionId: 'PMLE-0003', correct: false });
+    expect(filterQuestions(questions, state.progress, state.savedForLater, 'outdated')[0].questionId).toBe('PMLE-0003');
     state = quizReducer(state, { type: 'savedToggled', questionId: 'PMLE-0002' });
     expect(state.savedForLater).toEqual([]);
   });

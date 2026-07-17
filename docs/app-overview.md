@@ -11,9 +11,10 @@ The public production site is <https://quiz-trail.web.app>. The single live Fire
 1. A visitor reads the PMLE overview and signs in with Google.
 2. The app loads and validates the full CSV question bank.
 3. The learner answers single- or multiple-choice questions and receives immediate feedback.
-4. All, Unanswered, Incorrect, and Saved views support review.
-5. Save Progress explicitly writes the current progress snapshot.
-6. The avatar menu opens Account & Data settings for sign out, progress reset, and account deletion.
+4. The Summary view shows coverage and current accuracy by exam section, objective, topic, and difficulty, plus meaningful strengths, weak areas, and review queues.
+5. All, Unanswered, Incorrect, Saved, and Outdated views support review; the outdated queue exposes only answered questions.
+6. Save Progress explicitly writes the current progress snapshot.
+7. Settings contains the destructive progress-reset action. In cloud mode, the avatar menu also provides sign out and account deletion; local mode has a direct Settings button.
 
 Account deletion requires typed confirmation and Google reauthentication. It deletes `userProgress/{uid}` and then the Firebase Authentication identity.
 
@@ -27,6 +28,8 @@ Account deletion requires typed confirmation and Google reauthentication. It del
 - Multiple-choice grading requires an exact match to the correct answer set.
 - A newly answered question remains visible long enough to read its feedback.
 - Browser unload warnings appear only while meaningful progress changes remain unsaved.
+- Internal source, review-status, and terminology metadata appears after answering only when the page is opened with `?debug=true`.
+- Post-answer question metadata is collapsed by default behind a compact “Question details” disclosure.
 
 ## Data and identity
 
@@ -69,7 +72,7 @@ Read `docs/question-bank.md` before changing question content.
 - There is intentionally no separate staging Firebase project. Use emulators for development.
 - Questions remain a versioned CSV rather than live Firestore content.
 - Saves remain explicit rather than automatic.
-- No timed exams, attempt history, leaderboard, adaptive learning, or admin question editor is currently planned.
+- No timed exams, attempt history, leaderboard, adaptive learning, or admin question editor is currently implemented. Analytics reports the latest recorded outcome; attempt counts and first/latest comparisons are deferred in `TODO.md`.
 - Billing changes, App Check enforcement, OAuth changes, domain verification, live rule changes, and production deployments require explicit product-owner approval.
 
 Use `session.md` for current status, `TODO.md` for deferred work, and `docs/release-runbook.md` for operations.

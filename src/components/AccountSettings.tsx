@@ -10,8 +10,10 @@ export function AccountSettings({
   onReset,
   onSignOut,
   onDelete,
+  mode,
 }: {
   user: AuthUser;
+  mode: 'local' | 'firebase';
   busy: boolean;
   error: string | null;
   paypalUrl?: string;
@@ -29,23 +31,23 @@ export function AccountSettings({
       <button className="settings-back" type="button" onClick={onBack}>← Back to quiz</button>
       <div className="settings-heading">
         <p className="eyebrow">Settings</p>
-        <h1>Account &amp; data</h1>
-        <p>Manage your Quiz Trail account and the progress saved to it.</p>
+        <h1>{mode === 'firebase' ? 'Account & data' : 'Data & support'}</h1>
+        <p>{mode === 'firebase' ? 'Manage your Quiz Trail account and the progress saved to it.' : 'Manage the Quiz Trail progress saved in this browser.'}</p>
       </div>
 
-      <section className="settings-card" aria-labelledby="account-heading">
+      {mode === 'firebase' && <section className="settings-card" aria-labelledby="account-heading">
         <h2 id="account-heading">Your account</h2>
         <div className="account-profile">
           {user.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" /> : <span aria-hidden="true">{user.displayName.charAt(0).toUpperCase()}</span>}
           <div><strong>{user.displayName}</strong>{user.email && <p>{user.email}</p>}</div>
         </div>
         <button className="secondary-button" type="button" disabled={busy} onClick={onSignOut}>Sign out</button>
-      </section>
+      </section>}
 
       <section className="settings-card" aria-labelledby="data-heading">
         <h2 id="data-heading">Your quiz data</h2>
-        <p>Your answers, bookmarks, and saved return point are stored in Firebase and linked to your account. Changes are uploaded only when you choose Save progress.</p>
-        <button className="secondary-button danger-button" type="button" disabled={busy} onClick={onReset}>Reset quiz progress</button>
+        <p>{mode === 'firebase' ? 'Your answers, bookmarks, and saved return point are stored in Firebase and linked to your account. Changes are uploaded only when you choose Save progress.' : 'Your answers and bookmarks are stored only in this browser when you choose Save progress.'}</p>
+        <button className="secondary-button danger-button" type="button" disabled={busy} onClick={onReset}>Reset all progress</button>
       </section>
 
       <section className="settings-card" aria-labelledby="support-heading">
@@ -57,7 +59,7 @@ export function AccountSettings({
         </div>
       </section>
 
-      <section className="settings-card danger-zone" aria-labelledby="delete-heading">
+      {mode === 'firebase' && <section className="settings-card danger-zone" aria-labelledby="delete-heading">
         <h2 id="delete-heading">Delete account</h2>
         <p>Permanently delete your Firebase account and all saved Quiz Trail progress. This cannot be undone.</p>
         {!confirmingDelete ? (
@@ -74,7 +76,7 @@ export function AccountSettings({
           </div>
         )}
         {error && <p className="error-message" role="alert">{error}</p>}
-      </section>
+      </section>}
     </main>
   );
 }
