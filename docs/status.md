@@ -4,18 +4,21 @@ Last reviewed: 2026-07-17
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `97a336b` (`feat: add learner analytics summary`).
+- The production application is live at <https://quiz-trail.web.app> from commit `7fd2f68` (`feat: add question feedback with Firestore sync and kill-switch`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
-- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, contribution/source links, a post-answer AI review prompt, and a debug-only Firestore question feedback form.
+- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, contribution/source links, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
 ## Recent verification
 
-On 2026-07-17, the documentation consolidation passed relative-link and stale-path checks, `git diff --check`, and question-bank preflight (408 valid rows).
+On 2026-07-17, for the question feedback release, the following passed:
+- Typecheck, lint, unit tests, and production build checks.
+- Firestore security rules testing on local emulator.
+- Remote Git commit push and complete Hosting/Rules deployment.
+- Smoke tests verified correct cache headers and asset responses.
 
 The following passed on 2026-07-16 for the deployed learner-analytics release:
-
 - Typecheck, lint, unit tests, CSV preflight, and local browser tests.
 - Authentication emulator tests, Firestore rules/progress tests, and Firebase-mode browser tests.
 - Production cloud build and Hosting smoke checks.
