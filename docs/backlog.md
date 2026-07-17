@@ -4,7 +4,7 @@ This file contains durable work that has been deliberately deferred. It records 
 
 ## Account and feedback
 
-- [ ] Add a Report this question action and define where reports are submitted, including the question ID and useful review context.
+- [x] Add a Report this question action and define where reports are submitted, including the question ID and useful review context.
 
 ## Learning analytics
 

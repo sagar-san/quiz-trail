@@ -6,7 +6,7 @@ Last reviewed: 2026-07-17
 
 - The production application is live at <https://quiz-trail.web.app> from commit `97a336b` (`feat: add learner analytics summary`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
-- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, contribution/source links, and a post-answer AI review prompt.
+- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, contribution/source links, a post-answer AI review prompt, and a debug-only Firestore question feedback form.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
@@ -30,6 +30,4 @@ Verification is historical evidence, not a substitute for rerunning checks relev
 - App Check is not enforced, billing ownership and budget alerts remain unresolved, and a custom domain is optional.
 - Analytics currently reports only the latest outcome per question; attempt history needs a separately reviewed persistence migration.
 
-## Recommended next work
-
-The highest-priority product follow-up is a Report this question workflow that opens a prefilled GitHub issue containing the question ID and useful review context. See [`backlog.md`](backlog.md) for deferred scope and approval boundaries.
+Deploy the newly added Firestore question feedback form and security rules to production. Create the `/config/feedback` document in the Firestore production environment with `{ enabled: true }` to allow submissions.

@@ -50,6 +50,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Summary analytics use the latest recorded outcome for each question. Attempt history, first-attempt accuracy, and improvement reporting are not currently available.
 - Strength and weak-area guidance is sample-gated so very small samples are not presented as meaningful conclusions.
 - Editorial source, review-status, and terminology metadata is hidden from ordinary learners. Maintainers can inspect it after answering by loading the page with `?debug=true`.
+- Maintainers can submit feedback on bad questions through a feedback form when `?debug=true` is active.
 - Post-answer metadata is collapsed behind a Question details disclosure.
 
 ## Accounts and data

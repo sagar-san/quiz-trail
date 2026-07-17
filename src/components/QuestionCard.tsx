@@ -10,6 +10,7 @@ interface QuestionCardProps {
   showInternalMetadata?: boolean;
   onSubmit: (correct: boolean) => void;
   onToggleSaved: () => void;
+  onSubmitFeedback?: (feedbackText: string) => Promise<void>;
 }
 
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
@@ -51,10 +52,38 @@ function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[]) {
   ].join('\n');
 }
 
-export function QuestionCard({ question, position, total, saved, priorOutcome, showInternalMetadata = false, onSubmit, onToggleSaved }: QuestionCardProps) {
+export function QuestionCard({
+  question,
+  position,
+  total,
+  saved,
+  priorOutcome,
+  showInternalMetadata = false,
+  onSubmit,
+  onToggleSaved,
+  onSubmitFeedback,
+}: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'submitted' | 'failed'>('idle');
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackText.trim() || !onSubmitFeedback) return;
+    setFeedbackStatus('submitting');
+    setFeedbackError(null);
+    try {
+      await onSubmitFeedback(feedbackText.trim());
+      setFeedbackStatus('submitted');
+      setFeedbackText('');
+    } catch (err) {
+      setFeedbackStatus('failed');
+      setFeedbackError(err instanceof Error ? err.message : 'Failed to submit feedback.');
+    }
+  };
 
   const multiple = question.questionType === 'multiple_choice';
   const reviewPrompt = buildReviewPrompt(question, selected);
@@ -136,35 +165,72 @@ export function QuestionCard({ question, position, total, saved, priorOutcome, s
           {question.referenceUrl && (
             <a href={question.referenceUrl} target="_blank" rel="noopener noreferrer">Read the reference <span aria-hidden="true">↗</span></a>
           )}
-          <details className="content-details" aria-label="Question content details">
-            <summary>Question details <span aria-hidden="true">⌄</span></summary>
-            <dl>
-              <div><dt>Exam section</dt><dd>{question.examSection}</dd></div>
-              <div><dt>Objectives</dt><dd>{question.examObjectives.join(', ')}</dd></div>
-              <div><dt>Topics</dt><dd>{question.topics.join(', ')}</dd></div>
-              <div><dt>Difficulty</dt><dd>{question.difficulty}</dd></div>
-              {showInternalMetadata && <div><dt>Source</dt><dd>{question.questionSource}</dd></div>}
-              {showInternalMetadata && <div><dt>Review status</dt><dd>{question.reviewStatus}</dd></div>}
-              {showInternalMetadata && (question.terminologyStatus || question.terminologyNotes) && <div><dt>Terminology</dt><dd>{question.terminologyStatus || 'See note'}{question.terminologyNotes ? ` — ${question.terminologyNotes}` : ''}</dd></div>}
-              {question.isOutdated && <div><dt>Currency</dt><dd>Flagged as outdated</dd></div>}
-            </dl>
-          </details>
-          <div className="ai-review-action">
-            <div>
-              <strong>Want another explanation?</strong>
-              <span>
-                Copy the question context, then paste it into{' '}
-                <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>,{' '}
-                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>,{' '}
-                <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a>, or your preferred AI app.
-              </span>
+          <details className="more-options-details" aria-label="More options">
+            <summary>More <span aria-hidden="true">⌄</span></summary>
+            <div className="more-options-content">
+              <div className="ai-review-action">
+                <div>
+                  <strong>Want another explanation?</strong>
+                  <span>
+                    Copy the question context, then paste it into{' '}
+                    <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>,{' '}
+                    <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>,{' '}
+                    <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a>, or your preferred AI app.
+                  </span>
+                </div>
+                <button type="button" className="secondary-button" onClick={() => void copyReviewPrompt()}>
+                  {copyStatus === 'copied' ? 'Copied!' : 'Copy AI review prompt'}
+                </button>
+              </div>
+              {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
+              <p className="ai-review-note">Only question content is copied. AI responses may be inaccurate.</p>
+              {showInternalMetadata && onSubmitFeedback && (
+                <div className="maintainer-feedback-action">
+                  <h4>Maintainer Feedback (Bad Question?)</h4>
+                  {feedbackStatus === 'submitted' ? (
+                    <p className="feedback-success">Feedback submitted successfully. Thank you!</p>
+                  ) : (
+                    <form onSubmit={handleFeedbackSubmit}>
+                      <textarea
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        placeholder="Describe why this question is bad or incorrect..."
+                        maxLength={1000}
+                        disabled={feedbackStatus === 'submitting'}
+                        rows={3}
+                      />
+                      <div className="feedback-form-actions">
+                        <span>{feedbackText.length}/1000 characters</span>
+                        <button
+                          type="submit"
+                          className="secondary-button"
+                          disabled={!feedbackText.trim() || feedbackStatus === 'submitting'}
+                        >
+                          {feedbackStatus === 'submitting' ? 'Submitting...' : 'Submit feedback'}
+                        </button>
+                      </div>
+                      {feedbackStatus === 'failed' && (
+                        <p className="feedback-error" role="alert">{feedbackError || 'Failed to submit feedback.'}</p>
+                      )}
+                    </form>
+                  )}
+                </div>
+              )}
+              <div className="content-metadata-section" aria-label="Question content details">
+                <h4>Question details</h4>
+                <dl className="content-metadata-list">
+                  <div><dt>Exam section</dt><dd>{question.examSection}</dd></div>
+                  <div><dt>Objectives</dt><dd>{question.examObjectives.join(', ')}</dd></div>
+                  <div><dt>Topics</dt><dd>{question.topics.join(', ')}</dd></div>
+                  <div><dt>Difficulty</dt><dd>{question.difficulty}</dd></div>
+                  {showInternalMetadata && <div><dt>Source</dt><dd>{question.questionSource}</dd></div>}
+                  {showInternalMetadata && <div><dt>Review status</dt><dd>{question.reviewStatus}</dd></div>}
+                  {showInternalMetadata && (question.terminologyStatus || question.terminologyNotes) && <div><dt>Terminology</dt><dd>{question.terminologyStatus || 'See note'}{question.terminologyNotes ? ` — ${question.terminologyNotes}` : ''}</dd></div>}
+                  {question.isOutdated && <div><dt>Currency</dt><dd>Flagged as outdated</dd></div>}
+                </dl>
+              </div>
             </div>
-            <button type="button" className="secondary-button" onClick={() => void copyReviewPrompt()}>
-              {copyStatus === 'copied' ? 'Copied!' : 'Copy AI review prompt'}
-            </button>
-          </div>
-          {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
-          <p className="ai-review-note">Only question content is copied. AI responses may be inaccurate.</p>
+          </details>
         </div>
       )}
     </article>

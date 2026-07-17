@@ -112,6 +112,30 @@ The store remembers the revision it loaded. Each save runs in a transaction and 
 
 Firestore rules restrict reads and writes to the authenticated owner, allow only the expected fields, validate schema and collection sizes, require monotonically increasing revisions, and require a server timestamp. Question text and account profile data are not stored in the progress document.
 
+### Question feedback
+
+Bad question feedback is stored at:
+
+```text
+questionFeedback/{questionId}
+```
+
+The Firestore document contains:
+
+- `feedbacks`: an array of feedback entries containing the feedback `text` (max 1000 characters), `userId`, and `submittedAt` (ISO date-time string).
+
+Updates use Firestore's `arrayUnion` operation to append new feedback to the array.
+
+### Kill-switch config
+
+A config document at:
+
+```text
+config/feedback
+```
+
+contains an `enabled` boolean flag. Firestore security rules read this document to dynamically block incoming writes to `questionFeedback` if spamming occurs.
+
 ## Question-bank identity and reconciliation
 
 `public/data/questions.csv` is the canonical and only runtime question source. The normal HTTPS path derives a shortened SHA-256 version marker from the exact file bytes. In insecure local-network contexts without Web Crypto, the loader uses a deterministic FNV-1a fallback marker.

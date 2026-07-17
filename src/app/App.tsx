@@ -17,12 +17,14 @@ import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore'
 import type { ProgressStore } from '../storage/ProgressStore';
 import { LocalStorageQuizPreferences, type QuizPreferences } from '../storage/QuizPreferences';
 import { reconcileProgress } from '../storage/reconcileProgress';
+import { LocalFeedbackStore, type FeedbackStore } from '../storage/FeedbackStore';
 
 export interface AppProps {
   bankLoader?: () => Promise<LoadedQuestionBank>;
   progressStore?: ProgressStore;
   preferences?: QuizPreferences;
   authService?: AuthService;
+  feedbackStore?: FeedbackStore;
   dataMode?: DataMode;
 }
 
@@ -31,6 +33,7 @@ export function App({
   progressStore,
   preferences,
   authService,
+  feedbackStore,
   dataMode = 'local',
 }: AppProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
@@ -48,6 +51,7 @@ export function App({
   const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
+  const feedback = useMemo(() => feedbackStore ?? new LocalFeedbackStore(), [feedbackStore]);
   const accountMenu = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -283,6 +287,10 @@ export function App({
               showInternalMetadata={debugMetadata}
               onSubmit={(correct) => dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct })}
               onToggleSaved={() => dispatch({ type: 'savedToggled', questionId: current.questionId })}
+              onSubmitFeedback={async (feedbackText) => {
+                const userId = user?.uid || 'anonymous';
+                await feedback.submitFeedback(current.questionId, feedbackText, userId);
+              }}
             />
             <QuestionNavigation
               hasPrevious={currentIndex > 0}

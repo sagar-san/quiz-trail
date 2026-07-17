@@ -26,6 +26,7 @@ npm run dev             # local-storage mode
 npm run emulators       # Auth, Firestore, Hosting, and Emulator UI
 npm run dev:firebase    # app connected to already-running emulators
 npm run preflight       # validate and summarize the question bank
+npm run download-feedback # download bad question feedback to markdown file
 npm run typecheck
 npm run lint
 npm run test
