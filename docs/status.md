@@ -1,13 +1,12 @@
 # Current status
 
-Last reviewed: 2026-07-19
+Last reviewed: 2026-07-20
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `bb0d20d` (`feat: improve SEO metadata and add favicon`).
+- The production application is live at <https://quiz-trail.web.app> from commit `54e03fd` (`feat: add public study and support pages`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
-- The working tree adds Buy Me a Coffee support, a GitHub-star fallback in Settings, a public SEO-focused FAQ at `/faq`, and ten curated canonical-bank questions at `/sample-questions`; these changes are verified locally but are not yet deployed.
-- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, contribution/source links, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
+- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
@@ -16,6 +15,7 @@ Last reviewed: 2026-07-19
 On 2026-07-20, for the Buy Me a Coffee, FAQ, and sample-question changes, the following passed locally:
 - Typecheck, targeted lint, all 57 unit tests, and the production build.
 - All 12 local browser tests across desktop and mobile, including FAQ and sample-question routing, route-specific metadata, JSON-LD structured data, sitemap coverage, accessibility, responsive overflow, and returning to practice.
+- The Firebase-mode production build, commit push, and Hosting-only production deployment succeeded. Live smoke checks returned HTTP 200 for `/`, `/faq`, `/sample-questions`, the sitemap, and the question CSV; the sitemap contained all three public routes, and the homepage and CSV retained `Cache-Control: no-cache`.
 
 On 2026-07-19, for the SEO metadata and favicon release, the following passed:
 - Typecheck, targeted lint, all 55 unit tests, and the production build.
