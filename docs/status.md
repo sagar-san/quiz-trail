@@ -6,11 +6,16 @@ Last reviewed: 2026-07-20
 
 - The production application is live at <https://quiz-trail.web.app> from commit `1507ac4` (`feat: highlight sample questions`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
+- The working tree further emphasizes that all 408 questions are free, adds contribution links inside the FAQ answer, removes the sample CTA from the active quiz introduction, and scrolls initial quiz loads to just above Your progress; these changes are verified locally but not deployed.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
 ## Recent verification
+
+On 2026-07-20, for the free-bank messaging, FAQ links, quiz-intro cleanup, and initial progress scroll, the following passed locally:
+- Typecheck, all 57 unit tests, targeted lint, and the production build.
+- The full browser suite passed all unchanged flows; the new scroll-position test passed on desktop and mobile after a deterministic offset fix.
 
 On 2026-07-20, for the PMLE overview hierarchy and footer redesign, the following passed locally:
 - Typecheck, targeted lint, all 57 unit tests, and the production build.

@@ -25,6 +25,22 @@ test('publishes search and sharing metadata', async ({ page }) => {
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/sample-questions</loc>');
 });
 
+test('initial load scrolls to just above progress', async ({ page }) => {
+  await page.waitForFunction(() => {
+    const header = document.querySelector('.site-header');
+    const progressStart = document.querySelector('#progress-start');
+    if (!header || !progressStart) return false;
+    const y = progressStart.getBoundingClientRect().y;
+    return y >= header.getBoundingClientRect().height + 38 && y <= header.getBoundingClientRect().height + 46;
+  });
+  const header = await page.locator('.site-header').boundingBox();
+  const progressStart = await page.locator('#progress-start').boundingBox();
+  expect(header).not.toBeNull();
+  expect(progressStart).not.toBeNull();
+  expect(progressStart!.y).toBeGreaterThanOrEqual(header!.height + 38);
+  expect(progressStart!.y).toBeLessThanOrEqual(header!.height + 46);
+});
+
 test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
   await page.getByRole('link', { name: 'FAQ', exact: true }).first().click();
   await expect(page).toHaveURL(/\/faq$/);
@@ -40,7 +56,7 @@ test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
 });
 
 test('sample page publishes ten canonical questions with explanations', async ({ page }) => {
-  await page.getByRole('link', { name: /Try 10 free PMLE sample questions/ }).click();
+  await page.goto('/sample-questions');
   await expect(page).toHaveURL(/\/sample-questions$/);
   await expect(page).toHaveTitle('10 Google Cloud PMLE Sample Questions | Quiz Trail');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/sample-questions');

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthService';
@@ -35,7 +35,7 @@ describe('App', () => {
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
     expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
-    expect(screen.getByRole('link', { name: /Try 10 free PMLE sample questions/ })).toHaveAttribute('href', '/sample-questions');
+    expect(screen.queryByRole('link', { name: /Try 10 free PMLE sample questions/ })).not.toBeInTheDocument();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
@@ -75,6 +75,7 @@ describe('App', () => {
     render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
 
     expect(screen.getByRole('heading', { name: 'What is the PMLE?' })).toBeVisible();
+    expect(screen.getByText('All 408 practice questions are completely free.')).toBeVisible();
     expect(screen.getByRole('link', { name: /Official certification/ })).toHaveAttribute('href', 'https://cloud.google.com/learn/certification/machine-learning-engineer');
     expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     expect(screen.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
@@ -137,6 +138,9 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Are these the real certification exam questions?' })).toBeVisible();
+    const freeAnswer = screen.getByRole('heading', { name: 'Is Quiz Trail free?' }).closest('section')!;
+    expect(within(freeAnswer).getByRole('link', { name: 'Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    expect(within(freeAnswer).getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     expect(document.title).toBe('Google Cloud PMLE Practice FAQ | Quiz Trail');
     expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq');
     expect([...document.querySelectorAll('script[type="application/ld+json"]')].some((script) => script.textContent?.includes('FAQPage'))).toBe(true);

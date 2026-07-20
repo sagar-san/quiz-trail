@@ -40,6 +40,13 @@ const faqs = [
   {
     question: 'Is Quiz Trail free?',
     answer: 'Yes. Quiz Trail is free and open source. Optional contributions through Buy Me a Coffee help cover cloud costs, and starring the project on GitHub is a free way to support it.',
+    content: <>
+      Yes. Quiz Trail is free and open source. Optional contributions through{' '}
+      <a href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a>{' '}
+      help cover cloud costs, and starring the project on{' '}
+      <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub</a>{' '}
+      is a free way to support it.
+    </>,
   },
   {
     question: 'How can I report an incorrect or outdated question?',
@@ -99,10 +106,10 @@ export function FaqPage({ onBack }: { onBack: () => void }) {
           <p>How Quiz Trail works, what the question bank covers, and how to make your study time count.</p>
         </header>
         <div className="faq-list">
-          {faqs.map(({ question, answer }) => (
+          {faqs.map(({ question, answer, content }) => (
             <section className="faq-card" key={question}>
               <h2>{question}</h2>
-              <p>{answer}</p>
+              <p>{content ?? answer}</p>
             </section>
           ))}
         </div>

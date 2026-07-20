@@ -17,7 +17,7 @@ export function ProgressSummary({ counts, onOpenSummary }: ProgressSummaryProps)
     <section className="progress-panel" aria-labelledby="progress-title">
       <div className="progress-heading">
         <div>
-          <p className="eyebrow">Your progress</p>
+          <p className="eyebrow" id="progress-start">Your progress</p>
           <h2 id="progress-title">{percentage}% explored</h2>
         </div>
         <div className="progress-heading-actions"><span className="total-count">{counts.total} questions</span><button type="button" onClick={onOpenSummary}>View full summary →</button></div>

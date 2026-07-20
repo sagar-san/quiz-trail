@@ -10,14 +10,18 @@ export function PmleOverview() {
           The Google Cloud Professional Machine Learning Engineer certification covers designing, building, productionizing,
           and improving scalable AI and machine learning solutions—from data and model architecture to MLOps and monitoring.
         </p>
+        <p className="pmle-free-message">
+          <strong>All 408 practice questions are completely free.</strong>
+          <span>No paywall, trial, or premium question tier.</span>
+        </p>
         <p>
-          This carefully curated bank of 408 practice questions is maintained to reflect the current exam. New here?{' '}
+          The question bank is carefully curated and maintained to reflect the current exam. New here?{' '}
           <a href="/sample-questions">Preview ten representative questions</a> before starting the full bank.
         </p>
       </div>
       <div className="pmle-preview">
         <a className="pmle-sample-cta" href="/sample-questions">
-          <span>Free preview</span>
+          <span>Preview</span>
           <strong>Try 10 free PMLE sample questions</strong>
           <small>No sign-in required · Answers, explanations, and official references included.</small>
           <b aria-hidden="true">→</b>

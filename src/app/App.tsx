@@ -58,6 +58,7 @@ export function App({
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
   const feedback = useMemo(() => feedbackStore ?? new LocalFeedbackStore(), [feedbackStore]);
   const accountMenu = useRef<HTMLDivElement>(null);
+  const initialProgressScrollDone = useRef(window.location.pathname.replace(/\/$/, '') !== '');
 
   useEffect(() => {
     const syncPage = () => {
@@ -84,6 +85,22 @@ export function App({
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [accountMenuOpen]);
+
+  useEffect(() => {
+    if (initialProgressScrollDone.current || loading || !state.questions.length || settingsOpen || activeView !== 'practice') return;
+    initialProgressScrollDone.current = true;
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById('progress-start');
+      if (!target || typeof window.scrollTo !== 'function') return;
+      const headerHeight = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
+      const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 42;
+      const priorScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+      document.documentElement.style.scrollBehavior = priorScrollBehavior;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView, loading, settingsOpen, state.questions.length]);
 
   useEffect(() => auth.subscribe((nextUser) => {
     setUser(nextUser);
@@ -335,7 +352,6 @@ export function App({
           <p className="eyebrow">PMLE practice</p>
           <h1>One question at a time. <em>Keep moving forward.</em></h1>
           <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
-          <a className="intro-link" href="/sample-questions" onClick={(event) => { event.preventDefault(); openSamples(); }}>Try 10 free PMLE sample questions →</a>
         </section>
         <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
         {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
