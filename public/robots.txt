@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quiz-trail.web.app/sitemap.xml

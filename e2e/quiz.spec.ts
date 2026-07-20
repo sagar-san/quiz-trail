@@ -6,6 +6,23 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByText('408 questions')).toBeVisible();
 });
 
+test('publishes search and sharing metadata', async ({ page }) => {
+  await expect(page).toHaveTitle('Quiz Trail — Google Cloud PMLE Practice Questions');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /carefully curated bank of 408 practice questions/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/');
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
+
+  const robots = await page.request.get('/robots.txt');
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain('Sitemap: https://quiz-trail.web.app/sitemap.xml');
+
+  const sitemap = await page.request.get('/sitemap.xml');
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/</loc>');
+});
+
 test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {
   const firstCard = page.locator('.question-card');
   const firstQuestionId = await firstCard.locator('.question-meta span').last().textContent();

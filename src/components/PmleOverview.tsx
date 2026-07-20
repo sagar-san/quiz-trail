@@ -22,7 +22,7 @@ export function PmleOverview({ paypalUrl }: { paypalUrl?: string }) {
           The Google Cloud Professional Machine Learning Engineer certification covers designing, building, productionizing,
           and improving scalable AI and machine learning solutions—from data and model architecture to MLOps and monitoring.
         </p>
-        <p>This carefully curated practice bank is maintained to reflect the current exam and was updated in August 2026.</p>
+        <p>This carefully curated bank of 408 practice questions is maintained to reflect the current exam.</p>
       </div>
       <div className="pmle-links">
         <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">View the official PMLE certification <span aria-hidden="true">↗</span></a>
