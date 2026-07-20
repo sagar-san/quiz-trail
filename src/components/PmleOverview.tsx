@@ -1,36 +1,33 @@
 const CERTIFICATION_URL = 'https://cloud.google.com/learn/certification/machine-learning-engineer';
-const SOURCE_URL = 'https://github.com/Ameenota/quiz-trail';
 
-function safeExternalUrl(raw?: string) {
-  if (!raw) return null;
-  try {
-    const url = new URL(raw);
-    return ['https:', 'http:'].includes(url.protocol) ? url.href : null;
-  } catch {
-    return null;
-  }
-}
-
-export function PmleOverview({ buyMeACoffeeUrl }: { buyMeACoffeeUrl?: string }) {
-  const supportUrl = safeExternalUrl(buyMeACoffeeUrl);
+export function PmleOverview() {
   return (
     <section className="pmle-overview" aria-labelledby="pmle-overview-heading">
-      <div>
+      <div className="pmle-copy">
         <p className="eyebrow">About the certification</p>
         <h2 id="pmle-overview-heading">What is the PMLE?</h2>
         <p>
           The Google Cloud Professional Machine Learning Engineer certification covers designing, building, productionizing,
           and improving scalable AI and machine learning solutions—from data and model architecture to MLOps and monitoring.
         </p>
-        <p>This carefully curated bank of 408 practice questions is maintained to reflect the current exam.</p>
+        <p>
+          This carefully curated bank of 408 practice questions is maintained to reflect the current exam. New here?{' '}
+          <a href="/sample-questions">Preview ten representative questions</a> before starting the full bank.
+        </p>
       </div>
-      <div className="pmle-links">
-        <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">View the official PMLE certification <span aria-hidden="true">↗</span></a>
-        <a href="/sample-questions">Try 10 free PMLE sample questions</a>
-        <a href="/faq">Read the PMLE practice FAQ</a>
-        {supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer">Support Quiz Trail on Buy Me a Coffee <span aria-hidden="true">↗</span></a>}
-        <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">View the source on GitHub <span aria-hidden="true">↗</span></a>
+      <div className="pmle-preview">
+        <a className="pmle-sample-cta" href="/sample-questions">
+          <span>Free preview</span>
+          <strong>Try 10 free PMLE sample questions</strong>
+          <small>No sign-in required · Answers, explanations, and official references included.</small>
+          <b aria-hidden="true">→</b>
+        </a>
+        <p className="pmle-trust-note">Independent study tool · Not affiliated with Google</p>
       </div>
+      <nav className="pmle-secondary-links" aria-label="PMLE resources">
+        <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">Official certification <span aria-hidden="true">↗</span></a>
+        <a href="/faq">Practice FAQ</a>
+      </nav>
     </section>
   );
 }

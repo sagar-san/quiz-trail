@@ -246,7 +246,7 @@ export function App({
         <button className="header-button" type="button" onClick={closeFaq}>Practice</button>
       </header>
       <FaqPage onBack={closeFaq} />
-      <footer><span>Quiz Trail</span><div><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a></div></footer>
+      <footer><span>Quiz Trail</span><div><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></div></footer>
     </>
   );
   if (samplesOpen) return (
@@ -259,22 +259,25 @@ export function App({
         </div>
       </header>
       <SampleQuestionsPage bankLoader={bankLoader} onBack={closeFaq} />
-      <footer><span>Quiz Trail</span><div><a href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a></div></footer>
+      <footer><span>Quiz Trail</span><div><a href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></div></footer>
     </>
   );
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
   if (!user) return (
-    <main className="centered-state auth-state">
-      <span className="brand-mark" aria-hidden="true">Q</span>
-      <p className="eyebrow">PMLE practice</p>
-      <h1>Continue your trail</h1>
-      <p>Sign in with Google to load and save your progress across devices.</p>
-      <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
-        {authBusy ? 'Opening Google…' : 'Sign in with Google'}
-      </button>
-      {authError && <p className="error-message" role="alert">{authError}</p>}
-      <PmleOverview buyMeACoffeeUrl={buyMeACoffeeUrl} />
-    </main>
+    <>
+      <main className="centered-state auth-state">
+        <span className="brand-mark" aria-hidden="true">Q</span>
+        <p className="eyebrow">PMLE practice</p>
+        <h1>Continue your trail</h1>
+        <p>Sign in with Google to load and save your progress across devices.</p>
+        <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
+          {authBusy ? 'Opening Google…' : 'Sign in with Google'}
+        </button>
+        {authError && <p className="error-message" role="alert">{authError}</p>}
+        <PmleOverview />
+      </main>
+      <footer><span>Quiz Trail</span><div><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></div></footer>
+    </>
   );
   if (loading) return <main className="centered-state"><div className="loader" /><h1>Loading your trail…</h1><p>Preparing the question bank.</p></main>;
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
@@ -385,7 +388,8 @@ export function App({
           <span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span>
           <a href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a>
           <a href="/sample-questions" onClick={(event) => { event.preventDefault(); openSamples(); }}>Sample questions</a>
-          <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+          <a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
         </div>
       </footer>
     </>

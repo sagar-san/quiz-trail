@@ -6,11 +6,16 @@ Last reviewed: 2026-07-20
 
 - The production application is live at <https://quiz-trail.web.app> from commit `54e03fd` (`feat: add public study and support pages`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
+- The working tree redesigns the signed-out PMLE overview so sample questions are the primary call to action and moves GitHub and Buy Me a Coffee into the site footer; this is verified locally but not deployed.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
 ## Recent verification
+
+On 2026-07-20, for the PMLE overview hierarchy and footer redesign, the following passed locally:
+- Typecheck, targeted lint, all 57 unit tests, and the production build.
+- All 12 local browser tests across desktop and mobile, including accessibility and horizontal-overflow checks.
 
 On 2026-07-20, for the Buy Me a Coffee, FAQ, and sample-question changes, the following passed locally:
 - Typecheck, targeted lint, all 57 unit tests, and the production build.
