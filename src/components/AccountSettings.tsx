@@ -5,7 +5,7 @@ export function AccountSettings({
   user,
   busy,
   error,
-  paypalUrl,
+  buyMeACoffeeUrl,
   onBack,
   onReset,
   onSignOut,
@@ -16,7 +16,7 @@ export function AccountSettings({
   mode: 'local' | 'firebase';
   busy: boolean;
   error: string | null;
-  paypalUrl?: string;
+  buyMeACoffeeUrl?: string;
   onBack: () => void;
   onReset: () => void;
   onSignOut: () => void;
@@ -24,7 +24,7 @@ export function AccountSettings({
 }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmation, setConfirmation] = useState('');
-  const supportUrl = paypalUrl && /^https?:\/\//.test(paypalUrl) ? paypalUrl : undefined;
+  const supportUrl = buyMeACoffeeUrl && /^https?:\/\//.test(buyMeACoffeeUrl) ? buyMeACoffeeUrl : undefined;
 
   return (
     <main className="settings-shell">
@@ -52,10 +52,11 @@ export function AccountSettings({
 
       <section className="settings-card" aria-labelledby="support-heading">
         <h2 id="support-heading">Support</h2>
-        <p>Found a bug, an outdated question, or have an idea? Open a public GitHub issue and do not include personal or account information.</p>
+        <p>Found a bug, an outdated question, or have an idea? Open a public GitHub issue and do not include personal or account information. If a contribution is not an option, starring Quiz Trail on GitHub is a free way to help others find it.</p>
         <div className="settings-links">
           <a className="settings-link" href="https://github.com/Ameenota/quiz-trail/issues/new/choose" target="_blank" rel="noopener noreferrer">Open a GitHub issue</a>
-          {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support cloud costs via PayPal</a>}
+          {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support via Buy Me a Coffee</a>}
+          <a className="settings-link" href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">Star Quiz Trail on GitHub</a>
         </div>
       </section>
 

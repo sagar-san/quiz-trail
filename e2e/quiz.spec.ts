@@ -21,6 +21,41 @@ test('publishes search and sharing metadata', async ({ page }) => {
   const sitemap = await page.request.get('/sitemap.xml');
   expect(sitemap.ok()).toBe(true);
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/faq</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/sample-questions</loc>');
+});
+
+test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
+  await page.getByRole('link', { name: 'FAQ', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/faq$/);
+  await expect(page).toHaveTitle('Google Cloud PMLE Practice FAQ | Quiz Trail');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq');
+  await expect(page.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
+  const faqSchema = page.locator('script[data-quiz-trail-schema="faq"]');
+  await expect(faqSchema).toHaveCount(1);
+  expect(await faqSchema.evaluate((script) => script.textContent)).toContain('FAQPage');
+  await page.getByRole('button', { name: 'Start practicing' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('408 questions')).toBeVisible();
+});
+
+test('sample page publishes ten canonical questions with explanations', async ({ page }) => {
+  await page.getByRole('link', { name: /Try 10 free PMLE sample questions/ }).click();
+  await expect(page).toHaveURL(/\/sample-questions$/);
+  await expect(page).toHaveTitle('10 Google Cloud PMLE Sample Questions | Quiz Trail');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/sample-questions');
+  await expect(page.locator('.sample-card')).toHaveCount(10);
+  await expect(page.locator('.sample-card').first()).toContainText('A RAG application must serve users in two geographic regions');
+  await page.locator('.sample-answer summary').first().click();
+  await expect(page.locator('.sample-answer').first()).toContainText('Regional co-location or compliant replication');
+
+  await page.addScriptTag({ content: axe.source });
+  const violations = await page.evaluate(async () => {
+    const results = await window.axe.run('.samples-shell');
+    return results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''));
+  });
+  expect(violations).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 });
 
 test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {

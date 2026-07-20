@@ -9,7 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID?: string;
   readonly VITE_FIREBASE_MEASUREMENT_ID?: string;
   readonly VITE_DATA_MODE?: 'local' | 'firebase-emulator' | 'firebase';
-  readonly VITE_PAYPAL_URL?: string;
+  readonly VITE_BUY_ME_A_COFFEE_URL?: string;
   readonly VITE_VENMO_URL?: string;
 }
 

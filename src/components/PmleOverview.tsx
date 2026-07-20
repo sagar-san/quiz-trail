@@ -11,8 +11,8 @@ function safeExternalUrl(raw?: string) {
   }
 }
 
-export function PmleOverview({ paypalUrl }: { paypalUrl?: string }) {
-  const supportUrl = safeExternalUrl(paypalUrl);
+export function PmleOverview({ buyMeACoffeeUrl }: { buyMeACoffeeUrl?: string }) {
+  const supportUrl = safeExternalUrl(buyMeACoffeeUrl);
   return (
     <section className="pmle-overview" aria-labelledby="pmle-overview-heading">
       <div>
@@ -26,7 +26,9 @@ export function PmleOverview({ paypalUrl }: { paypalUrl?: string }) {
       </div>
       <div className="pmle-links">
         <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">View the official PMLE certification <span aria-hidden="true">↗</span></a>
-        {supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer">Support Quiz Trail via PayPal <span aria-hidden="true">↗</span></a>}
+        <a href="/sample-questions">Try 10 free PMLE sample questions</a>
+        <a href="/faq">Read the PMLE practice FAQ</a>
+        {supportUrl && <a href={supportUrl} target="_blank" rel="noopener noreferrer">Support Quiz Trail on Buy Me a Coffee <span aria-hidden="true">↗</span></a>}
         <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">View the source on GitHub <span aria-hidden="true">↗</span></a>
       </div>
     </section>

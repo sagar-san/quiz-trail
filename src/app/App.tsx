@@ -3,12 +3,14 @@ import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthS
 import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
 import { AnalyticsSummary } from '../components/AnalyticsSummary';
+import { FaqPage } from '../components/FaqPage';
 import { ProgressSummary } from '../components/ProgressSummary';
 import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
 import { SaveProgressButton } from '../components/SaveProgressButton';
+import { SampleQuestionsPage } from '../components/SampleQuestionsPage';
 import { TipJar } from '../components/TipJar';
 import { loadQuestionBank, type LoadedQuestionBank } from '../data/csv/loadQuestionBank';
 import { initialQuizState, quizReducer } from '../domain/quizReducer';
@@ -36,6 +38,7 @@ export function App({
   feedbackStore,
   dataMode = 'local',
 }: AppProps) {
+  const buyMeACoffeeUrl = import.meta.env.VITE_BUY_ME_A_COFFEE_URL || 'https://buymeacoffee.com/okeanos';
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
   const [authResolved, setAuthResolved] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -45,6 +48,8 @@ export function App({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<'practice' | 'summary'>('practice');
+  const [faqOpen, setFaqOpen] = useState(() => window.location.pathname.replace(/\/$/, '') === '/faq');
+  const [samplesOpen, setSamplesOpen] = useState(() => window.location.pathname.replace(/\/$/, '') === '/sample-questions');
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -53,6 +58,16 @@ export function App({
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
   const feedback = useMemo(() => feedbackStore ?? new LocalFeedbackStore(), [feedbackStore]);
   const accountMenu = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const syncPage = () => {
+      const path = window.location.pathname.replace(/\/$/, '');
+      setFaqOpen(path === '/faq');
+      setSamplesOpen(path === '/sample-questions');
+    };
+    window.addEventListener('popstate', syncPage);
+    return () => window.removeEventListener('popstate', syncPage);
+  }, []);
 
   useEffect(() => {
     if (!accountMenuOpen) return;
@@ -134,6 +149,28 @@ export function App({
     changeFilter(filter);
     setActiveView('practice');
   };
+  const openFaq = () => {
+    window.history.pushState({}, '', '/faq');
+    setFaqOpen(true);
+    setSamplesOpen(false);
+    setSettingsOpen(false);
+    setAccountMenuOpen(false);
+    window.scrollTo({ top: 0 });
+  };
+  const closeFaq = () => {
+    window.history.pushState({}, '', '/');
+    setFaqOpen(false);
+    setSamplesOpen(false);
+    window.scrollTo({ top: 0 });
+  };
+  const openSamples = () => {
+    window.history.pushState({}, '', '/sample-questions');
+    setSamplesOpen(true);
+    setFaqOpen(false);
+    setSettingsOpen(false);
+    setAccountMenuOpen(false);
+    window.scrollTo({ top: 0 });
+  };
 
   const save = async () => {
     dispatch({ type: 'saveStarted' });
@@ -202,6 +239,29 @@ export function App({
     }
   };
 
+  if (faqOpen) return (
+    <>
+      <header className="site-header">
+        <a href="/" className="brand" onClick={(event) => { event.preventDefault(); closeFaq(); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <button className="header-button" type="button" onClick={closeFaq}>Practice</button>
+      </header>
+      <FaqPage onBack={closeFaq} />
+      <footer><span>Quiz Trail</span><div><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a></div></footer>
+    </>
+  );
+  if (samplesOpen) return (
+    <>
+      <header className="site-header">
+        <a href="/" className="brand" onClick={(event) => { event.preventDefault(); closeFaq(); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <div className="account-controls">
+          <a className="header-button header-link" href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a>
+          <button className="header-button" type="button" onClick={closeFaq}>Practice</button>
+        </div>
+      </header>
+      <SampleQuestionsPage bankLoader={bankLoader} onBack={closeFaq} />
+      <footer><span>Quiz Trail</span><div><a href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a></div></footer>
+    </>
+  );
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
   if (!user) return (
     <main className="centered-state auth-state">
@@ -213,7 +273,7 @@ export function App({
         {authBusy ? 'Opening Google…' : 'Sign in with Google'}
       </button>
       {authError && <p className="error-message" role="alert">{authError}</p>}
-      <PmleOverview paypalUrl={import.meta.env.VITE_PAYPAL_URL} />
+      <PmleOverview buyMeACoffeeUrl={buyMeACoffeeUrl} />
     </main>
   );
   if (loading) return <main className="centered-state"><div className="loader" /><h1>Loading your trail…</h1><p>Preparing the question bank.</p></main>;
@@ -224,6 +284,7 @@ export function App({
       <header className="site-header">
         <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView('practice'); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
+          <a className="header-button header-link" href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a>
           <button className="header-button" type="button" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView((view) => view === 'summary' ? 'practice' : 'summary'); }}>{activeView === 'summary' && !settingsOpen ? 'Practice' : 'Summary'}</button>
           {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setActiveView('practice'); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
@@ -251,7 +312,7 @@ export function App({
           mode={auth.mode}
           busy={authBusy}
           error={accountError}
-          paypalUrl={import.meta.env.VITE_PAYPAL_URL}
+          buyMeACoffeeUrl={buyMeACoffeeUrl}
           onBack={() => setSettingsOpen(false)}
           onReset={() => void reset()}
           onSignOut={() => void signOut()}
@@ -271,6 +332,7 @@ export function App({
           <p className="eyebrow">PMLE practice</p>
           <h1>One question at a time. <em>Keep moving forward.</em></h1>
           <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
+          <a className="intro-link" href="/sample-questions" onClick={(event) => { event.preventDefault(); openSamples(); }}>Try 10 free PMLE sample questions →</a>
         </section>
         <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
         {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
@@ -314,13 +376,15 @@ export function App({
           storageNote={dataMode === 'local' ? 'Saved only in this browser.' : 'Saved securely to your account when you choose Save progress.'}
           onSave={() => void save()}
         />
-        <TipJar paypalUrl={import.meta.env.VITE_PAYPAL_URL} venmoUrl={import.meta.env.VITE_VENMO_URL} />
+        <TipJar buyMeACoffeeUrl={buyMeACoffeeUrl} venmoUrl={import.meta.env.VITE_VENMO_URL} />
       </main>}
       <footer>
         <span>Quiz Trail</span>
         <div>
           <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
           <span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span>
+          <a href="/faq" onClick={(event) => { event.preventDefault(); openFaq(); }}>FAQ</a>
+          <a href="/sample-questions" onClick={(event) => { event.preventDefault(); openSamples(); }}>Sample questions</a>
           <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
         </div>
       </footer>

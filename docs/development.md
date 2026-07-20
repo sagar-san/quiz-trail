@@ -17,7 +17,7 @@ Copy `.env.example` to an ignored environment file when Firebase or contribution
 - `firebase-emulator` — uses local Firebase Authentication and Firestore emulators
 - `firebase` — uses the configured Firebase project
 
-Contribution links are optional. Valid HTTP(S) values in `VITE_PAYPAL_URL` and `VITE_VENMO_URL` are displayed; blank or invalid values are hidden.
+The Buy Me a Coffee link defaults to the project's public support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`. A valid `VITE_VENMO_URL` is also displayed when configured; blank or invalid optional values are hidden.
 
 ## Commands
 

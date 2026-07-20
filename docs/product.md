@@ -21,7 +21,9 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 5. The learner can review All, Unanswered, Incorrect, Saved, and answered Outdated queues.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. Save Progress explicitly persists the current answer and bookmark state.
-8. Settings provides data information and progress reset. Cloud users can also sign out or delete their account.
+8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
+9. A public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq`.
+10. A public sample page presents ten curated questions from the canonical question bank, with answer explanations and references, at `/sample-questions`.
 
 ## Behavioral rules
 

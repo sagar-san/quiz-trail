@@ -35,6 +35,7 @@ describe('App', () => {
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
     expect(screen.getByRole('link', { name: /View source/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
+    expect(screen.getByRole('link', { name: /Try 10 free PMLE sample questions/ })).toHaveAttribute('href', '/sample-questions');
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
@@ -116,6 +117,8 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
     expect(screen.getByText('alice@example.com')).toBeVisible();
     expect(screen.getByRole('link', { name: 'Open a GitHub issue' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail/issues/new/choose');
+    expect(screen.getByRole('link', { name: 'Support via Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    expect(screen.getByRole('link', { name: 'Star Quiz Trail on GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));
     const deleteButton = screen.getByRole('button', { name: 'Permanently delete account' });
     expect(deleteButton).toBeDisabled();
@@ -125,5 +128,32 @@ describe('App', () => {
     await waitFor(() => expect(auth.deleteAccount).toHaveBeenCalledOnce());
     expect(store.reset).toHaveBeenCalledWith('user-a');
     expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
+  });
+
+  it('serves a public FAQ with route-specific search metadata', () => {
+    window.history.pushState({}, '', '/faq');
+    const { unmount } = render(<App bankLoader={loader} progressStore={memoryStore()} />);
+
+    expect(screen.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Are these the real certification exam questions?' })).toBeVisible();
+    expect(document.title).toBe('Google Cloud PMLE Practice FAQ | Quiz Trail');
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq');
+    expect([...document.querySelectorAll('script[type="application/ld+json"]')].some((script) => script.textContent?.includes('FAQPage'))).toBe(true);
+
+    unmount();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('serves sample questions publicly from the question bank', async () => {
+    window.history.pushState({}, '', '/sample-questions');
+    const { unmount } = render(<App bankLoader={loader} progressStore={memoryStore()} />);
+
+    expect(screen.getByRole('heading', { name: '10 Google Cloud PMLE sample questions' })).toBeVisible();
+    expect(await screen.findByText('Choose the managed analytics store.')).toBeVisible();
+    expect(screen.getAllByText('Show answer and explanation')).toHaveLength(2);
+    expect(document.title).toBe('10 Google Cloud PMLE Sample Questions | Quiz Trail');
+
+    unmount();
+    window.history.pushState({}, '', '/');
   });
 });
