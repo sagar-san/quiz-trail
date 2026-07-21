@@ -4,7 +4,7 @@ Last reviewed: 2026-07-21
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `991b04e` (`feat: refine free practice experience`).
+- The production application is live at <https://quiz-trail.web.app> from commit `97c643e` (`feat: add progress score and unsaved answer warning`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
@@ -15,6 +15,7 @@ Last reviewed: 2026-07-21
 On 2026-07-21, for the progress score and unsaved-answer reminder:
 - Typecheck, targeted lint, all 61 unit tests, and all 14 local browser tests passed.
 - Browser coverage verified the ten-question warning placement, successful-save dismissal, accessibility, and horizontal overflow on desktop and mobile.
+- The Firebase-mode production build, commit push, and Hosting-only production deployment succeeded. Live smoke checks returned HTTP 200 with the expected cache policies for the homepage, question CSV, and deployed JavaScript and CSS assets.
 
 On 2026-07-20, for the free-bank messaging, FAQ links, quiz-intro cleanup, and initial progress scroll, the following passed locally:
 - Typecheck, all 57 unit tests, targeted lint, and the production build.
