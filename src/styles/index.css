@@ -58,7 +58,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .progress-heading-actions { display: grid; justify-items: end; gap: 8px; }.progress-heading-actions button, .summary-back { padding: 0; border: 0; background: transparent; color: var(--green-dark); cursor: pointer; font-weight: 700; }
 .progress-track { height: 8px; background: #e5e8e3; border-radius: 99px; overflow: hidden; margin: 22px 0; }
 .progress-track span { display: block; height: 100%; background: var(--green); border-radius: inherit; transition: width .25s ease; }
-.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 0; }
+.stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 0; }
 .stat-grid div { border-left: 1px solid var(--line); padding-left: 16px; }
 .stat-grid div:first-child { border: 0; padding-left: 0; }
 .stat-grid dt { color: var(--muted); font-size: 12px; }
@@ -99,6 +99,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .content-details { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(23,52,45,.14); }.content-details summary { display: inline-flex; align-items: center; gap: 7px; color: var(--green-dark); cursor: pointer; list-style: none; font-size: 13px; font-weight: 700; }.content-details summary::-webkit-details-marker { display: none; }.content-details summary span { transition: transform .15s ease; }.content-details[open] summary span { transform: rotate(180deg); }.content-details dl { margin: 12px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }.content-details dl div { min-width: 0; }.content-details dt { color: var(--muted); font-size: 12px; font-weight: 700; }.content-details dd { margin: 2px 0 0; font-size: 13px; line-height: 1.45; }
 .question-navigation { display: flex; justify-content: space-between; margin: 16px 0 32px; }
 .save-panel { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px; }
+.save-warning { margin: 0 0 10px; padding: 12px 16px; border: 1px solid #e8c79b; border-radius: 10px; background: #fff5e8; color: var(--orange); font-size: 14px; font-weight: 700; line-height: 1.45; }
 .save-state { margin: 0; font-weight: 700; }.save-note { margin: 5px 0 0; color: var(--muted); font-size: 13px; }.status-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; }.status-dot.dirty { background: var(--orange); }.status-dot.clean { background: var(--green); }
 .save-actions { display: flex; gap: 10px; }.save-actions .primary-button { margin: 0; }.danger-button { color: var(--red); }.error-message { color: var(--red); margin: 8px 0 0; font-size: 13px; }
 .tip-jar { margin-top: 28px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }.tip-jar p { margin: 3px 0; color: var(--muted); }.tip-jar a { color: var(--green); margin-left: 16px; font-weight: 700; }

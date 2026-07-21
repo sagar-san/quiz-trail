@@ -9,7 +9,7 @@ import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
-import { SaveProgressButton } from '../components/SaveProgressButton';
+import { SaveProgressButton, UnsavedProgressWarning } from '../components/SaveProgressButton';
 import { SampleQuestionsPage } from '../components/SampleQuestionsPage';
 import { TipJar } from '../components/TipJar';
 import { loadQuestionBank, type LoadedQuestionBank } from '../data/csv/loadQuestionBank';
@@ -388,6 +388,7 @@ export function App({
           </section>
         )}
         </>}
+        <UnsavedProgressWarning count={state.unsavedAnswerIds.length} />
         <SaveProgressButton
           dirty={state.dirty}
           status={state.saveStatus}

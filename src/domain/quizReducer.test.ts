@@ -40,7 +40,17 @@ describe('quiz domain', () => {
     let state = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
     state = quizReducer(state, { type: 'saveSucceeded' });
     state = quizReducer(state, { type: 'questionChanged', questionId: 'PMLE-0002' });
-    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0002', dirty: false, saveStatus: 'saved' });
+    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0002', unsavedAnswerIds: [], dirty: false, saveStatus: 'saved' });
+  });
+
+  it('tracks distinct questions answered since the last successful save', () => {
+    let state = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: false });
+    state = quizReducer(state, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
+    state = quizReducer(state, { type: 'answerSubmitted', questionId: 'PMLE-0002', correct: true });
+    expect(state.unsavedAnswerIds).toEqual(['PMLE-0001', 'PMLE-0002']);
+
+    state = quizReducer(state, { type: 'saveSucceeded' });
+    expect(state.unsavedAnswerIds).toEqual([]);
   });
 
   it('loads saved outcomes without overriding the newly shuffled first question', () => {

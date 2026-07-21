@@ -1,3 +1,12 @@
+export function UnsavedProgressWarning({ count }: { count: number }) {
+  if (count < 10) return null;
+  return (
+    <p className="save-warning" role="status">
+      You have {count} questions with unsaved answers. Save your progress so you don’t lose them.
+    </p>
+  );
+}
+
 export function SaveProgressButton({
   dirty,
   status,

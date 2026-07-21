@@ -83,7 +83,7 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
   await expect(page.locator('.feedback')).toBeVisible();
   await page.getByRole('button', { name: 'Save for later' }).click();
 
-  for (let index = 0; index < 2; index += 1) {
+  for (let index = 0; index < 9; index += 1) {
     await page.getByRole('button', { name: /^Next/ }).click();
     await page.locator('.question-card input').first().check();
     await page.getByRole('button', { name: 'Submit answer' }).click();
@@ -91,11 +91,22 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
   }
 
   await expect(page.getByText('Unsaved changes')).toBeVisible();
+  const saveWarning = page.getByText('You have 10 questions with unsaved answers. Save your progress so you don’t lose them.');
+  await expect(saveWarning).toBeVisible();
+  expect(await saveWarning.evaluate((warning) => warning.nextElementSibling?.classList.contains('save-panel'))).toBe(true);
+  await page.addScriptTag({ content: axe.source });
+  const warningViolations = await page.evaluate(async () => {
+    const results = await window.axe.run('#quiz');
+    return results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''));
+  });
+  expect(warningViolations).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
   await page.getByRole('button', { name: 'Save progress' }).click();
   await expect(page.getByText('Progress saved')).toBeVisible();
+  await expect(saveWarning).toBeHidden();
   await page.reload();
   await expect(page.getByText('Progress saved')).toBeVisible();
-  await expect(page.locator('.stat-grid')).toContainText('3');
+  await expect(page.locator('.stat-grid')).toContainText('Attempted10');
 
   if (testInfo.project.name === 'mobile') {
     await page.locator('.filter-select select').selectOption('saved');

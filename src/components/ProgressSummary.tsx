@@ -3,16 +3,18 @@ interface ProgressSummaryProps {
   onOpenSummary: () => void;
 }
 
-const stats = [
-  ['Attempted', 'attempted'],
-  ['Correct', 'correct'],
-  ['Incorrect', 'incorrect'],
-  ['Saved', 'saved'],
-  ['Remaining', 'remaining'],
-] as const;
-
 export function ProgressSummary({ counts, onOpenSummary }: ProgressSummaryProps) {
   const percentage = counts.total ? Math.round((counts.attempted / counts.total) * 100) : 0;
+  const score = counts.attempted ? `${Math.round((counts.correct / counts.attempted) * 100)}%` : '—';
+  const stats = [
+    ['Attempted', counts.attempted],
+    ['Correct', counts.correct],
+    ['Incorrect', counts.incorrect],
+    ['Score', score],
+    ['Saved', counts.saved],
+    ['Remaining', counts.remaining],
+  ] as const;
+
   return (
     <section className="progress-panel" aria-labelledby="progress-title">
       <div className="progress-heading">
@@ -26,10 +28,10 @@ export function ProgressSummary({ counts, onOpenSummary }: ProgressSummaryProps)
         <span style={{ width: `${percentage}%` }} />
       </div>
       <dl className="stat-grid">
-        {stats.map(([label, key]) => (
-          <div key={key}>
+        {stats.map(([label, value]) => (
+          <div key={label}>
             <dt>{label}</dt>
-            <dd>{counts[key]}</dd>
+            <dd>{value}</dd>
           </div>
         ))}
       </dl>

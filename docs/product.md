@@ -18,7 +18,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 2. The app loads and validates the complete question bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
-5. The learner can review All, Unanswered, Incorrect, Saved, and answered Outdated queues.
+5. The learner can review All, Unanswered, Incorrect, Saved, and answered Outdated queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. Save Progress explicitly persists the current answer and bookmark state.
 8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
@@ -42,6 +42,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Answer and bookmark changes are not persisted until the learner selects Save Progress.
 - The active question filter is a separate browser preference and is stored immediately.
 - The app indicates meaningful unsaved progress changes and uses a browser unload warning when supported.
+- After ten distinct questions have unsaved answers, a warning above the progress-saving panel reminds the learner to save.
 - Local mode saves in the current browser. Firebase modes save to the signed-in account.
 - Reset all progress is destructive, requires confirmation, and lives in Settings.
 

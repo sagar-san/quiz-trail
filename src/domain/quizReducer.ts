@@ -5,6 +5,7 @@ export const initialQuizState: QuizState = {
   questions: [],
   questionBankVersion: '',
   progress: {},
+  unsavedAnswerIds: [],
   savedForLater: [],
   currentQuestionId: null,
   filter: 'unanswered',
@@ -27,6 +28,9 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
       return {
         ...state,
         progress: { ...state.progress, [action.questionId]: action.correct },
+        unsavedAnswerIds: state.unsavedAnswerIds.includes(action.questionId)
+          ? state.unsavedAnswerIds
+          : [...state.unsavedAnswerIds, action.questionId],
         currentQuestionId: action.questionId,
         dirty: true,
         saveStatus: 'idle',
@@ -50,6 +54,7 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
       const loaded = {
         ...state,
         progress: action.progress.progress,
+        unsavedAnswerIds: [],
         savedForLater: action.progress.savedForLater,
         // A fresh page load creates a fresh shuffled order. Restore outcomes and
         // bookmarks, but start at that session's first question rather than
@@ -64,13 +69,14 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
     case 'saveStarted':
       return { ...state, saveStatus: 'saving', saveError: null };
     case 'saveSucceeded':
-      return { ...state, dirty: false, saveStatus: 'saved', saveError: null };
+      return { ...state, unsavedAnswerIds: [], dirty: false, saveStatus: 'saved', saveError: null };
     case 'saveFailed':
       return { ...state, saveStatus: 'failed', saveError: action.message };
     case 'reset':
       return {
         ...state,
         progress: {},
+        unsavedAnswerIds: [],
         savedForLater: [],
         filter: 'unanswered',
         currentQuestionId: state.questions[0]?.questionId ?? null,

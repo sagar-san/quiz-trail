@@ -1,6 +1,6 @@
 # Current status
 
-Last reviewed: 2026-07-20
+Last reviewed: 2026-07-21
 
 ## Active state
 
@@ -11,6 +11,10 @@ Last reviewed: 2026-07-20
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 
 ## Recent verification
+
+On 2026-07-21, for the progress score and unsaved-answer reminder:
+- Typecheck, targeted lint, all 61 unit tests, and all 14 local browser tests passed.
+- Browser coverage verified the ten-question warning placement, successful-save dismissal, accessibility, and horizontal overflow on desktop and mobile.
 
 On 2026-07-20, for the free-bank messaging, FAQ links, quiz-intro cleanup, and initial progress scroll, the following passed locally:
 - Typecheck, all 57 unit tests, targeted lint, and the production build.

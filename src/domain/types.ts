@@ -36,6 +36,7 @@ export interface QuizState {
   questions: QuizQuestion[];
   questionBankVersion: string;
   progress: Record<string, boolean>;
+  unsavedAnswerIds: string[];
   savedForLater: string[];
   currentQuestionId: string | null;
   filter: QuizFilter;

@@ -66,7 +66,7 @@ The entire bank is rejected when loading or validation fails; the application do
 - latest correctness keyed by question ID;
 - saved-for-later question IDs;
 - the current question and active filter;
-- dirty/save status and user-facing storage errors;
+- dirty/save status, the distinct questions answered since the last successful save, and user-facing storage errors;
 - an optional reconciliation notice.
 
 The reducer owns state transitions such as bank load, answer submission, bookmark changes, filter and question navigation, progress load, save state, and reset. Selectors derive filtered queues, counts, analytics inputs, and the persisted snapshot.
