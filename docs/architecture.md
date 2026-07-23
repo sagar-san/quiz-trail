@@ -114,6 +114,8 @@ Firestore rules restrict reads and writes to the authenticated owner, allow only
 
 ### Question feedback
 
+After answering, any signed-in cloud learner can open More and submit feedback about the current question. Local-mode feedback remains in browser storage for development.
+
 Bad question feedback is stored at:
 
 ```text

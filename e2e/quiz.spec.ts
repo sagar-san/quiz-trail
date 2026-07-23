@@ -135,9 +135,8 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
 test('copies an AI review prompt after leaving and returning to the tab', async ({ page, context }) => {
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await page.locator('.more-options-details summary').click();
   await page.getByRole('button', { name: 'Copy AI review prompt' }).click();
-  await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'AI review prompt copied' })).toBeVisible();
 
   const otherPage = await context.newPage();
   await otherPage.setContent('<label>Unrelated tab<textarea>Unrelated content</textarea></label>');
@@ -150,9 +149,8 @@ test('copies an AI review prompt after leaving and returning to the tab', async 
   await page.getByRole('button', { name: /^Next/ }).click();
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await page.locator('.more-options-details summary').click();
   await page.getByRole('button', { name: 'Copy AI review prompt' }).click();
-  await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'AI review prompt copied' })).toBeVisible();
   await otherPage.close();
 });
 

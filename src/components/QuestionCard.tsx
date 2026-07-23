@@ -185,31 +185,27 @@ export function QuestionCard({
         <div className={`feedback ${sameAnswers(selected, question.correctAnswers) ? 'feedback-correct' : 'feedback-incorrect'}`} role="status" aria-live="polite">
           <h3>{sameAnswers(selected, question.correctAnswers) ? 'Correct' : 'Not quite'}</h3>
           <p>{question.explanation}</p>
-          {question.referenceUrl && (
-            <a href={question.referenceUrl} target="_blank" rel="noopener noreferrer">Read the reference <span aria-hidden="true">↗</span></a>
-          )}
+          <div className="feedback-actions">
+            {question.referenceUrl && (
+              <a href={question.referenceUrl} target="_blank" rel="noopener noreferrer">Read the reference <span aria-hidden="true">↗</span></a>
+            )}
+            <button
+              type="button"
+              className="ai-prompt-link"
+              aria-label={copyStatus === 'copied' ? 'AI review prompt copied' : 'Copy AI review prompt'}
+              onClick={copyReviewPrompt}
+            >
+              <span aria-hidden="true">{copyStatus === 'copied' ? '✓' : '✨'}</span>{' '}
+              {copyStatus === 'copied' ? 'Copied' : 'Copy AI prompt'}
+            </button>
+          </div>
+          {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
           <details className="more-options-details" aria-label="More options">
             <summary>More <span aria-hidden="true">⌄</span></summary>
             <div className="more-options-content">
-              <div className="ai-review-action">
-                <div>
-                  <strong>Want another explanation?</strong>
-                  <span>
-                    Copy the question context, then paste it into{' '}
-                    <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>,{' '}
-                    <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>,{' '}
-                    <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a>, or your preferred AI app.
-                  </span>
-                </div>
-                <button type="button" className="secondary-button" onClick={copyReviewPrompt}>
-                  {copyStatus === 'copied' ? 'Copied!' : 'Copy AI review prompt'}
-                </button>
-              </div>
-              {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
-              <p className="ai-review-note">Only question content is copied. AI responses may be inaccurate.</p>
-              {showInternalMetadata && onSubmitFeedback && (
-                <div className="maintainer-feedback-action">
-                  <h4>Maintainer Feedback (Bad Question?)</h4>
+              {onSubmitFeedback && (
+                <div className="question-feedback-action">
+                  <h4>Report a problem with this question</h4>
                   {feedbackStatus === 'submitted' ? (
                     <p className="feedback-success">Feedback submitted successfully. Thank you!</p>
                   ) : (
@@ -217,7 +213,7 @@ export function QuestionCard({
                       <textarea
                         value={feedbackText}
                         onChange={(e) => setFeedbackText(e.target.value)}
-                        placeholder="Describe why this question is bad or incorrect..."
+                        placeholder="Describe what seems incorrect, unclear, or outdated..."
                         maxLength={1000}
                         disabled={feedbackStatus === 'submitting'}
                         rows={3}
