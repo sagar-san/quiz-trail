@@ -11,6 +11,10 @@ This file contains durable work that has been deliberately deferred. It records 
 - [ ] Track attempt counts and first/latest outcomes per `question_id`, then add first-attempt accuracy and improvement reporting. This requires a separately reviewed progress-schema and Firestore-rules migration; current analytics intentionally reports only the latest recorded outcome.
 - [ ] Consider surfacing `terminology_status` for maintainers through a validation report or protected content-review tool. Do not expose internal editorial notes to learners without review.
 
+## Progress saving
+
+- [ ] Replace the explicit Save Progress flow with automatic Firestore saving when the learner selects Next after changing progress or toggles Save for later. Do not write when nothing changed and do not add a local pending-write cache. Await a successful save before navigating; on failure, keep the current question visible and show an error with a retry action. Remove the Save Progress button, unsaved-answer reminder, and unload warning, and supersede decision D003 when this product change is approved for implementation.
+
 ## Development workflow
 
 - [ ] Consider making Firebase browser integration tests self-starting so `npm run e2e:firebase` manages its emulator and Vite dependencies automatically.
