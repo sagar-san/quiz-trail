@@ -4,19 +4,21 @@ Last reviewed: 2026-07-23
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `97c643e` (`feat: add progress score and unsaved answer warning`).
+- The production application is live at <https://quiz-trail.web.app> from commit `8ae4b2e` (`fix: clarify question queue progress`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
-- Main includes an undeployed iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Automated checks were intentionally not run at the product owner's request; real-device verification is pending.
-- Main also includes an undeployed learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
+- Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
+- Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 
 ## Recent verification
 
 On 2026-07-23, for the question progress labels and Outdated-filter removal:
-- Typecheck, targeted lint, and all 25 relevant unit/component tests passed.
+- Typecheck, targeted lint, all 63 unit/component tests, and the Firebase-mode production build passed.
 - All 16 local browser tests passed across desktop and mobile, including accessibility and horizontal-overflow checks.
+- Commit `8ae4b2e` was pushed and the Hosting-only production deployment succeeded. Live smoke checks returned HTTP 200 for the homepage and question CSV with the expected `no-cache` policy, and the deployed JavaScript contained the new queue labels.
+- Repository-wide lint remains blocked by third-party JavaScript under `.tmp/uv-cache`; the changed source and test files pass targeted lint.
 
 On 2026-07-21, for the progress score and unsaved-answer reminder:
 - Typecheck, targeted lint, all 61 unit tests, and all 14 local browser tests passed.
