@@ -4,7 +4,7 @@ Last reviewed: 2026-07-23
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `e90597a` (`feat: streamline answered question actions`).
+- The production application is live at <https://quiz-trail.web.app> from commit `e361678` (`feat: store one feedback per learner`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
@@ -12,13 +12,14 @@ Last reviewed: 2026-07-23
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 - Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode.
-- An unreleased feedback persistence change stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback is intentionally not migrated. Production Hosting and Firestore rules have not been deployed.
+- Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback was intentionally not migrated.
 
 ## Recent verification
 
-On 2026-07-23, for the unreleased single-feedback persistence change:
+On 2026-07-23, for the single-feedback persistence release:
 - Typecheck, targeted lint, all 64 unit/component tests, all 13 Firestore rules/storage tests, the Firebase-mode production build, all 16 local browser tests, and the signed-in Firebase emulator browser test passed.
 - The Admin SDK feedback exporter connected successfully to the local Firestore emulator and handled an empty result.
+- Commit `e361678` was pushed, and the production Hosting and Firestore-rules deployment succeeded. Live homepage and question-bank smoke checks returned HTTP 200 with `no-cache`, and the deployed feedback bundle matched the tested production build by SHA-256.
 
 On 2026-07-23, for the AI prompt action and learner-facing question feedback:
 - Typecheck, targeted lint, all 63 unit/component tests, all 9 Firestore rules/storage tests, and the Firebase-mode production build passed.
