@@ -52,6 +52,36 @@ function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[]) {
   ].join('\n');
 }
 
+function copyText(text: string) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.readOnly = true;
+  textarea.tabIndex = -1;
+  Object.assign(textarea.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    border: '0',
+    opacity: '0',
+    pointerEvents: 'none',
+  });
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  try {
+    return document.execCommand('copy');
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
+  }
+}
+
 export function QuestionCard({
   question,
   position,
@@ -98,13 +128,8 @@ export function QuestionCard({
     onSubmit(sameAnswers(selected, question.correctAnswers));
     setSubmitted(true);
   };
-  const copyReviewPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(reviewPrompt);
-      setCopyStatus('copied');
-    } catch {
-      setCopyStatus('failed');
-    }
+  const copyReviewPrompt = () => {
+    setCopyStatus(copyText(reviewPrompt) ? 'copied' : 'failed');
   };
 
   return (
@@ -178,7 +203,7 @@ export function QuestionCard({
                     <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a>, or your preferred AI app.
                   </span>
                 </div>
-                <button type="button" className="secondary-button" onClick={() => void copyReviewPrompt()}>
+                <button type="button" className="secondary-button" onClick={copyReviewPrompt}>
                   {copyStatus === 'copied' ? 'Copied!' : 'Copy AI review prompt'}
                 </button>
               </div>

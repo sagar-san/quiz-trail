@@ -7,8 +7,12 @@ import { QuestionCard } from './QuestionCard';
 describe('QuestionCard', () => {
   it('submits a single answer and reveals accessible feedback', async () => {
     const submit = vi.fn();
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const copiedPrompts: string[] = [];
+    const execCommand = vi.fn(() => {
+      if (document.activeElement instanceof HTMLTextAreaElement) copiedPrompts.push(document.activeElement.value);
+      return true;
+    });
+    Object.defineProperty(document, 'execCommand', { configurable: true, value: execCommand });
     render(<QuestionCard question={questions[0]} position={1} total={3} saved={false} onSubmit={submit} onToggleSaved={vi.fn()} />);
     const button = screen.getByRole('button', { name: 'Submit answer' });
     expect(button).toBeDisabled();
@@ -24,16 +28,33 @@ describe('QuestionCard', () => {
     expect(screen.queryByText('Terminology')).not.toBeInTheDocument();
     expect(screen.queryByText('Source')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Copy AI review prompt' }));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('# PMLE Practice Question Review'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('## Answer choices'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('**Learner answer:** A'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('**Provided expected answer:** A'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('claims, not authoritative facts'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Feel free to disagree and push back'));
+    expect(execCommand).toHaveBeenCalledWith('copy');
+    expect(execCommand).toHaveBeenCalledTimes(1);
+    expect(copiedPrompts[0]).toContain('# PMLE Practice Question Review');
+    expect(copiedPrompts[0]).toContain('## Answer choices');
+    expect(copiedPrompts[0]).toContain('**Learner answer:** A');
+    expect(copiedPrompts[0]).toContain('**Provided expected answer:** A');
+    expect(copiedPrompts[0]).toContain('claims, not authoritative facts');
+    expect(copiedPrompts[0]).toContain('Feel free to disagree and push back');
     expect(await screen.findByRole('button', { name: 'Copied!' })).toBeVisible();
+    expect(document.querySelector('textarea')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Copied!' }));
+    expect(execCommand).toHaveBeenCalledTimes(2);
     expect(screen.getByRole('link', { name: 'ChatGPT' })).toHaveAttribute('href', 'https://chatgpt.com/');
     expect(screen.getByRole('link', { name: 'Gemini' })).toHaveAttribute('href', 'https://gemini.google.com/app');
     expect(screen.getByRole('link', { name: 'Claude' })).toHaveAttribute('href', 'https://claude.ai/new');
+  });
+
+  it('reports when the browser cannot copy the AI review prompt', async () => {
+    Object.defineProperty(document, 'execCommand', { configurable: true, value: vi.fn(() => false) });
+    render(<QuestionCard question={questions[0]} position={1} total={3} saved={false} onSubmit={vi.fn()} onToggleSaved={vi.fn()} />);
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    await userEvent.click(screen.getByText('More'));
+    await userEvent.click(screen.getByRole('button', { name: 'Copy AI review prompt' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Could not access your clipboard');
+    expect(document.querySelector('textarea')).not.toBeInTheDocument();
   });
 
   it('requires the exact multiple-choice set and toggles saved state', async () => {

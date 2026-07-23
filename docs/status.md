@@ -1,6 +1,6 @@
 # Current status
 
-Last reviewed: 2026-07-21
+Last reviewed: 2026-07-23
 
 ## Active state
 
@@ -9,6 +9,7 @@ Last reviewed: 2026-07-21
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
+- Main includes an undeployed iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Automated checks were intentionally not run at the product owner's request; real-device verification is pending.
 
 ## Recent verification
 

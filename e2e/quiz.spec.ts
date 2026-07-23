@@ -132,6 +132,30 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
   await expect(page.locator('.stat-grid')).toContainText('Attempted0');
 });
 
+test('copies an AI review prompt after leaving and returning to the tab', async ({ page, context }) => {
+  await page.locator('.question-card input').first().check();
+  await page.getByRole('button', { name: 'Submit answer' }).click();
+  await page.getByText('More', { exact: true }).click();
+  await page.getByRole('button', { name: 'Copy AI review prompt' }).click();
+  await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible();
+
+  const otherPage = await context.newPage();
+  await otherPage.setContent('<label>Unrelated tab<textarea>Unrelated content</textarea></label>');
+  await otherPage.bringToFront();
+  await otherPage.locator('textarea').fill('');
+  await otherPage.locator('textarea').focus();
+  await otherPage.keyboard.press(process.platform === 'darwin' ? 'Meta+V' : 'Control+V');
+  await page.bringToFront();
+
+  await page.getByRole('button', { name: /^Next/ }).click();
+  await page.locator('.question-card input').first().check();
+  await page.getByRole('button', { name: 'Submit answer' }).click();
+  await page.getByText('More', { exact: true }).click();
+  await page.getByRole('button', { name: 'Copy AI review prompt' }).click();
+  await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible();
+  await otherPage.close();
+});
+
 test('primary screen has no serious accessibility violations or horizontal overflow', async ({ page }) => {
   await page.addScriptTag({ content: axe.source });
   const violations = await page.evaluate(async () => {
