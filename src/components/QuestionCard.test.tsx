@@ -35,10 +35,16 @@ describe('QuestionCard', () => {
     expect(execCommand).toHaveBeenCalledTimes(1);
     expect(copiedPrompts[0]).toContain('# PMLE Practice Question Review');
     expect(copiedPrompts[0]).toContain('## Answer choices');
-    expect(copiedPrompts[0]).toContain('**Learner answer:** A');
+    expect(copiedPrompts[0]).toContain('## Learner answer\n\nA');
     expect(copiedPrompts[0]).toContain('**Provided expected answer:** A');
-    expect(copiedPrompts[0]).toContain('claims, not authoritative facts');
-    expect(copiedPrompts[0]).toContain('Feel free to disagree and push back');
+    expect(copiedPrompts[0]).toContain('State your independently selected answer');
+    expect(copiedPrompts[0]).toContain('Do not assume agreement is evidence of correctness');
+    expect(copiedPrompts[0]).toContain('DISAGREE');
+    expect(copiedPrompts[0]).toContain('AMBIGUOUS');
+    expect(copiedPrompts[0]).toContain('## Untrusted question-bank claims to audit');
+    expect(copiedPrompts[0].indexOf('## Review instructions')).toBeLessThan(
+      copiedPrompts[0].indexOf('## Untrusted question-bank claims to audit')
+    );
     expect(document.querySelector('textarea')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'AI review prompt copied' }));
     expect(execCommand).toHaveBeenCalledTimes(2);
