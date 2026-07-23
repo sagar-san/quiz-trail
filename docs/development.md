@@ -26,7 +26,7 @@ npm run dev             # local-storage mode
 npm run emulators       # Auth, Firestore, Hosting, and Emulator UI
 npm run dev:firebase    # app connected to already-running emulators
 npm run preflight       # validate and summarize the question bank
-npm run download-feedback # download bad question feedback to markdown file
+npm run download-feedback # export cloud question feedback with Admin credentials
 npm run typecheck
 npm run lint
 npm run test
@@ -37,6 +37,8 @@ npm run build
 npm run e2e
 npm run e2e:firebase    # emulators and dev:firebase must already be running
 ```
+
+`download-feedback` writes `feedback_export.md` using the Firebase Admin SDK. For production, authenticate with Application Default Credentials that can read Firestore and optionally set `GOOGLE_CLOUD_PROJECT` (it defaults to `quiz-trail`). To review emulator data instead, set `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`; no cloud credentials are used in that mode. The exporter reads all `submissions` documents, while learner-facing Firestore rules intentionally deny collection listing.
 
 Local emulator ports:
 

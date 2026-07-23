@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthService';
 import type { UserProgress } from '../domain/types';
+import type { FeedbackStore } from '../storage/FeedbackStore';
 import type { ProgressStore } from '../storage/ProgressStore';
 import { questions } from '../test/fixtures';
 import { App } from './App';
@@ -41,6 +42,7 @@ describe('App', () => {
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
+    expect(screen.queryByText('Report a problem with this question')).not.toBeInTheDocument();
     expect(screen.getByText('2 remaining of 3')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'Save progress' }));
     await waitFor(() => expect(store.save).toHaveBeenCalled());
@@ -90,6 +92,36 @@ describe('App', () => {
     expect(screen.getByText('Emulator mode')).toBeVisible();
     expect(auth.signIn).toHaveBeenCalledOnce();
     await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
+  });
+
+  it('submits cloud feedback with the question ID and authenticated user ID', async () => {
+    const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
+    const feedbackStore: FeedbackStore = { submitFeedback: vi.fn().mockResolvedValue(undefined) };
+    render(
+      <App
+        bankLoader={loader}
+        progressStore={memoryStore()}
+        authService={auth}
+        feedbackStore={feedbackStore}
+        dataMode="firebase-emulator"
+      />,
+    );
+
+    expect(await screen.findByText('3 questions')).toBeVisible();
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    await userEvent.click(screen.getByText('More'));
+    await userEvent.type(
+      screen.getByPlaceholderText(/Describe what seems incorrect/),
+      'The explanation needs clarification.',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Submit feedback' }));
+
+    await waitFor(() => expect(feedbackStore.submitFeedback).toHaveBeenCalledWith(
+      questions[0].questionId,
+      'The explanation needs clarification.',
+      'user-a',
+    ));
   });
 
   it('warns before signing out with unsaved progress', async () => {

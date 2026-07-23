@@ -114,19 +114,20 @@ Firestore rules restrict reads and writes to the authenticated owner, allow only
 
 ### Question feedback
 
-After answering, any signed-in cloud learner can open More and submit feedback about the current question. Local-mode feedback remains in browser storage for development.
+After answering, any signed-in cloud learner can open More and submit feedback about the current question. Feedback is unavailable in local mode.
 
 Bad question feedback is stored at:
 
 ```text
-questionFeedback/{questionId}
+questionFeedback/{questionId}/submissions/{uid}
 ```
 
-The Firestore document contains:
+Each document contains:
 
-- `feedbacks`: an array of feedback entries containing the feedback `text` (max 1000 characters), `userId`, and `submittedAt` (ISO date-time string).
+- `text`: the learner's feedback, from 1 to 1000 characters;
+- `submittedAt`: a Firestore server timestamp.
 
-Updates use Firestore's `arrayUnion` operation to append new feedback to the array.
+The authenticated user's UID is the submission document ID, so each learner has at most one feedback document per question. Submitting again replaces that document. Learners can read only their own direct document and cannot list feedback. The external review exporter uses privileged Application Default Credentials to run a collection-group query across `submissions`; no reviewer access exists in the learner UI.
 
 ### Kill-switch config
 
@@ -136,7 +137,7 @@ A config document at:
 config/feedback
 ```
 
-contains an `enabled` boolean flag. Firestore security rules read this document to dynamically block incoming writes to `questionFeedback` if spamming occurs.
+contains an `enabled` boolean flag. Firestore security rules read this document to dynamically block incoming feedback writes if spamming occurs.
 
 ## Question-bank identity and reconciliation
 

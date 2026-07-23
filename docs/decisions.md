@@ -64,3 +64,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Account deletion requires confirmation and recent Google authentication, then deletes the user's progress document before the Firebase Authentication identity.
 - **Why:** Deleting identity first could leave user-owned progress data without a normal authenticated path to remove it.
 - **Consequences:** Cross-service deletion is not atomic, so the application must report the partial outcome if progress is deleted but identity deletion fails.
+
+## D010 — Store one feedback document per learner and question
+
+- **Status:** Accepted
+- **Decision:** Cloud question feedback is stored at `questionFeedback/{questionId}/submissions/{uid}`. A later submission replaces that learner's earlier feedback for the same question. Feedback is not stored in local mode, and review happens through a privileged external script rather than the learner UI.
+- **Why:** Direct document access is efficient for a learner's own feedback, per-question and cross-question review remain queryable, and feedback from different learners does not accumulate toward a single Firestore document-size limit.
+- **Consequences:** Learners cannot list other submissions, existing array-based feedback is not migrated, and the review script requires trusted Application Default Credentials.

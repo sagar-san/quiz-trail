@@ -43,6 +43,7 @@
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
+    "firebase-admin": "^14.2.0",
     "firebase-tools": "^15.24.0",
     "globals": "latest",
     "jsdom": "latest",

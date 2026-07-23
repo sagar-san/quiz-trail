@@ -1,7 +1,6 @@
 import { LocalAuthService, type AuthService } from '../auth/AuthService';
 import { readDataMode, type DataMode, type DataModeEnvironment } from '../config/dataMode';
 import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore';
-import { LocalFeedbackStore } from '../storage/FeedbackStore';
 import type { ProgressStore } from '../storage/ProgressStore';
 import type { FeedbackStore } from '../storage/FeedbackStore';
 import type { FirebaseEnvironment } from '../firebase/firebaseConfig';
@@ -9,7 +8,7 @@ import type { FirebaseEnvironment } from '../firebase/firebaseConfig';
 export interface AppDependencies {
   authService: AuthService;
   progressStore: ProgressStore;
-  feedbackStore: FeedbackStore;
+  feedbackStore?: FeedbackStore;
   dataMode: DataMode;
 }
 
@@ -22,7 +21,6 @@ export async function createAppDependencies(
     return {
       authService: new LocalAuthService(),
       progressStore: new LocalStorageProgressStore(),
-      feedbackStore: new LocalFeedbackStore(),
       dataMode,
     };
   }
