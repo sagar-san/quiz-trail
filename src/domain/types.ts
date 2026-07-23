@@ -1,7 +1,7 @@
 export const choiceKeys = ['A', 'B', 'C', 'D', 'E'] as const;
 export type ChoiceKey = (typeof choiceKeys)[number];
 export type QuestionType = 'single_choice' | 'multiple_choice';
-export type QuizFilter = 'all' | 'unanswered' | 'incorrect' | 'saved' | 'outdated';
+export type QuizFilter = 'all' | 'unanswered' | 'incorrect' | 'saved';
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 export interface QuizQuestion {

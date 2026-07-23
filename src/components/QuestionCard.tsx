@@ -3,8 +3,7 @@ import type { ChoiceKey, QuizQuestion } from '../domain/types';
 
 interface QuestionCardProps {
   question: QuizQuestion;
-  position: number;
-  total: number;
+  progressLabel: string;
   saved: boolean;
   priorOutcome?: boolean;
   showInternalMetadata?: boolean;
@@ -84,8 +83,7 @@ function copyText(text: string) {
 
 export function QuestionCard({
   question,
-  position,
-  total,
+  progressLabel,
   saved,
   priorOutcome,
   showInternalMetadata = false,
@@ -135,7 +133,7 @@ export function QuestionCard({
   return (
     <article className="question-card" aria-labelledby={`question-${question.questionId}`}>
       <div className="question-meta">
-        <span>Question {position} of {total}</span>
+        <span>{progressLabel}</span>
         <span>{question.questionId}</span>
       </div>
       <div className="question-heading-row">

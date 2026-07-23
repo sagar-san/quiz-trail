@@ -18,7 +18,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 2. The app loads and validates the complete question bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
-5. The learner can review All, Unanswered, Incorrect, Saved, and answered Outdated queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
+5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. Save Progress explicitly persists the current answer and bookmark state.
 8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
@@ -35,6 +35,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Question order is shuffled once per page load and remains stable within that tab.
 - Each page load starts at the first question in its new shuffle; a stored return point does not override the new order.
 - Previous and Next navigation do not create unsaved changes by themselves.
+- The Unanswered view reports remaining questions against the full bank. All, Incorrect, and Saved report the current position within their respective queues.
 
 ### Progress and saving
 
@@ -48,8 +49,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ### Review and analytics
 
-- The primary queues are All, Unanswered, Incorrect, Saved, and Outdated.
-- The Outdated queue contains only outdated questions the learner has already answered.
+- The primary queues are All, Unanswered, Incorrect, and Saved.
 - Summary analytics use the latest recorded outcome for each question. Attempt history, first-attempt accuracy, and improvement reporting are not currently available.
 - Strength and weak-area guidance is sample-gated so very small samples are not presented as meaningful conclusions.
 - Editorial source, review-status, and terminology metadata is hidden from ordinary learners. Maintainers can inspect it after answering by loading the page with `?debug=true`.

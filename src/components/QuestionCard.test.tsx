@@ -13,7 +13,7 @@ describe('QuestionCard', () => {
       return true;
     });
     Object.defineProperty(document, 'execCommand', { configurable: true, value: execCommand });
-    render(<QuestionCard question={questions[0]} position={1} total={3} saved={false} onSubmit={submit} onToggleSaved={vi.fn()} />);
+    render(<QuestionCard question={questions[0]} progressLabel="Question 1 of 3" saved={false} onSubmit={submit} onToggleSaved={vi.fn()} />);
     const button = screen.getByRole('button', { name: 'Submit answer' });
     expect(button).toBeDisabled();
     expect(screen.queryByLabelText('Question content details')).not.toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('QuestionCard', () => {
 
   it('reports when the browser cannot copy the AI review prompt', async () => {
     Object.defineProperty(document, 'execCommand', { configurable: true, value: vi.fn(() => false) });
-    render(<QuestionCard question={questions[0]} position={1} total={3} saved={false} onSubmit={vi.fn()} onToggleSaved={vi.fn()} />);
+    render(<QuestionCard question={questions[0]} progressLabel="Question 1 of 3" saved={false} onSubmit={vi.fn()} onToggleSaved={vi.fn()} />);
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     await userEvent.click(screen.getByText('More'));
@@ -59,7 +59,7 @@ describe('QuestionCard', () => {
 
   it('requires the exact multiple-choice set and toggles saved state', async () => {
     const submit = vi.fn(); const toggle = vi.fn();
-    render(<QuestionCard question={questions[1]} position={2} total={3} saved={false} onSubmit={submit} onToggleSaved={toggle} />);
+    render(<QuestionCard question={questions[1]} progressLabel="Question 2 of 3" saved={false} onSubmit={submit} onToggleSaved={toggle} />);
     expect(screen.getByText('Select all that apply')).toBeVisible();
     await userEvent.click(screen.getByLabelText(/Vertex AI/));
     await userEvent.click(screen.getByLabelText(/A laptop/));
@@ -70,7 +70,7 @@ describe('QuestionCard', () => {
   });
 
   it('reveals internal metadata only when debug mode is explicitly enabled', async () => {
-    render(<QuestionCard question={questions[1]} position={2} total={3} saved={false} showInternalMetadata onSubmit={vi.fn()} onToggleSaved={vi.fn()} />);
+    render(<QuestionCard question={questions[1]} progressLabel="Question 2 of 3" saved={false} showInternalMetadata onSubmit={vi.fn()} onToggleSaved={vi.fn()} />);
     await userEvent.click(screen.getByLabelText(/Vertex AI/));
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
@@ -85,8 +85,7 @@ describe('QuestionCard', () => {
     render(
       <QuestionCard
         question={questions[0]}
-        position={1}
-        total={3}
+        progressLabel="Question 1 of 3"
         saved={false}
         onSubmit={vi.fn()}
         onToggleSaved={vi.fn()}
@@ -104,8 +103,7 @@ describe('QuestionCard', () => {
     render(
       <QuestionCard
         question={questions[0]}
-        position={1}
-        total={3}
+        progressLabel="Question 1 of 3"
         saved={false}
         showInternalMetadata
         onSubmit={vi.fn()}

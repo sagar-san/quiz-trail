@@ -9,7 +9,7 @@ describe('learning analytics', () => {
     expect(analytics.overall).toMatchObject({ total: 3, answered: 2, correct: 1, missed: 1, accuracy: 50, coverage: 67 });
     expect(analytics.byTopic.find((stat) => stat.label === 'BigQuery')).toMatchObject({ total: 2, answered: 2, accuracy: 50 });
     expect(analytics.byDifficulty.map((stat) => [stat.label, stat.answered])).toEqual([['Easy', 1], ['Medium', 1], ['Hard', 0]]);
-    expect(analytics.reviewQueue).toEqual({ incorrect: 1, saved: 1, unanswered: 1, outdated: 0 });
+    expect(analytics.reviewQueue).toEqual({ incorrect: 1, saved: 1, unanswered: 1 });
   });
 
   it('labels exam-section signals only after a meaningful sample', () => {

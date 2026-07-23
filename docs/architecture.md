@@ -167,7 +167,7 @@ This avoids leaving progress behind after a successful identity deletion. Becaus
 
 Analytics are derived entirely in the browser by joining CSV subject metadata to the latest outcomes and saved IDs. No analytics aggregate is persisted.
 
-Exam sections, objectives, topics, and difficulty support learner-facing summaries. Source, review status, and terminology fields remain internal and are passed to the question UI only after an answer and only when `?debug=true` enables maintainer details.
+Exam sections, objectives, topics, and difficulty support learner-facing summaries. Source, review status, outdated status, and terminology fields remain internal and are passed to the question UI only after an answer and only when `?debug=true` enables maintainer details.
 
 ## Hosting and caching
 

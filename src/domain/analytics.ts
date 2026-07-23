@@ -24,7 +24,6 @@ export interface LearningAnalytics {
     incorrect: number;
     saved: number;
     unanswered: number;
-    outdated: number;
   };
 }
 
@@ -85,7 +84,6 @@ export function buildLearningAnalytics(
       incorrect: Object.values(progress).filter((outcome) => !outcome).length,
       saved: new Set(savedForLater).size,
       unanswered: questions.filter((question) => !(question.questionId in progress)).length,
-      outdated: questions.filter((question) => question.isOutdated && question.questionId in progress).length,
     },
   };
 }

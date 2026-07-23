@@ -10,8 +10,13 @@ Last reviewed: 2026-07-23
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Main includes an undeployed iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Automated checks were intentionally not run at the product owner's request; real-device verification is pending.
+- Main also includes an undeployed learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 
 ## Recent verification
+
+On 2026-07-23, for the question progress labels and Outdated-filter removal:
+- Typecheck, targeted lint, and all 25 relevant unit/component tests passed.
+- All 16 local browser tests passed across desktop and mobile, including accessibility and horizontal-overflow checks.
 
 On 2026-07-21, for the progress score and unsaved-answer reminder:
 - Typecheck, targeted lint, all 61 unit tests, and all 14 local browser tests passed.

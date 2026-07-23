@@ -20,4 +20,9 @@ describe('LocalStorageQuizPreferences', () => {
     expect(preferences.loadFilter()).toBe('unanswered');
     expect(() => preferences.saveFilter('saved')).not.toThrow();
   });
+
+  it('falls back from the removed Outdated filter', () => {
+    localStorage.setItem(FILTER_PREFERENCE_KEY, 'outdated');
+    expect(new LocalStorageQuizPreferences().loadFilter()).toBe('unanswered');
+  });
 });

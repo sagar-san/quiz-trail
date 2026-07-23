@@ -10,8 +10,6 @@ export function filterQuestions(
   if (filter === 'unanswered') return questions.filter((q) => !(q.questionId in progress));
   if (filter === 'incorrect') return questions.filter((q) => progress[q.questionId] === false);
   if (filter === 'saved') return questions.filter((q) => saved.has(q.questionId));
-  // Editorial metadata is revealed only after an answer has been recorded.
-  if (filter === 'outdated') return questions.filter((q) => q.isOutdated && q.questionId in progress);
   return questions;
 }
 

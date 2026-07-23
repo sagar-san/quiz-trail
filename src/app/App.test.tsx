@@ -34,11 +34,14 @@ describe('App', () => {
     const store = memoryStore();
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
+    expect(screen.getByText('3 remaining of 3')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Outdated' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     expect(screen.queryByRole('link', { name: /Try 10 free PMLE sample questions/ })).not.toBeInTheDocument();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
+    expect(screen.getByText('2 remaining of 3')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'Save progress' }));
     await waitFor(() => expect(store.save).toHaveBeenCalled());
     expect(screen.getByText('Progress saved')).toBeVisible();

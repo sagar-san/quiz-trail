@@ -157,6 +157,14 @@ export function App({
   const currentIndex = displayQuestions.findIndex((question) => question.questionId === state.currentQuestionId);
   const current = displayQuestions[currentIndex] ?? displayQuestions[0];
   const counts = selectCounts(state);
+  const queuePosition = Math.max(currentIndex, 0) + 1;
+  const progressLabel = state.filter === 'unanswered'
+    ? `${counts.remaining} remaining of ${counts.total}`
+    : state.filter === 'incorrect'
+      ? `Question ${queuePosition} of ${displayQuestions.length} incorrect`
+      : state.filter === 'saved'
+        ? `Question ${queuePosition} of ${displayQuestions.length} saved`
+        : `Question ${queuePosition} of ${displayQuestions.length}`;
   const debugMetadata = new URLSearchParams(window.location.search).get('debug') === 'true';
   const changeFilter = (filter: typeof state.filter) => {
     preferenceStore.saveFilter(filter);
@@ -361,8 +369,7 @@ export function App({
             <QuestionCard
               key={current.questionId}
               question={current}
-              position={Math.max(currentIndex, 0) + 1}
-              total={displayQuestions.length}
+              progressLabel={progressLabel}
               saved={state.savedForLater.includes(current.questionId)}
               priorOutcome={state.progress[current.questionId]}
               showInternalMetadata={debugMetadata}

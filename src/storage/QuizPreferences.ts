@@ -6,7 +6,7 @@ export interface QuizPreferences {
 }
 
 export const FILTER_PREFERENCE_KEY = 'quizTrail.filter.v1';
-const validFilters: QuizFilter[] = ['all', 'unanswered', 'incorrect', 'saved', 'outdated'];
+const validFilters: QuizFilter[] = ['all', 'unanswered', 'incorrect', 'saved'];
 
 export class LocalStorageQuizPreferences implements QuizPreferences {
   constructor(private readonly storage: Storage = window.localStorage) {}

@@ -52,7 +52,6 @@ export function AnalyticsSummary({ questions, progress, savedForLater, onBack, o
     { label: 'Incorrect', count: reviewQueue.incorrect, filter: 'incorrect' },
     { label: 'Starred', count: reviewQueue.saved, filter: 'saved' },
     { label: 'Unanswered', count: reviewQueue.unanswered, filter: 'unanswered' },
-    { label: 'Outdated', count: reviewQueue.outdated, filter: 'outdated', note: 'Answered only' },
   ];
 
   return (
