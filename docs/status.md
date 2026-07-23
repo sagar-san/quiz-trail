@@ -11,10 +11,15 @@ Last reviewed: 2026-07-23
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
-- Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. Locally, the copied prompt now requires third-party agents to solve independently before auditing the bank answer as an untrusted claim; this change is not yet deployed.
+- Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. The copied prompt requires third-party agents to solve independently before auditing the bank answer as an untrusted claim and to return an explicit agree, disagree, ambiguous, or outdated verdict.
 - Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback was intentionally not migrated.
 
 ## Recent verification
+
+On 2026-07-23, for the independent AI question-review prompt:
+- Typecheck, targeted lint, all 64 unit/component tests, the Firebase-mode production build, and all 16 local browser tests passed.
+- Repository-wide lint remained blocked only by the previously recorded third-party JavaScript under `.tmp/uv-cache`; the changed source and test files passed targeted lint.
+- Commit `a30e1b1` was pushed, and the Hosting-only production deployment succeeded. Live homepage and question-bank smoke checks returned HTTP 200 with `no-cache`, and the deployed JavaScript contained the independent-review, anti-agreement, ambiguity, and untrusted-claim instructions.
 
 On 2026-07-23, for the single-feedback persistence release:
 - Typecheck, targeted lint, all 64 unit/component tests, all 13 Firestore rules/storage tests, the Firebase-mode production build, all 16 local browser tests, and the signed-in Firebase emulator browser test passed.
