@@ -4,14 +4,14 @@ Last reviewed: 2026-07-23
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `8ae4b2e` (`fix: clarify question queue progress`).
+- The production application is live at <https://quiz-trail.web.app> from commit `e90597a` (`feat: streamline answered question actions`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a debug-only Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
-- Main includes an undeployed answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode.
+- Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode.
 
 ## Recent verification
 
@@ -19,6 +19,7 @@ On 2026-07-23, for the AI prompt action and learner-facing question feedback:
 - Typecheck, targeted lint, all 63 unit/component tests, all 9 Firestore rules/storage tests, and the Firebase-mode production build passed.
 - All 16 local browser tests passed across desktop and mobile, including the clipboard regression, accessibility, and horizontal-overflow checks.
 - An answered question was visually inspected in the in-app browser; the compact reference/copy row fit cleanly and the feedback form appeared in its existing More section without debug mode.
+- Commit `e90597a` was pushed and the Hosting-only production deployment succeeded. Live smoke checks returned HTTP 200 for the homepage and question CSV with the expected `no-cache` policy, and the deployed JavaScript contained the new AI prompt and learner feedback UI while omitting the removed explanation block.
 
 On 2026-07-23, for the question progress labels and Outdated-filter removal:
 - Typecheck, targeted lint, all 63 unit/component tests, and the Firebase-mode production build passed.
