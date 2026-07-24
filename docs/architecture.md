@@ -2,16 +2,19 @@
 
 ## System overview
 
-Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample page are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads the complete CSV question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
+Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample page are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads and decrypts the complete question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
 
 ```text
-public/data/questions.csv
+private questions.csv
           |
           v
- CSV validation + versioning
+ validation + build-time encryption
           |
           v
- React app <-> quiz reducer/selectors
+ /data/questions.bin
+          |
+          v
+ browser decryption <-> React app <-> quiz reducer/selectors
      |                    |
      v                    v
  AuthService          ProgressStore
@@ -42,14 +45,14 @@ The primary boundaries are:
 - `AuthService`: subscribe to identity and perform sign-in, sign-out, reauthentication, and account deletion.
 - `ProgressStore`: load, save, and reset a `UserProgress` snapshot.
 - `QuizPreferences`: immediately load and save the active filter independently of progress.
-- CSV loader/parser: download, decode, validate, version, and shuffle the question bank.
+- Question-bank loader/parser: download, decrypt, decode, validate, version, and shuffle the question bank.
 - Quiz reducer and selectors: own domain transitions and derived views without depending on Firebase or browser storage.
 
 ## Startup and load flow
 
 1. The application resolves the current identity through `AuthService`.
-2. Once a user identity exists, it loads `/data/questions.csv` as bytes.
-3. The browser decodes UTF-8, validates every row, derives a bank version, and shuffles the questions once.
+2. Once a user identity exists, it loads `/data/questions.bin` as bytes.
+3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version from the plaintext bytes, and shuffles the questions once.
 4. The reducer receives the bank, and the stored filter preference is applied.
 5. The selected `ProgressStore` loads saved progress.
 6. Saved question IDs are reconciled against the current bank before entering reducer state.
@@ -141,7 +144,9 @@ contains an `enabled` boolean flag. Firestore security rules read this document 
 
 ## Question-bank identity and reconciliation
 
-`public/data/questions.csv` is the canonical and only runtime question source for the practice application. The normal HTTPS path derives a shortened SHA-256 version marker from the exact file bytes. In insecure local-network contexts without Web Crypto, the loader uses a deterministic FNV-1a fallback marker.
+The canonical `questions.csv` lives in a separate private repository and is supplied through `QUESTION_BANK_PATH`. A production build validates and AES-GCM encrypts it into `/data/questions.bin`. The browser bundle necessarily contains the decryption material, so this prevents casual plain-file downloads but is not intended to resist a determined extractor. The normal HTTPS path derives a shortened SHA-256 version marker from the decrypted CSV bytes.
+
+During local Vite development, the external CSV is served only by development middleware at `/data/questions.csv`. This preserves insecure local-network development, where Web Crypto may be unavailable, without placing the source file in the public application repository or production output.
 
 The static `/sample-questions/` page deliberately contains a manually copied SEO snapshot of ten selected questions. It is not loaded by the practice application and does not participate in progress identity or grading. Its `data-question-id` attributes identify the corresponding canonical questions for maintenance.
 
@@ -187,7 +192,7 @@ Firebase Hosting serves those files directly. There is no catch-all rewrite, so 
 
 - Hashed assets use long-lived immutable caching.
 - Public HTML and `practice/index.html` use `no-cache`.
-- `/data/questions.csv` uses `no-cache` so clients revalidate the canonical bank.
+- `/data/questions.bin` uses `no-cache` so clients revalidate the encrypted bank.
 
 The committed Firebase alias `production` targets the single live `quiz-trail` project. Local Firebase emulators are the development environment; there is no separate staging project.
 
@@ -207,7 +212,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 | Firebase initialization and configuration | `src/firebase/` |
 | Local and Firestore persistence | `src/storage/` |
 | Styling | `src/styles/index.css` |
-| Question-bank tooling | `scripts/preflight-csv.ts` |
+| Question-bank tooling | `scripts/preflight-csv.ts`, `vite.config.ts` |
 | Unit and component tests | Colocated `*.test.ts` and `*.test.tsx` files |
 | Browser tests | `e2e/` |
 | Firebase integration tests | `tests/` and `e2e/firebase-emulator.spec.ts` |
@@ -216,7 +221,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 ## Architectural invariants
 
-- The CSV is the practice application's only runtime question source.
+- The private CSV is the only authored question source; production runs from its encrypted build artifact.
 - Question IDs are permanent progress keys, never row positions.
 - Domain logic must remain independent of Firebase-specific APIs.
 - Progress remains a compact per-user snapshot unless a separately reviewed schema and rules migration changes it.

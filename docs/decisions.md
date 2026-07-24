@@ -4,7 +4,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D001 — Keep practice questions in one canonical CSV
 
-- **Status:** Accepted; static SEO snapshot exception added by D011
+- **Status:** Superseded by D012; static SEO snapshot exception added by D011
 - **Decision:** `public/data/questions.csv` is the practice application's only runtime question source. The browser loads and validates it directly; no separately maintained runtime JSON or Firestore question collection is used.
 - **Why:** The question bank needs to remain portable, reviewable in source control, and editable without database migrations or an admin application.
 - **Consequences:** The whole bank is deployed as an asset, invalid rows reject the bank, and CSV changes go through preflight validation.
@@ -78,3 +78,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Serve the landing page, FAQ, and ten-question sample page as static HTML, and host the React/Firebase application at `/practice/`. The static sample page intentionally copies ten selected questions for SEO rather than generating them from the CSV.
 - **Why:** Public discovery content should expose complete headings, links, and useful copy without requiring JavaScript. Keeping the samples as a small static snapshot makes the public pages simple and fast.
 - **Consequences:** Firebase Hosting no longer uses a global SPA fallback, unknown paths return 404, and the copied samples can drift from the canonical CSV. Their permanent IDs remain in `data-question-id` attributes so maintainers can compare and update the snapshot deliberately.
+
+## D012 — Keep the source bank private and deploy an encrypted asset
+
+- **Status:** Accepted
+- **Decision:** Maintain the canonical `questions.csv` in a separate private repository. The public application repository reads it from `QUESTION_BANK_PATH` at development and build time. Production builds validate and AES-GCM encrypt the CSV into `/data/questions.bin`; the browser decrypts that asset in memory.
+- **Why:** The authored question bank should not be obtainable by cloning the public application repository or opening a readable production CSV URL.
+- **Consequences:** Local development and deployment require access to the private bank. The browser still receives the complete bank and its public decryption material, so encryption is a download deterrent rather than a security boundary. Stronger extraction resistance would require server-side question delivery and grading. Versions previously committed to the public repository must be treated as already disclosed.

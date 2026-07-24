@@ -1,6 +1,12 @@
 # Question bank guide
 
-`public/data/questions.csv` is the practice application's only runtime question source. Do not maintain another runtime copy.
+The canonical `questions.csv` lives in the separate private `quiz-trail-question-bank` repository. With the two repositories cloned as siblings, its default local path is:
+
+```text
+../quiz-trail-question-bank/questions.csv
+```
+
+The public application repository must not contain or commit a plaintext copy. A production build validates the external CSV and emits only the AES-GCM-encrypted `/data/questions.bin` runtime asset. Set `QUESTION_BANK_PATH` to use a different local or CI location.
 
 The static SEO page at `sample-questions/index.html` is a deliberate exception: it contains a manually copied snapshot of ten questions and is not consumed by the practice application. Each sample retains its permanent ID in a `data-question-id` attribute. When one of those canonical CSV questions changes, review the static snapshot separately and update it when the public sample should reflect the change.
 
@@ -18,7 +24,7 @@ To validate a candidate file before replacing the canonical bank, pass its path.
 `--compare` to summarize permanent-ID, prompt, and answer changes against the current bank:
 
 ```bash
-npm run preflight -- public/data/questions_candidate.csv --compare public/data/questions.csv
+npm run preflight -- /path/to/questions_candidate.csv --compare ../quiz-trail-question-bank/questions.csv
 ```
 
 An invalid row rejects the entire bank, preventing a silently incomplete dataset from reaching learners. The browser derives the question-bank version automatically from the exact CSV bytes using SHA-256; there is no manual version field to update.
@@ -49,4 +55,4 @@ Question content and metadata remain in the CSV; learner progress continues to j
 - `reference_url` may be blank; when present it must use HTTP(S).
 - `chatgpt_verified` may be `TRUE`, `FALSE`, or blank.
 
-After preflight, run the normal tests and production build before committing and deploying the updated bank.
+After preflight, run the normal tests and production build before committing and deploying the updated bank. The build requires the private CSV at the default sibling path or an explicit `QUESTION_BANK_PATH`.

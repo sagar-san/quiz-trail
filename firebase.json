@@ -36,7 +36,7 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {
-        "source": "/data/questions.csv",
+        "source": "/data/questions.bin",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ]

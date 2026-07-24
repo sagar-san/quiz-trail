@@ -14,5 +14,9 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
-# Legacy source copy; the application uses public/data/questions.csv exclusively.
+# Question-bank sources belong only in the separate private repository.
+/public/data/questions.csv
+/questions.csv
+
+# Legacy source copy.
 /quiz-bank.csv

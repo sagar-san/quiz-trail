@@ -19,7 +19,11 @@ for (let index = 0; index < args.length; index += 1) {
   }
 }
 
-const inputPath = resolve(candidatePath ?? 'public/data/questions.csv');
+const inputPath = resolve(
+  candidatePath
+  ?? process.env.QUESTION_BANK_PATH
+  ?? '../quiz-trail-question-bank/questions.csv',
+);
 const bytes = await readFile(inputPath);
 const csv = bytes.toString('utf8');
 const questions = parseQuestionBank(csv);

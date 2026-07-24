@@ -1,5 +1,6 @@
 import type { QuizQuestion } from '../../domain/types';
 import { parseQuestionBank, QuestionBankError } from './parseQuestionBank';
+import { decryptQuestionBank } from './questionBankEncryption';
 
 export interface LoadedQuestionBank {
   questions: QuizQuestion[];
@@ -33,7 +34,11 @@ export async function hashCsv(bytes: Uint8Array): Promise<string> {
   return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
-export async function loadQuestionBank(url = '/data/questions.csv'): Promise<LoadedQuestionBank> {
+const defaultQuestionBankUrl = import.meta.env.PROD
+  ? '/data/questions.bin'
+  : '/data/questions.csv';
+
+export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<LoadedQuestionBank> {
   let response: Response;
   try {
     response = await fetch(url);
@@ -41,7 +46,15 @@ export async function loadQuestionBank(url = '/data/questions.csv'): Promise<Loa
     throw new QuestionBankError('The question bank could not be downloaded. Check your connection and try again.');
   }
   if (!response.ok) throw new QuestionBankError(`The question bank could not be loaded (HTTP ${response.status}).`);
-  const bytes = new Uint8Array(await response.arrayBuffer());
+  const downloadedBytes = new Uint8Array(await response.arrayBuffer());
+  let bytes: Uint8Array = downloadedBytes;
+  if (url.endsWith('.bin')) {
+    try {
+      bytes = await decryptQuestionBank(downloadedBytes);
+    } catch {
+      throw new QuestionBankError('The encrypted question bank could not be opened. Reload the page and try again.');
+    }
+  }
   const csv = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   return { questions: shuffleQuestions(parseQuestionBank(csv)), version: await hashCsv(bytes) };
 }

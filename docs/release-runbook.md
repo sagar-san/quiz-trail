@@ -153,11 +153,12 @@ curl -sS -I https://quiz-trail.web.app/
 curl -sS -I https://quiz-trail.web.app/practice/
 curl -sS -I https://quiz-trail.web.app/faq/
 curl -sS -I https://quiz-trail.web.app/sample-questions/
-curl -sS -I https://quiz-trail.web.app/data/questions.csv
+curl -sS -I https://quiz-trail.web.app/data/questions.bin
+curl -sS -o /dev/null -w '%{http_code}\n' https://quiz-trail.web.app/data/questions.csv
 curl -sS https://quiz-trail.web.app/
 ```
 
-Confirm HTTP 200 responses, expected HTML metadata and asset names, and `Cache-Control: no-cache` for the CSV. In a browser, test sign-in, one answer, Save Progress, reload/restore, avatar menu, and Settings when those flows changed.
+Confirm HTTP 200 responses, expected HTML metadata and asset names, and `Cache-Control: no-cache` for the encrypted bank. Confirm the legacy plaintext CSV URL returns 404. In a browser, test sign-in, one answer, Save Progress, reload/restore, avatar menu, and Settings when those flows changed.
 
 Record the deployed commit, verification results, and remaining work in `docs/status.md`, then commit and push that handoff update.
 

@@ -2,7 +2,7 @@
 
 ## Project summary
 
-Quiz Trail is a React and TypeScript practice application for Google Cloud's Professional Machine Learning Engineer certification. Questions come from `public/data/questions.csv`. Progress can be stored in the browser or in Firebase.
+Quiz Trail is a React and TypeScript practice application for Google Cloud's Professional Machine Learning Engineer certification. Questions come from an external private `questions.csv` supplied through `QUESTION_BANK_PATH`; production builds deploy only an encrypted asset. Progress can be stored in the browser or in Firebase.
 
 ## Safety and permissions
 
@@ -63,7 +63,7 @@ Do not update every document after every task. Do not change a date without a su
 
 ## Important invariants
 
-- `public/data/questions.csv` is the application's only question source.
+- The external private CSV is the application's only authored question source; never commit a plaintext bank to this public repository.
 - Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
 - Progress saves only when Save Progress is selected; the active filter is a separate immediately stored preference.
 - Do not change persistence or authentication contracts without reading `docs/architecture.md` and reviewing the relevant decision in `docs/decisions.md`.
