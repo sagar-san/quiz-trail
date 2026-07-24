@@ -4,11 +4,11 @@ Last reviewed: 2026-07-24
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `d1a39ef` (`add static SEO pages`).
+- The production application is live at <https://quiz-trail.web.app> from commit `6827bbb` (`protect question bank build asset`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
-- The working tree moves the canonical CSV out of the public application repository and reads it from the sibling `quiz-trail-question-bank` directory. Production builds now emit an AES-GCM-encrypted `/data/questions.bin` asset and decrypt it in browser memory. The sibling directory contains the verified CSV copy but still needs to be connected to its private GitHub repository; this change has not been deployed.
+- The canonical CSV now lives outside the public application repository in the sibling `quiz-trail-question-bank` directory. Production builds emit an AES-GCM-encrypted `/data/questions.bin` asset and decrypt it in browser memory. The sibling directory contains the verified CSV copy but still needs to be connected to its private GitHub repository.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
@@ -23,6 +23,8 @@ On 2026-07-24, for the external private bank and encrypted production asset:
 - Typecheck, targeted lint, all 64 unit/component tests, the Firebase-mode production build, and all 18 local browser tests passed.
 - Production-output inspection confirmed the encrypted asset format, exact decrypted/source SHA-256 equality, absence of `dist/data/questions.csv`, and no canonical prompt outside the intentional static sample page.
 - A local-mode production preview loaded the encrypted asset and displayed a real question in Chromium; the legacy CSV URL returned HTML rather than bank data. Firebase Hosting is expected to return 404 for that absent path after an approved deployment.
+- Repository-wide lint remained blocked by 19,208 errors in third-party JavaScript under `.tmp/uv-cache`; all changed TypeScript files passed targeted lint.
+- Commit `6827bbb` was pushed and the Hosting-only production deployment succeeded. Live smoke tests returned HTTP 200 with `no-cache` for all four public routes and `/data/questions.bin`; the legacy `/data/questions.csv` returned HTTP 404; and the deployed encrypted asset matched the verified production build by SHA-256.
 
 On 2026-07-24, for the static public-page split and curated `llms.txt`:
 - Typecheck, targeted lint, all 62 unit/component tests, the Firebase-mode production build, and all 18 local browser tests passed.
