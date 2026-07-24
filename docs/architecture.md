@@ -2,7 +2,7 @@
 
 ## System overview
 
-Quiz Trail is a client-rendered React and TypeScript application built with Vite. The browser loads the complete CSV question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
+Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample page are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads the complete CSV question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
 
 ```text
 public/data/questions.csv
@@ -35,7 +35,7 @@ Firebase modules are dynamically imported only for Firebase modes. Default local
 
 ## Application composition
 
-`src/main.tsx` creates runtime dependencies and renders the application. `src/app/createAppDependencies.ts` selects the authentication and persistence adapters. `src/app/App.tsx` coordinates authentication, question loading, reducer state, persistence, views, settings, and account actions.
+`practice/index.html` loads `src/main.tsx`, which creates runtime dependencies and renders the application. `src/app/createAppDependencies.ts` selects the authentication and persistence adapters. `src/app/App.tsx` coordinates authentication, question loading, reducer state, persistence, views, settings, and account actions.
 
 The primary boundaries are:
 
@@ -141,7 +141,9 @@ contains an `enabled` boolean flag. Firestore security rules read this document 
 
 ## Question-bank identity and reconciliation
 
-`public/data/questions.csv` is the canonical and only runtime question source. The normal HTTPS path derives a shortened SHA-256 version marker from the exact file bytes. In insecure local-network contexts without Web Crypto, the loader uses a deterministic FNV-1a fallback marker.
+`public/data/questions.csv` is the canonical and only runtime question source for the practice application. The normal HTTPS path derives a shortened SHA-256 version marker from the exact file bytes. In insecure local-network contexts without Web Crypto, the loader uses a deterministic FNV-1a fallback marker.
+
+The static `/sample-questions/` page deliberately contains a manually copied SEO snapshot of ten selected questions. It is not loaded by the practice application and does not participate in progress identity or grading. Its `data-question-id` attributes identify the corresponding canonical questions for maintenance.
 
 Permanent question IDs decouple saved progress from CSV order and page-load shuffling. When a bank changes, reconciliation:
 
@@ -174,10 +176,17 @@ Exam sections, objectives, topics, and difficulty support learner-facing summari
 
 ## Hosting and caching
 
-Vite emits the static application to `dist/`. Firebase Hosting rewrites unknown routes to `index.html`.
+Vite emits four HTML entry points to `dist/`:
+
+- `/` — static landing page;
+- `/faq/` — static FAQ with FAQ structured data;
+- `/sample-questions/` — static sample-question snapshot;
+- `/practice/` — React/Firebase practice application.
+
+Firebase Hosting serves those files directly. There is no catch-all rewrite, so unknown paths return a normal 404 instead of the landing page.
 
 - Hashed assets use long-lived immutable caching.
-- `index.html` uses `no-cache`.
+- Public HTML and `practice/index.html` use `no-cache`.
 - `/data/questions.csv` uses `no-cache` so clients revalidate the canonical bank.
 
 The committed Firebase alias `production` targets the single live `quiz-trail` project. Local Firebase emulators are the development environment; there is no separate staging project.
@@ -188,7 +197,8 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 | Area | Location |
 |---|---|
-| Application composition and flows | `src/app/` |
+| Static public pages | `index.html`, `faq/`, `sample-questions/` |
+| Application composition and flows | `practice/index.html`, `src/app/` |
 | Authentication adapters | `src/auth/` |
 | React UI components | `src/components/` |
 | Runtime mode configuration | `src/config/` |
@@ -206,7 +216,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 ## Architectural invariants
 
-- The CSV is the only question source.
+- The CSV is the practice application's only runtime question source.
 - Question IDs are permanent progress keys, never row positions.
 - Domain logic must remain independent of Firebase-specific APIs.
 - Progress remains a compact per-user snapshot unless a separately reviewed schema and rules migration changes it.

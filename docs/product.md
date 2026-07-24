@@ -14,16 +14,17 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can read the public PMLE overview and, in cloud mode, sign in with Google.
-2. The app loads and validates the complete question bank.
+1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`.
+2. In cloud mode, the learner signs in with Google before the practice app loads and validates the complete question bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. Save Progress explicitly persists the current answer and bookmark state.
 8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
-9. A public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq`.
-10. A public sample page presents ten curated questions from the canonical question bank, with answer explanations and references, at `/sample-questions`.
+9. A static public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq/`.
+10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
+11. A manually curated `/llms.txt` summarizes the application, its public pages, access requirements, and authoritative certification source for AI agents.
 
 ## Behavioral rules
 
@@ -68,7 +69,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Question content
 
-`public/data/questions.csv` is the sole question source. It contains question content, answer data, learner analytics metadata, and internal editorial metadata.
+`public/data/questions.csv` is the practice application's sole runtime question source. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample page is an intentional SEO snapshot of ten selected questions and is maintained manually.
 
 Question IDs are permanent progress keys. Wording, explanation, and reference corrections may retain an ID when saved outcomes should remain attached. A change to what a question tests or to its correct answer requires a new ID so learners receive it as unanswered.
 
@@ -77,6 +78,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 ## Product boundaries
 
 - The question bank remains a versioned CSV deployed with the application, not live Firestore content.
+- The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
 - Saving remains explicit rather than automatic.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.

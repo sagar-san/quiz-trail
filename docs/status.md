@@ -1,6 +1,6 @@
 # Current status
 
-Last reviewed: 2026-07-23
+Last reviewed: 2026-07-24
 
 ## Active state
 
@@ -13,8 +13,15 @@ Last reviewed: 2026-07-23
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 - Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. The copied prompt frames the agent as an instructor guiding a student, requires an independent conclusion before considering the learner or bank answers, groups the bank content as untrusted claims, and supports agree, disagree, ambiguous, outdated, and invalid verdicts.
 - Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback was intentionally not migrated.
+- The working tree adds static landing, FAQ, and ten-question sample pages; moves the React/Firebase application to `/practice/`; removes the global Hosting fallback; adds a manually curated `public/llms.txt`; and includes the owner-provided Google Search Console verification file. It has not been deployed.
 
 ## Recent verification
+
+On 2026-07-24, for the static public-page split and curated `llms.txt`:
+- Typecheck, targeted lint, all 62 unit/component tests, the Firebase-mode production build, and all 18 local browser tests passed.
+- Desktop and mobile visual inspection confirmed the landing and sample pages retain the Quiz Trail visual system, contain one H1, avoid horizontal overflow, and support native answer disclosures.
+- The local Hosting emulator returned HTTP 200 for `/`, `/faq/`, `/sample-questions/`, `/practice/`, and `/llms.txt`; served `llms.txt` as plain text; and returned HTTP 404 for an unknown path.
+- Repository-wide lint remains blocked by previously recorded third-party JavaScript under `.tmp/uv-cache`; all changed TypeScript files pass targeted lint.
 
 On 2026-07-23, for the refined student-guidance AI review prompt:
 - Typecheck, targeted lint, all 64 unit/component tests, the Firebase-mode production build, and all 16 local browser tests passed.

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthService';
@@ -167,33 +167,4 @@ describe('App', () => {
     expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
   });
 
-  it('serves a public FAQ with route-specific search metadata', () => {
-    window.history.pushState({}, '', '/faq');
-    const { unmount } = render(<App bankLoader={loader} progressStore={memoryStore()} />);
-
-    expect(screen.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
-    expect(screen.getByRole('heading', { name: 'Are these the real certification exam questions?' })).toBeVisible();
-    const freeAnswer = screen.getByRole('heading', { name: 'Is Quiz Trail free?' }).closest('section')!;
-    expect(within(freeAnswer).getByRole('link', { name: 'Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
-    expect(within(freeAnswer).getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
-    expect(document.title).toBe('Google Cloud PMLE Practice FAQ | Quiz Trail');
-    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq');
-    expect([...document.querySelectorAll('script[type="application/ld+json"]')].some((script) => script.textContent?.includes('FAQPage'))).toBe(true);
-
-    unmount();
-    window.history.pushState({}, '', '/');
-  });
-
-  it('serves sample questions publicly from the question bank', async () => {
-    window.history.pushState({}, '', '/sample-questions');
-    const { unmount } = render(<App bankLoader={loader} progressStore={memoryStore()} />);
-
-    expect(screen.getByRole('heading', { name: '10 Google Cloud PMLE sample questions' })).toBeVisible();
-    expect(await screen.findByText('Choose the managed analytics store.')).toBeVisible();
-    expect(screen.getAllByText('Show answer and explanation')).toHaveLength(2);
-    expect(document.title).toBe('10 Google Cloud PMLE Sample Questions | Quiz Trail');
-
-    unmount();
-    window.history.pushState({}, '', '/');
-  });
 });

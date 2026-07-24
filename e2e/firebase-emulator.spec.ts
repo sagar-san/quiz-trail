@@ -29,7 +29,7 @@ async function signInWithExistingEmulatorAccount(page: Page) {
 
 test('signs in, saves to Firestore, signs out, and restores after signing back in', async ({ page }) => {
   test.setTimeout(60_000);
-  await page.goto('/');
+  await page.goto('/practice/');
   await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
   await signInWithNewEmulatorAccount(page);
   await expect(page.getByText('Trail Tester')).toBeVisible();

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Try 10 free Google Cloud Professional Machine Learning Engineer sample questions with answers, explanations, and official references." />
+    <link rel="canonical" href="https://quiz-trail.web.app/sample-questions/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles/public.css" />
+    <meta name="theme-color" content="#176b57" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://quiz-trail.web.app/sample-questions/" />
+    <meta property="og:site_name" content="Quiz Trail" />
+    <meta property="og:title" content="10 Google Cloud PMLE Sample Questions | Quiz Trail" />
+    <meta property="og:description" content="Try 10 free Google Cloud Professional Machine Learning Engineer sample questions with answers, explanations, and official references." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="10 Google Cloud PMLE Sample Questions | Quiz Trail" />
+    <meta name="twitter:description" content="Try 10 free Google Cloud Professional Machine Learning Engineer sample questions with answers, explanations, and official references." />
+    <title>10 Google Cloud PMLE Sample Questions | Quiz Trail</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Quiz Trail home"><span class="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+      <nav class="public-nav" aria-label="Main navigation">
+        <a href="/sample-questions/" aria-current="page">Sample questions</a>
+        <a href="/faq/">FAQ</a>
+        <a class="header-button" href="/practice/">Practice</a>
+      </nav>
+    </header>
+
+    <main class="samples-shell">
+      <a class="breadcrumb" href="/">← Back to home</a>
+      <header class="samples-heading">
+        <p class="eyebrow">Free PMLE practice</p>
+        <h1>10 Google Cloud PMLE sample questions</h1>
+        <p>Test your judgment across architecture, generative AI, security, evaluation, and production ML. Open each answer when you are ready to check your reasoning.</p>
+      </header>
+
+      <div class="sample-list">
+        <article class="sample-card" data-question-id="PMLE-0383">
+          <div class="sample-meta"><span>Question 1 of 10</span><span>Medium · Serving and scaling models</span></div>
+          <h2>A RAG application must serve users in two geographic regions. The model endpoint is regional, the vector store is in only one region, and cross-region retrieval dominates latency. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Increase generation temperature.</li>
+            <li>Send every request through the distant vector store twice.</li>
+            <li>Use a larger embedding dimension without moving data.</li>
+            <li>Co-locate or replicate the retrieval layer and application components near users and the model-serving region, subject to data-governance requirements.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: D</strong></p>
+              <p>Network distance between retrieval, application, and model-serving components can dominate latency. Regional co-location or compliant replication reduces round trips; generation parameters do not fix network latency.</p>
+              <a href="https://cloud.google.com/architecture/minimizing-predictive-serving-latency-in-machine-learning" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0384">
+          <div class="sample-meta"><span>Question 2 of 10</span><span>Easy · Architecting low-code AI solutions</span></div>
+          <h2>A financial news website is building an AI agent that summarizes public market announcements and explains recent stock movements. The organization’s enterprise databases contain licensed research and historical data, but they are not updated quickly enough for breaking public news. You want the agent to use current public information, provide source citations, and minimize custom ingestion infrastructure. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Use Grounding with Google Search for the agent’s Gemini requests.</li>
+            <li>Build a Cloud Run crawler that fetches selected news sites hourly and writes the content to Vector Search.</li>
+            <li>Fine-tune the current generally available Flash model each day on the latest financial-news digest.</li>
+            <li>Store precompiled RSS summaries in Agent Platform Sessions and add them to every conversation prompt.</li>
+            <li>Use Model Armor to identify whether each response contains current market information.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>A is correct because Grounding with Google Search gives Gemini access to current public web information and can return grounded responses with source support, without requiring the company to operate a custom crawler and index. B introduces ingestion delay and maintenance. C is unsuitable for continuously changing facts and would not guarantee freshness. D uses session state for the wrong purpose and still depends on a manually refreshed feed. E is a security control; it does not retrieve current market data.</p>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/grounding/grounding-with-google-search" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0385">
+          <div class="sample-meta"><span>Question 3 of 10</span><span>Medium · Architecting low-code AI solutions</span></div>
+          <h2>A support agent receives thousands of independent questions each hour. Nearly every request must consider the same 600-page product manual and API reference, which changes only once every few weeks. The team currently sends the entire documentation set with every Gemini request. You want to reduce repeated-input cost and latency without changing the model or answer quality. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Fine-tune the model on the documentation and remove the documentation from future requests.</li>
+            <li>Create an explicit context cache for the shared documentation and reference that cache in subsequent Gemini requests.</li>
+            <li>Store the documentation in Agent Platform Memory Bank so that all users share the same long-term memories.</li>
+            <li>Add the full documentation to each Agent Platform Session and extend every session indefinitely.</li>
+            <li>Cache the full prompt in each user’s browser and resend it with every request.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>B is correct because explicit context caching is designed for large, repeated content that is reused across many Gemini requests, reducing repeated-input cost and latency while preserving the same context. A is not appropriate for frequently referenced factual content and does not reliably encode the complete manual. C is for personalized long-term agent memory, not a shared reference corpus. D misuses session state and would not optimize reuse across independent users. E still transmits and bills the repeated content on every model request.</p>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/context-cache/context-cache-overview" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0386">
+          <div class="sample-meta"><span>Question 4 of 10</span><span>Medium · Monitoring AI solutions</span></div>
+          <h2>Your team is deploying a customer-facing support agent on Gemini Enterprise Agent Platform. During security testing, adversarial prompts cause the agent to reveal sensitive schema details and attempt to override its instructions. You need a managed control that inspects both incoming prompts and outgoing model responses for prompt injection, jailbreak attempts, and sensitive-data leakage. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Use VPC Service Controls to create a service perimeter around the project.</li>
+            <li>Set all Gemini harmful-content safety thresholds to their most restrictive values.</li>
+            <li>Integrate Model Armor into the agent’s request and response path with the appropriate filters enabled.</li>
+            <li>Grant the agent a dedicated service account with the minimum required IAM roles.</li>
+            <li>Require human approval for every incoming user prompt before the agent processes it.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: C</strong></p>
+              <p>C is correct because Model Armor can inspect prompts and responses for prompt injection, jailbreak attempts, malicious content, and sensitive-data leakage. A helps reduce data-perimeter risk but does not inspect prompt semantics. B controls categories of harmful generated content but is not a complete prompt-injection and data-leakage defense. D is essential for least privilege but does not screen model inputs or outputs. E would be operationally impractical and is unnecessary for every ordinary prompt.</p>
+              <a href="https://docs.cloud.google.com/model-armor/overview" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0387">
+          <div class="sample-meta"><span>Question 5 of 10</span><span>Medium · Scaling prototypes into ML models</span></div>
+          <h2>A customer-support platform processes tens of thousands of requests per minute. Most requests require short classification or extraction tasks, but a small percentage require complex reasoning over lengthy policy documents. You want to minimize average latency and model cost while preserving high quality for difficult requests. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Send every request to the current generally available Pro model and use context caching for all prompts.</li>
+            <li>Send every request to the current generally available Flash model and increase the maximum output-token limit for complex requests.</li>
+            <li>Fine-tune one Flash model on all historical requests and use it for every request type.</li>
+            <li>Use a lightweight routing step to send routine requests to a Flash model and route complex requests to a Pro model; evaluate routing quality continuously.</li>
+            <li>Deploy separate Pro-model endpoints for each request category and randomly distribute traffic across them.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: D</strong></p>
+              <p>D is correct because model routing lets the organization use a lower-cost, lower-latency Flash model for routine work while reserving a higher-capability Pro model for requests that need deeper reasoning. Continuous evaluation helps detect routing errors. A unnecessarily increases cost and latency for simple tasks. B can reduce quality on complex requests; increasing output limits does not add reasoning capability. C does not guarantee one model will meet both workload profiles and adds maintenance. E does not route based on task complexity and duplicates expensive infrastructure.</p>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0388">
+          <div class="sample-meta"><span>Question 6 of 10</span><span>Medium · Collaborating within and across teams to manage data and models</span></div>
+          <h2>You are designing a financial-advisor agent on Gemini Enterprise Agent Platform. The agent must maintain the state of the current conversation, including the current topic and recent tool results. It must also remember selected user preferences across separate conversations. You want to use managed platform capabilities and minimize custom state-management code. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Use Agent Platform Memory Bank for current-conversation state, and store long-term preferences manually in BigQuery.</li>
+            <li>Use Agent Platform Sessions for both current-conversation state and permanent user preferences by setting a one-year session timeout.</li>
+            <li>Store every full conversation in Bigtable and inject the complete history into every prompt.</li>
+            <li>Use Memorystore as the only state system and disable Agent Platform Sessions.</li>
+            <li>Use Agent Platform Sessions for current-conversation state and Agent Platform Memory Bank for relevant information that should persist across sessions.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: E</strong></p>
+              <p>E is correct because Agent Platform Sessions maintain the state and events associated with an ongoing conversation, while Agent Platform Memory Bank extracts and stores personalized information that can persist across sessions. A reverses the intended responsibilities. B treats session retention as durable semantic memory and does not provide cross-session memory management. C increases token use and requires custom logic. D adds infrastructure and omits the managed capabilities designed for this purpose.</p>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale/memory-bank" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0389">
+          <div class="sample-meta"><span>Question 7 of 10</span><span>Hard · Monitoring AI solutions</span></div>
+          <h2>An enterprise customer-support agent can call an internal REST API to view order histories. Security policy requires every tool call to be authorized for the currently authenticated end user, and the agent must never gain broad access to all customer records. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Place the tool behind a trusted backend that validates the end user's identity and authorization for the requested resource before performing the API call, using delegated or downscoped credentials where supported.</li>
+            <li>Run the agent with a service account that has read access to all order records, and rely on the model prompt to limit requests to the current user.</li>
+            <li>Place the REST API inside a VPC Service Controls perimeter and allow the agent's service account to call every order-history method.</li>
+            <li>Validate the order ID only in client-side JavaScript before sending the request to the agent.</li>
+            <li>Use Model Armor to redact order identifiers from prompts before the tool call.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>A is correct because authorization must be enforced at the trusted tool boundary using the authenticated user's identity and resource-level checks. Broad service-account permissions, client-side validation, network perimeters, and prompt filtering do not replace server-side authorization.</p>
+              <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0390">
+          <div class="sample-meta"><span>Question 8 of 10</span><span>Hard · Monitoring AI solutions</span></div>
+          <h2>A product team wants to compare a new customer-support prompt with the production prompt. The evaluation must scale to thousands of examples, capture semantic quality against a custom rubric, and identify cases that should be sent to human reviewers. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Use only deterministic string-overlap metrics such as BLEU and ROUGE against reference answers.</li>
+            <li>Run pairwise evaluation with AutoSxS in the Gen AI evaluation service using a judge model and custom criteria, then route disagreement or low-confidence cases for separate human review.</li>
+            <li>Ask human raters to manually score every response and avoid automated evaluation.</li>
+            <li>Compare only Model Armor safety scores for the two prompt versions.</li>
+            <li>Deploy both prompts to all production users and use click-through rate as the only quality metric.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>B is correct because pairwise AutoSxS is designed to compare candidate and baseline responses at scale using rubric-based semantic judgments. Human review can then focus on disagreement or uncertain cases. String metrics, safety scores, or a single production engagement metric do not provide a complete quality comparison.</p>
+              <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval-approach" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0391">
+          <div class="sample-meta"><span>Question 9 of 10</span><span>Medium · Scaling prototypes into ML models</span></div>
+          <h2>You are designing a retail virtual assistant that handles returns, technical troubleshooting, and personalized recommendations. A single agent with 50 tool definitions has high latency, frequent tool-selection errors, and context-window pressure. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Keep one agent and cache all tool schemas in the prompt.</li>
+            <li>Fine-tune one model to call all 50 tools without changing the architecture.</li>
+            <li>Use a supervisor agent to route requests to specialized sub-agents that each expose only the tools needed for their domain.</li>
+            <li>Use Model Armor to remove parts of the user request so fewer tools are considered.</li>
+            <li>Wrap all 50 operations in one generic REST endpoint with a single untyped request payload.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: C</strong></p>
+              <p>C is correct because a supervisor pattern reduces the number of tools and instructions visible to each specialized agent, improving routing accuracy and reducing context pressure. Caching schemas or fine-tuning does not remove architectural complexity, and a generic untyped endpoint weakens validation and observability.</p>
+              <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/agent-builder/overview" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PMLE-0392">
+          <div class="sample-meta"><span>Question 10 of 10</span><span>Medium · Architecting low-code AI solutions</span></div>
+          <h2>An application extracts plaintiff, defendant, court date, and case number from legal text and writes the result to a relational database. The ingestion pipeline fails if the model omits a required key or wraps the result in Markdown. What should you do?</h2>
+          <ol class="sample-options" type="A">
+            <li>Strip Markdown with regular expressions and inject any missing fields after generation.</li>
+            <li>Fine-tune the model only on examples containing valid JSON.</li>
+            <li>Use Model Armor to block every response that is not JSON.</li>
+            <li>Request structured output by supplying a response schema that defines the required fields and data types.</li>
+            <li>Add a system instruction that says “return JSON only.”</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: D</strong></p>
+              <p>D is correct because structured output with a response schema constrains the model to produce valid JSON with the expected shape. Prompt wording and post-processing are less reliable, while Model Armor is not a schema-validation service.</p>
+              <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-structured-outputs" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+      </div>
+
+      <section class="faq-cta" aria-labelledby="samples-cta-heading">
+        <h2 id="samples-cta-heading">Keep practicing</h2>
+        <p>Quiz Trail includes 408 free questions, progress tracking, review queues, and section-level insights.</p>
+        <a class="primary-button" href="/practice/">Open the full question bank</a>
+      </section>
+    </main>
+
+    <footer>
+      <span>Quiz Trail</span>
+      <div>
+        <a href="/">Home</a>
+        <a href="/faq/">FAQ</a>
+        <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
+      </div>
+    </footer>
+  </body>
+</html>

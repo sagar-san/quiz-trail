@@ -2,27 +2,47 @@ import { expect, test } from '@playwright/test';
 import axe from 'axe-core';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/practice/');
   await expect(page.getByText('408 questions')).toBeVisible();
 });
 
 test('publishes search and sharing metadata', async ({ page }) => {
+  await page.goto('/');
   await expect(page).toHaveTitle('Quiz Trail — Google Cloud PMLE Practice Questions');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /carefully curated bank of 408 practice questions/);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /408 free practice questions/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/');
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
+  await expect(page.getByRole('heading', { name: 'Google Cloud PMLE practice questions' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Start practicing' })).toHaveAttribute('href', '/practice/');
+
+  const landing = await page.request.get('/');
+  const landingHtml = await landing.text();
+  expect(landingHtml).toContain('<h1>Google Cloud PMLE practice questions</h1>');
+  expect(landingHtml).toContain('href="/sample-questions/"');
 
   const robots = await page.request.get('/robots.txt');
   expect(robots.ok()).toBe(true);
   expect(await robots.text()).toContain('Sitemap: https://quiz-trail.web.app/sitemap.xml');
 
+  const searchConsoleVerification = await page.request.get('/googlefc1ab9cdc98895c8.html');
+  expect(searchConsoleVerification.ok()).toBe(true);
+  expect(searchConsoleVerification.headers()['content-type']).toContain('text/html');
+  expect(await searchConsoleVerification.text()).toMatch(/^google-site-verification:/);
+
   const sitemap = await page.request.get('/sitemap.xml');
   expect(sitemap.ok()).toBe(true);
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/</loc>');
-  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/faq</loc>');
-  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/sample-questions</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/faq/</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/sample-questions/</loc>');
+
+  const llms = await page.request.get('/llms.txt');
+  expect(llms.ok()).toBe(true);
+  expect(llms.headers()['content-type']).toContain('text/plain');
+  const llmsText = await llms.text();
+  expect(llmsText).toContain('# Quiz Trail');
+  expect(llmsText).toContain('[10 free PMLE sample questions](https://quiz-trail.web.app/sample-questions/)');
 });
 
 test('initial load scrolls to just above progress', async ({ page }) => {
@@ -42,24 +62,24 @@ test('initial load scrolls to just above progress', async ({ page }) => {
 });
 
 test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
-  await page.getByRole('link', { name: 'FAQ', exact: true }).first().click();
-  await expect(page).toHaveURL(/\/faq$/);
+  await page.goto('/faq/');
+  await expect(page).toHaveURL(/\/faq\/$/);
   await expect(page).toHaveTitle('Google Cloud PMLE Practice FAQ | Quiz Trail');
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq/');
   await expect(page.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
   const faqSchema = page.locator('script[data-quiz-trail-schema="faq"]');
   await expect(faqSchema).toHaveCount(1);
   expect(await faqSchema.evaluate((script) => script.textContent)).toContain('FAQPage');
-  await page.getByRole('button', { name: 'Start practicing' }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await page.getByRole('link', { name: 'Start practicing' }).click();
+  await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.getByText('408 questions')).toBeVisible();
 });
 
 test('sample page publishes ten canonical questions with explanations', async ({ page }) => {
-  await page.goto('/sample-questions');
-  await expect(page).toHaveURL(/\/sample-questions$/);
+  await page.goto('/sample-questions/');
+  await expect(page).toHaveURL(/\/sample-questions\/$/);
   await expect(page).toHaveTitle('10 Google Cloud PMLE Sample Questions | Quiz Trail');
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/sample-questions');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/sample-questions/');
   await expect(page.locator('.sample-card')).toHaveCount(10);
   await expect(page.locator('.sample-card').first()).toContainText('A RAG application must serve users in two geographic regions');
   await page.locator('.sample-answer summary').first().click();
@@ -72,6 +92,13 @@ test('sample page publishes ten canonical questions with explanations', async ({
   });
   expect(violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
+});
+
+test('practice entry is separate from public search pages', async ({ page }) => {
+  await expect(page).toHaveURL(/\/practice\/$/);
+  await expect(page).toHaveTitle('Practice Google Cloud PMLE Questions | Quiz Trail');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/practice/');
 });
 
 test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {

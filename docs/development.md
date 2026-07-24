@@ -38,6 +38,8 @@ npm run e2e
 npm run e2e:firebase    # emulators and dev:firebase must already be running
 ```
 
+The local public landing page is `/`; the React practice application is `/practice/`. The FAQ and sample pages are `/faq/` and `/sample-questions/`.
+
 `download-feedback` writes `feedback_export.md` using the Firebase Admin SDK. For production, authenticate with Application Default Credentials that can read Firestore and optionally set `GOOGLE_CLOUD_PROJECT` (it defaults to `quiz-trail`). To review emulator data instead, set `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`; no cloud credentials are used in that mode. The exporter reads all `submissions` documents, while learner-facing Firestore rules intentionally deny collection listing.
 
 Local emulator ports:

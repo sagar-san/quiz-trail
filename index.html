@@ -3,18 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with a carefully curated bank of 408 practice questions, explanations, and progress tracking." />
+    <meta name="description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with 408 free practice questions, explanations, references, and progress tracking." />
     <link rel="canonical" href="https://quiz-trail.web.app/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles/public.css" />
     <meta name="theme-color" content="#176b57" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://quiz-trail.web.app/" />
     <meta property="og:site_name" content="Quiz Trail" />
     <meta property="og:title" content="Quiz Trail — Google Cloud PMLE Practice Questions" />
-    <meta property="og:description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with a carefully curated bank of 408 practice questions, explanations, and progress tracking." />
+    <meta property="og:description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with 408 free practice questions, explanations, references, and progress tracking." />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Quiz Trail — Google Cloud PMLE Practice Questions" />
-    <meta name="twitter:description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with a carefully curated bank of 408 practice questions, explanations, and progress tracking." />
+    <meta name="twitter:description" content="Prepare for Google Cloud's Professional Machine Learning Engineer certification with 408 free practice questions, explanations, references, and progress tracking." />
     <title>Quiz Trail — Google Cloud PMLE Practice Questions</title>
     <script type="application/ld+json">
       {
@@ -22,7 +23,7 @@
         "@type": "WebApplication",
         "name": "Quiz Trail",
         "url": "https://quiz-trail.web.app/",
-        "description": "A carefully curated bank of 408 practice questions for the Google Cloud Professional Machine Learning Engineer certification, with explanations and progress tracking.",
+        "description": "A free bank of 408 carefully curated practice questions for the Google Cloud Professional Machine Learning Engineer certification, with explanations, references, and progress tracking.",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Web",
         "isAccessibleForFree": true
@@ -30,7 +31,95 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Quiz Trail home"><span class="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+      <nav class="public-nav" aria-label="Main navigation">
+        <a href="/sample-questions/">Sample questions</a>
+        <a href="/faq/">FAQ</a>
+        <a class="header-button" href="/practice/">Practice</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="landing-hero">
+        <div class="landing-hero-copy">
+          <p class="eyebrow">Free PMLE practice</p>
+          <h1>Google Cloud PMLE practice questions</h1>
+          <p class="hero-lede">Prepare with 408 free, carefully curated practice questions, explanations, official references, and progress tracking.</p>
+          <div class="hero-actions">
+            <a class="primary-button" href="/practice/">Start practicing</a>
+            <a class="secondary-button" href="/sample-questions/">Try 10 sample questions</a>
+          </div>
+          <p class="trust-note">Independent study tool · No paywall or premium question tier · Not affiliated with Google</p>
+        </div>
+        <aside class="hero-card" aria-label="What Quiz Trail includes">
+          <span class="hero-number">408</span>
+          <strong>practice questions</strong>
+          <ul>
+            <li>Single- and multiple-choice scenarios</li>
+            <li>Immediate answers and explanations</li>
+            <li>Review queues and section-level insights</li>
+            <li>Progress that resumes across devices</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="public-section" aria-labelledby="about-pmle">
+        <div>
+          <p class="eyebrow">About the certification</p>
+          <h2 id="about-pmle">What is the Professional Machine Learning Engineer certification?</h2>
+        </div>
+        <div class="section-copy">
+          <p>The Google Cloud Professional Machine Learning Engineer certification covers designing, building, productionizing, and improving scalable AI and machine learning solutions—from data and model architecture to MLOps and monitoring.</p>
+          <a class="text-link" href="https://cloud.google.com/learn/certification/machine-learning-engineer" target="_blank" rel="noopener noreferrer">View the official certification page <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="feature-section" aria-labelledby="study-your-way">
+        <div class="section-heading">
+          <p class="eyebrow">Focused preparation</p>
+          <h2 id="study-your-way">Study one question at a time</h2>
+          <p>Use short practice sessions, inspect explanations and references, save questions for later, and focus your next session on weaker exam sections.</p>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <span aria-hidden="true">01</span>
+            <h3>Practice deliberately</h3>
+            <p>Work through realistic scenarios across architecture, generative AI, security, evaluation, MLOps, and production ML.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">02</span>
+            <h3>Review the reasoning</h3>
+            <p>Every question includes an answer explanation and, when available, a reference for deeper study.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">03</span>
+            <h3>Track your coverage</h3>
+            <p>Review unanswered, incorrect, and saved questions, then use section-level insights to choose what to study next.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="public-cta" aria-labelledby="ready-to-practice">
+        <div>
+          <p class="eyebrow">Ready when you are</p>
+          <h2 id="ready-to-practice">Start with ten samples or open the full bank.</h2>
+        </div>
+        <div class="hero-actions">
+          <a class="primary-button" href="/practice/">Open the full question bank</a>
+          <a class="secondary-button" href="/sample-questions/">Preview sample questions</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Quiz Trail</span>
+      <div>
+        <a href="/faq/">FAQ</a>
+        <a href="/sample-questions/">Sample questions</a>
+        <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
+      </div>
+    </footer>
   </body>
 </html>

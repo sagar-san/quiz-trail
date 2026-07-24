@@ -1,6 +1,8 @@
 # Question bank guide
 
-`public/data/questions.csv` is the application's only question source. Do not maintain a second copy elsewhere in the repository.
+`public/data/questions.csv` is the practice application's only runtime question source. Do not maintain another runtime copy.
+
+The static SEO page at `sample-questions/index.html` is a deliberate exception: it contains a manually copied snapshot of ten questions and is not consumed by the practice application. Each sample retains its permanent ID in a `data-question-id` attribute. When one of those canonical CSV questions changes, review the static snapshot separately and update it when the public sample should reflect the change.
 
 The app consumes subject metadata for learner analytics and post-answer context. Semicolon-separated `exam_objectives` and `topics` values are treated as independent categories. Source, review-status, and terminology fields remain internal and appear post-answer only when `?debug=true` is present.
 

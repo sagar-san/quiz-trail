@@ -2,10 +2,10 @@
 
 This log records meaningful durable choices and why they were made. It is not a changelog or a place for routine implementation details. New decisions should be appended; when a choice changes, mark the earlier entry superseded and add the replacement.
 
-## D001 — Keep questions in one canonical CSV
+## D001 — Keep practice questions in one canonical CSV
 
-- **Status:** Accepted
-- **Decision:** `public/data/questions.csv` is the only question source. The browser loads and validates it directly; no separately maintained JSON or Firestore question collection is used.
+- **Status:** Accepted; static SEO snapshot exception added by D011
+- **Decision:** `public/data/questions.csv` is the practice application's only runtime question source. The browser loads and validates it directly; no separately maintained runtime JSON or Firestore question collection is used.
 - **Why:** The question bank needs to remain portable, reviewable in source control, and editable without database migrations or an admin application.
 - **Consequences:** The whole bank is deployed as an asset, invalid rows reject the bank, and CSV changes go through preflight validation.
 
@@ -71,3 +71,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Cloud question feedback is stored at `questionFeedback/{questionId}/submissions/{uid}`. A later submission replaces that learner's earlier feedback for the same question. Feedback is not stored in local mode, and review happens through a privileged external script rather than the learner UI.
 - **Why:** Direct document access is efficient for a learner's own feedback, per-question and cross-question review remain queryable, and feedback from different learners does not accumulate toward a single Firestore document-size limit.
 - **Consequences:** Learners cannot list other submissions, existing array-based feedback is not migrated, and the review script requires trusted Application Default Credentials.
+
+## D011 — Separate static discovery pages from the practice application
+
+- **Status:** Accepted
+- **Decision:** Serve the landing page, FAQ, and ten-question sample page as static HTML, and host the React/Firebase application at `/practice/`. The static sample page intentionally copies ten selected questions for SEO rather than generating them from the CSV.
+- **Why:** Public discovery content should expose complete headings, links, and useful copy without requiring JavaScript. Keeping the samples as a small static snapshot makes the public pages simple and fast.
+- **Consequences:** Firebase Hosting no longer uses a global SPA fallback, unknown paths return 404, and the copied samples can drift from the canonical CSV. Their permanent IDs remain in `data-question-id` attributes so maintainers can compare and update the snapshot deliberately.

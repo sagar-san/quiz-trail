@@ -29,7 +29,7 @@ npm ci
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Open <http://127.0.0.1:5173>.
+Open <http://127.0.0.1:5173> for the static landing page or <http://127.0.0.1:5173/practice/> for the practice application.
 
 ## Run with Firebase emulators
 
@@ -49,7 +49,7 @@ Terminal 2:
 npm run dev:firebase -- --host 127.0.0.1 --port 5173
 ```
 
-Open the app at <http://127.0.0.1:5173> and the Emulator UI at <http://127.0.0.1:4000>.
+Open the app at <http://127.0.0.1:5173/practice/> and the Emulator UI at <http://127.0.0.1:4000>.
 
 Stop both processes with Ctrl-C when finished. Do not start duplicate emulator processes; inspect current terminal/process state first.
 
@@ -94,7 +94,7 @@ The Vite build reads Firebase web configuration from the ignored local environme
 VITE_DATA_MODE=firebase npm run build
 ```
 
-Inspect `dist/index.html` when title, metadata, or asset loading changed. Do not deploy a local-mode build.
+Inspect `dist/index.html`, the other public HTML entry points, and `dist/practice/index.html` when titles, metadata, routing, or asset loading changed. Do not deploy a local-mode build.
 
 ## Authenticate and verify the target
 
@@ -150,6 +150,9 @@ At minimum:
 
 ```bash
 curl -sS -I https://quiz-trail.web.app/
+curl -sS -I https://quiz-trail.web.app/practice/
+curl -sS -I https://quiz-trail.web.app/faq/
+curl -sS -I https://quiz-trail.web.app/sample-questions/
 curl -sS -I https://quiz-trail.web.app/data/questions.csv
 curl -sS https://quiz-trail.web.app/
 ```

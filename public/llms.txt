@@ -1,0 +1,21 @@
+# Quiz Trail
+
+> Quiz Trail is a free, open-source practice application for learners preparing for Google Cloud's Professional Machine Learning Engineer certification.
+
+Quiz Trail provides 408 carefully curated single-choice and multiple-choice practice questions with answer explanations, references, progress tracking, review queues, and section-level insights. It is an independent study aid and is not affiliated with or endorsed by Google.
+
+## Public pages
+
+- [Quiz Trail home and PMLE overview](https://quiz-trail.web.app/): Learn what the certification covers and choose how to begin.
+- [Full PMLE practice bank](https://quiz-trail.web.app/practice/): Sign in to practice all 408 questions and save progress across devices.
+- [10 free PMLE sample questions](https://quiz-trail.web.app/sample-questions/): Preview representative questions, answers, explanations, and official references without signing in.
+- [Quiz Trail FAQ](https://quiz-trail.web.app/faq/): Read about the question bank, study approach, progress saving, and ways to contribute.
+- [Quiz Trail source code](https://github.com/Ameenota/quiz-trail): Review the open-source project or report an issue.
+- [Official Google Cloud certification page](https://cloud.google.com/learn/certification/machine-learning-engineer): Check current certification details and requirements from Google Cloud.
+
+## Access and content notes
+
+- The sample questions and FAQ are public and require no sign-in.
+- The full interactive question bank requires Google sign-in so progress can be linked to the learner's account.
+- The practice material is original and curated for learning. It is not an exam dump and does not claim to contain real certification exam questions.
+- Learners should use the official Google Cloud certification page and exam guide as the final source for current exam requirements.

@@ -16,11 +16,11 @@ export function PmleOverview() {
         </p>
         <p>
           The question bank is carefully curated and maintained to reflect the current exam. New here?{' '}
-          <a href="/sample-questions">Preview ten representative questions</a> before starting the full bank.
+          <a href="/sample-questions/">Preview ten representative questions</a> before starting the full bank.
         </p>
       </div>
       <div className="pmle-preview">
-        <a className="pmle-sample-cta" href="/sample-questions">
+        <a className="pmle-sample-cta" href="/sample-questions/">
           <span>Preview</span>
           <strong>Try 10 free PMLE sample questions</strong>
           <small>No sign-in required · Answers, explanations, and official references included.</small>
@@ -30,7 +30,7 @@ export function PmleOverview() {
       </div>
       <nav className="pmle-secondary-links" aria-label="PMLE resources">
         <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">Official certification <span aria-hidden="true">↗</span></a>
-        <a href="/faq">Practice FAQ</a>
+        <a href="/faq/">Practice FAQ</a>
       </nav>
     </section>
   );

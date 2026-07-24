@@ -1,8 +1,19 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        landing: fileURLToPath(new URL('./index.html', import.meta.url)),
+        faq: fileURLToPath(new URL('./faq/index.html', import.meta.url)),
+        samples: fileURLToPath(new URL('./sample-questions/index.html', import.meta.url)),
+        practice: fileURLToPath(new URL('./practice/index.html', import.meta.url)),
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
