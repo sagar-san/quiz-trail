@@ -4,7 +4,7 @@ Last reviewed: 2026-07-24
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `e441508` (`refine AI question review prompt`).
+- The production application is live at <https://quiz-trail.web.app> from commit `d1a39ef` (`add static SEO pages`).
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
@@ -13,7 +13,7 @@ Last reviewed: 2026-07-24
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 - Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. The copied prompt frames the agent as an instructor guiding a student, requires an independent conclusion before considering the learner or bank answers, groups the bank content as untrusted claims, and supports agree, disagree, ambiguous, outdated, and invalid verdicts.
 - Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback was intentionally not migrated.
-- The working tree adds static landing, FAQ, and ten-question sample pages; moves the React/Firebase application to `/practice/`; removes the global Hosting fallback; adds a manually curated `public/llms.txt`; and includes the owner-provided Google Search Console verification file. It has not been deployed.
+- Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
 
@@ -22,6 +22,7 @@ On 2026-07-24, for the static public-page split and curated `llms.txt`:
 - Desktop and mobile visual inspection confirmed the landing and sample pages retain the Quiz Trail visual system, contain one H1, avoid horizontal overflow, and support native answer disclosures.
 - The local Hosting emulator returned HTTP 200 for `/`, `/faq/`, `/sample-questions/`, `/practice/`, and `/llms.txt`; served `llms.txt` as plain text; and returned HTTP 404 for an unknown path.
 - Repository-wide lint remains blocked by previously recorded third-party JavaScript under `.tmp/uv-cache`; all changed TypeScript files pass targeted lint.
+- Commit `d1a39ef` was pushed and the Hosting-only production deployment succeeded. Live smoke tests returned HTTP 200 for all four public routes, the Search Console verification file, and `llms.txt`; the deployed verification and `llms.txt` bodies matched source; and an unknown path returned HTTP 404.
 
 On 2026-07-23, for the refined student-guidance AI review prompt:
 - Typecheck, targeted lint, all 64 unit/component tests, the Firebase-mode production build, and all 16 local browser tests passed.
