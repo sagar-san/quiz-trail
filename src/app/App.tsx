@@ -8,11 +8,10 @@ import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
-import { SaveProgressButton, UnsavedProgressWarning } from '../components/SaveProgressButton';
 import { TipJar } from '../components/TipJar';
 import { loadQuestionBank, type LoadedQuestionBank } from '../data/csv/loadQuestionBank';
 import { initialQuizState, quizReducer } from '../domain/quizReducer';
-import { selectCounts, selectFilteredQuestions, toUserProgress } from '../domain/selectors';
+import { selectCounts, selectFilteredQuestions } from '../domain/selectors';
 import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore';
 import type { ProgressStore } from '../storage/ProgressStore';
 import { LocalStorageQuizPreferences, type QuizPreferences } from '../storage/QuizPreferences';
@@ -125,15 +124,6 @@ export function App({
     return () => { active = false; };
   }, [bankLoader, preferenceStore, store, user]);
 
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (!state.dirty) return;
-      event.preventDefault();
-    };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [state.dirty]);
-
   const visible = selectFilteredQuestions(state);
   const currentFromBank = state.questions.find((question) => question.questionId === state.currentQuestionId);
   const displayQuestions = currentFromBank && !visible.some((question) => question.questionId === currentFromBank.questionId)
@@ -160,26 +150,15 @@ export function App({
     setActiveView('practice');
   };
 
-  const save = async () => {
-    dispatch({ type: 'saveStarted' });
-    try {
-      await store.save(toUserProgress(state), user?.uid);
-      dispatch({ type: 'saveSucceeded' });
-    } catch (error) {
-      dispatch({ type: 'saveFailed', message: error instanceof Error ? error.message : 'Progress could not be saved.' });
-    }
-  };
   const reset = async () => {
-    const warning = state.dirty
-      ? `You have unsaved changes. Reset all ${dataMode === 'local' ? 'local' : 'cloud'} progress anyway?`
-      : `Reset all progress saved ${dataMode === 'local' ? 'in this browser' : 'for this account'}?`;
+    const warning = `Reset all progress saved ${dataMode === 'local' ? 'in this browser' : 'for this account'}?`;
     if (!window.confirm(warning)) return;
     try {
       await store.reset(user?.uid);
       dispatch({ type: 'reset' });
       setStorageError(null);
     } catch (error) {
-      dispatch({ type: 'saveFailed', message: error instanceof Error ? error.message : 'Progress could not be reset.' });
+      setStorageError(error instanceof Error ? error.message : 'Progress could not be reset.');
     }
   };
 
@@ -196,7 +175,6 @@ export function App({
   };
 
   const signOut = async () => {
-    if (state.dirty && !window.confirm('You have unsaved changes. Sign out and discard them?')) return;
     setAuthBusy(true);
     setAuthError(null);
     try {
@@ -313,8 +291,17 @@ export function App({
               saved={state.savedForLater.includes(current.questionId)}
               priorOutcome={state.progress[current.questionId]}
               showInternalMetadata={debugMetadata}
-              onSubmit={(correct) => dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct })}
-              onToggleSaved={() => dispatch({ type: 'savedToggled', questionId: current.questionId })}
+              onSubmit={async (correct) => {
+                dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct });
+                await store.saveAnswer(current.questionId, correct, state.questionBankVersion, user?.uid);
+              }}
+              onToggleSaved={() => {
+                const saved = !state.savedForLater.includes(current.questionId);
+                dispatch({ type: 'savedToggled', questionId: current.questionId });
+                void store.saveBookmark(current.questionId, saved, state.questionBankVersion, user?.uid)
+                  .then(() => setStorageError(null))
+                  .catch((error) => setStorageError(error instanceof Error ? error.message : 'Your bookmark could not be saved.'));
+              }}
               onSubmitFeedback={feedbackStore && user ? async (feedbackText) => {
                 await feedbackStore.submitFeedback(current.questionId, feedbackText, user.uid);
               } : undefined}
@@ -334,14 +321,6 @@ export function App({
           </section>
         )}
         </>}
-        <UnsavedProgressWarning count={state.unsavedAnswerIds.length} />
-        <SaveProgressButton
-          dirty={state.dirty}
-          status={state.saveStatus}
-          error={state.saveError}
-          storageNote={dataMode === 'local' ? 'Saved only in this browser.' : 'Saved securely to your account when you choose Save progress.'}
-          onSave={() => void save()}
-        />
         <TipJar buyMeACoffeeUrl={buyMeACoffeeUrl} venmoUrl={import.meta.env.VITE_VENMO_URL} />
       </main>}
       <footer>

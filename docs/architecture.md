@@ -69,10 +69,10 @@ The entire bank is rejected when loading or validation fails; the application do
 - latest correctness keyed by question ID;
 - saved-for-later question IDs;
 - the current question and active filter;
-- dirty/save status, the distinct questions answered since the last successful save, and user-facing storage errors;
+- user-facing storage errors surfaced by targeted answer and bookmark operations;
 - an optional reconciliation notice.
 
-The reducer owns state transitions such as bank load, answer submission, bookmark changes, filter and question navigation, progress load, save state, and reset. Selectors derive filtered queues, counts, analytics inputs, and the persisted snapshot.
+The reducer owns state transitions such as bank load, answer submission, bookmark changes, filter and question navigation, progress load, and reset. Selectors derive filtered queues, counts, and analytics inputs.
 
 The active question may be temporarily prepended to a filtered result so a newly submitted answer remains visible long enough for feedback.
 
@@ -92,7 +92,7 @@ interface UserProgress {
 
 `progress` records only the latest correct/incorrect outcome. It does not record attempt counts or history. `lastQuestionId` remains in the persistence contract, but a new page load begins at the first question in the newly shuffled bank.
 
-Saving is explicit. Answer and bookmark changes set the reducer's dirty state; successful Save Progress clears it. Navigation and filter changes do not themselves create unsaved progress.
+Submitting an answer updates the in-memory quiz state and independently attempts to persist only that question's latest outcome. The question UI reports `Saving…`, briefly confirms success, or reports failure without blocking navigation. A failed answer is not retried by later submissions. Bookmark toggles similarly persist only the affected question. Navigation and filter changes do not write progress.
 
 ### Local storage
 
@@ -111,7 +111,7 @@ The Firestore document adds:
 - `revision`: a positive integer used for optimistic concurrency;
 - `updatedAt`: the server timestamp required by security rules.
 
-The store remembers the revision it loaded. Each save runs in a transaction and succeeds only if the stored revision still matches; otherwise the user must reload rather than silently overwrite newer progress from another tab or device.
+Each targeted answer or bookmark update runs in a transaction that reads the latest document, changes only the requested question, and increments the revision. Concurrent tabs therefore preserve unrelated answers and bookmarks; if they submit the same question, the latest successful transaction supplies its stored outcome.
 
 Firestore rules restrict reads and writes to the authenticated owner, allow only the expected fields, validate schema and collection sizes, require monotonically increasing revisions, and require a server timestamp. Question text and account profile data are not stored in the progress document.
 
@@ -144,7 +144,19 @@ contains an `enabled` boolean flag. Firestore security rules read this document 
 
 ## Question-bank identity and reconciliation
 
-The canonical `questions.csv` lives in a separate private repository and is supplied through `QUESTION_BANK_PATH`. A production build validates and AES-GCM encrypts it into `/data/questions.bin`. The browser bundle necessarily contains the decryption material, so this prevents casual plain-file downloads but is not intended to resist a determined extractor. The normal HTTPS path derives a shortened SHA-256 version marker from the decrypted CSV bytes.
+The canonical `questions.csv` and its editorial/build tooling live in a separate
+private repository. The public application's thin Vite integration calls that
+tooling, optionally selecting another CSV through `QUESTION_BANK_PATH`. A
+production build validates and AES-GCM encrypts the selected CSV into
+`/data/questions.bin`. The browser bundle necessarily contains the decryption
+material, so this prevents casual plain-file downloads but is not intended to
+resist a determined extractor. The normal HTTPS path derives a shortened
+SHA-256 version marker from the decrypted CSV bytes.
+
+The private tooling also performs exact and similarity-based duplicate review.
+It reuses the application's runtime parser and public encryption-format
+constants so build-time and browser-time contracts remain aligned. Duplicate
+matches are reported for editorial review and are never automatically removed.
 
 During local Vite development, the external CSV is served only by development middleware at `/data/questions.csv`. This preserves insecure local-network development, where Web Crypto may be unavailable, without placing the source file in the public application repository or production output.
 
@@ -212,7 +224,8 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 | Firebase initialization and configuration | `src/firebase/` |
 | Local and Firestore persistence | `src/storage/` |
 | Styling | `src/styles/index.css` |
-| Question-bank tooling | `scripts/preflight-csv.ts`, `vite.config.ts` |
+| Question-bank tooling | Private sibling repository `quiz-trail-question-bank/scripts/` |
+| Question-bank build integration | `vite.config.ts` |
 | Unit and component tests | Colocated `*.test.ts` and `*.test.tsx` files |
 | Browser tests | `e2e/` |
 | Firebase integration tests | `tests/` and `e2e/firebase-emulator.spec.ts` |

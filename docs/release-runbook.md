@@ -70,6 +70,10 @@ For question-bank changes, also run:
 npm run preflight
 ```
 
+This command delegates to the private sibling repository, where it validates
+the CSV and reports exact and likely near-duplicate questions. Run that
+repository's `npm test` after changing its tooling.
+
 For authentication, Firestore, security-rule, Settings, or account-deletion changes, also run:
 
 ```bash

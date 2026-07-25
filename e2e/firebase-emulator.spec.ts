@@ -37,8 +37,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
 
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await page.getByRole('button', { name: 'Save progress' }).click();
-  await expect(page.getByText('Progress saved')).toBeVisible();
+  await expect(page.getByText('✓ Saved!')).toBeVisible();
 
   await page.getByRole('button', { name: /Open account menu/ }).click();
   await page.getByRole('menuitem', { name: 'Settings' }).click();
@@ -49,7 +48,6 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await signInWithExistingEmulatorAccount(page);
 
   await expect(page.getByText('Trail Tester')).toBeVisible();
-  await expect(page.getByText('Progress saved')).toBeVisible();
   await expect(page.locator('.stat-grid')).toContainText('Attempted1');
 
   await page.getByRole('button', { name: /Open account menu/ }).click();

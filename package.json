@@ -16,7 +16,7 @@
     "e2e": "playwright test",
     "e2e:firebase": "playwright test --config playwright.firebase.config.ts",
     "emulators": "PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache firebase emulators:start --only auth,firestore,hosting",
-    "preflight": "node --experimental-strip-types scripts/preflight-csv.ts",
+    "preflight": "npm --prefix ../quiz-trail-question-bank run preflight --",
     "download-feedback": "node --experimental-strip-types scripts/download-feedback.ts"
   },
   "dependencies": {

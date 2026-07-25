@@ -17,7 +17,12 @@ Copy `.env.example` to an ignored environment file when Firebase or contribution
 - `firebase-emulator` — uses local Firebase Authentication and Firestore emulators
 - `firebase` — uses the configured Firebase project
 
-Clone the private `quiz-trail-question-bank` repository beside this application repository so its CSV is available at `../quiz-trail-question-bank/questions.csv`. For another layout, set `QUESTION_BANK_PATH` to the absolute or repository-relative CSV path. The Vite development server reads that external file; production builds validate it and emit only an encrypted asset.
+Clone the private `quiz-trail-question-bank` repository beside this application
+repository so its CSV and tooling are available at
+`../quiz-trail-question-bank/`. For another CSV, set `QUESTION_BANK_PATH` to an
+absolute path or a path relative to the command's working directory. The Vite
+development server uses the private repository's validator to read that file;
+production builds use its asset builder to emit only an encrypted asset.
 
 The Buy Me a Coffee link defaults to the project's public support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`. A valid `VITE_VENMO_URL` is also displayed when configured; blank or invalid optional values are hidden.
 
@@ -40,7 +45,10 @@ npm run e2e
 npm run e2e:firebase    # emulators and dev:firebase must already be running
 ```
 
-Both `npm run preflight` and `npm run build` use `QUESTION_BANK_PATH` when set.
+`npm run preflight` delegates to the sibling private repository. Both it and
+`npm run build` use `QUESTION_BANK_PATH` when set. Duplicate-detector unit tests
+and a duplicate-only report can be run inside that repository with `npm test`
+and `npm run duplicates`.
 
 The local public landing page is `/`; the React practice application is `/practice/`. The FAQ and sample pages are `/faq/` and `/sample-questions/`.
 

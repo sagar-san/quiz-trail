@@ -18,7 +18,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D003 — Persist progress only on explicit save
 
-- **Status:** Accepted
+- **Status:** Superseded by D013
 - **Decision:** Answer and bookmark changes remain in memory until the learner selects Save Progress. The active filter is stored separately and immediately.
 - **Why:** Explicit control is a product principle and makes the persistence boundary visible to learners.
 - **Consequences:** The UI tracks meaningful dirty state, warns about unsaved changes when appropriate, and navigation alone does not cause a save or dirty state.
@@ -32,7 +32,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D005 — Reject stale cloud saves with revision transactions
 
-- **Status:** Accepted
+- **Status:** Superseded by D013
 - **Decision:** Each Firestore save must increment the revision loaded by that client. A conflicting revision fails and asks the learner to reload.
 - **Why:** A learner may use multiple tabs or devices, and an older snapshot must not silently overwrite newer saved progress.
 - **Consequences:** Saves use Firestore transactions, security rules enforce sequential revisions, and the store must load before it can save.
@@ -84,4 +84,19 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Status:** Accepted
 - **Decision:** Maintain the canonical `questions.csv` in a separate private repository. The public application repository reads it from `QUESTION_BANK_PATH` at development and build time. Production builds validate and AES-GCM encrypt the CSV into `/data/questions.bin`; the browser decrypts that asset in memory.
 - **Why:** The authored question bank should not be obtainable by cloning the public application repository or opening a readable production CSV URL.
-- **Consequences:** Local development and deployment require access to the private bank. The browser still receives the complete bank and its public decryption material, so encryption is a download deterrent rather than a security boundary. Stronger extraction resistance would require server-side question delivery and grading. Versions previously committed to the public repository must be treated as already disclosed.
+- **Consequences:** Local development and deployment require the private bank
+  repository beside the application. That repository owns CSV preflight,
+  duplicate review, and encrypted-asset construction, while the public
+  application retains its runtime parser/decryptor and a thin Vite integration.
+  The browser still receives the complete bank and its public decryption
+  material, so encryption is a download deterrent rather than a security
+  boundary. Stronger extraction resistance would require server-side question
+  delivery and grading. Versions previously committed to the public repository
+  must be treated as already disclosed.
+
+## D013 — Persist submitted answers and bookmarks as targeted actions
+
+- **Status:** Accepted
+- **Decision:** Submitting an answer immediately attempts to persist only that question's latest outcome. Toggling Save for later persists only that bookmark. Navigation remains independent, and later submissions do not retry a failed answer.
+- **Why:** Mobile browsers may reload inactive tabs, which made explicitly batched in-memory progress easy to lose and caused answered questions to reappear. A submitted answer should have one clear save attempt without adding a separate Save Progress step.
+- **Consequences:** The bulk Save Progress panel, dirty-state warnings, and unload prompt are removed. Saving status appears with the submitted question and does not block navigation. Firestore transactions merge each targeted mutation into the latest user document, preserving unrelated changes from other tabs while retaining one compact document per user.

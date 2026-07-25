@@ -28,11 +28,45 @@ export class LocalStorageProgressStore implements ProgressStore {
     }
   }
 
-  async save(progress: UserProgress): Promise<void> {
+  private readForUpdate(questionBankVersion: string): UserProgress {
+    const raw = this.storage.getItem(LOCAL_PROGRESS_KEY);
+    if (!raw) return {
+      schemaVersion: 1,
+      questionBankVersion,
+      progress: {},
+      savedForLater: [],
+      lastQuestionId: null,
+    };
+    return schema.parse(JSON.parse(raw));
+  }
+
+  async saveAnswer(questionId: string, correct: boolean, questionBankVersion: string): Promise<void> {
     try {
-      this.storage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(schema.parse(progress)));
+      const current = this.readForUpdate(questionBankVersion);
+      this.storage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify({
+        ...current,
+        questionBankVersion,
+        progress: { ...current.progress, [questionId]: correct },
+        lastQuestionId: questionId,
+      }));
     } catch {
-      throw new ProgressStoreError('Progress could not be saved. Check browser storage and available space.');
+      throw new ProgressStoreError('Your answer could not be saved. Check browser storage and available space.');
+    }
+  }
+
+  async saveBookmark(questionId: string, saved: boolean, questionBankVersion: string): Promise<void> {
+    try {
+      const current = this.readForUpdate(questionBankVersion);
+      const bookmarks = new Set(current.savedForLater);
+      if (saved) bookmarks.add(questionId);
+      else bookmarks.delete(questionId);
+      this.storage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify({
+        ...current,
+        questionBankVersion,
+        savedForLater: [...bookmarks],
+      }));
+    } catch {
+      throw new ProgressStoreError('Your bookmark could not be saved. Check browser storage and available space.');
     }
   }
 

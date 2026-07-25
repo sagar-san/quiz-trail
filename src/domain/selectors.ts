@@ -1,4 +1,4 @@
-import type { QuizFilter, QuizQuestion, QuizState, UserProgress } from './types';
+import type { QuizFilter, QuizQuestion, QuizState } from './types';
 
 export function filterQuestions(
   questions: QuizQuestion[],
@@ -35,14 +35,4 @@ export function chooseVisibleQuestion(state: QuizState, filter: QuizFilter): str
   return visible.some((q) => q.questionId === state.currentQuestionId)
     ? state.currentQuestionId
     : (visible[0]?.questionId ?? null);
-}
-
-export function toUserProgress(state: QuizState): UserProgress {
-  return {
-    schemaVersion: 1,
-    questionBankVersion: state.questionBankVersion,
-    progress: state.progress,
-    savedForLater: state.savedForLater,
-    lastQuestionId: state.currentQuestionId,
-  };
 }

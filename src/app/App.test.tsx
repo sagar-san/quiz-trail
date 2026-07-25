@@ -9,8 +9,15 @@ import { questions } from '../test/fixtures';
 import { App } from './App';
 
 const loader = async () => ({ questions, version: 'sha256:test' });
-const memoryStore = (saved: UserProgress | null = null): ProgressStore & { save: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> } => ({
-  load: vi.fn().mockResolvedValue(saved), save: vi.fn().mockResolvedValue(undefined), reset: vi.fn().mockResolvedValue(undefined),
+const memoryStore = (saved: UserProgress | null = null): ProgressStore & {
+  saveAnswer: ReturnType<typeof vi.fn>;
+  saveBookmark: ReturnType<typeof vi.fn>;
+  reset: ReturnType<typeof vi.fn>;
+} => ({
+  load: vi.fn().mockResolvedValue(saved),
+  saveAnswer: vi.fn().mockResolvedValue(undefined),
+  saveBookmark: vi.fn().mockResolvedValue(undefined),
+  reset: vi.fn().mockResolvedValue(undefined),
 });
 
 class TestAuthService implements AuthService {
@@ -31,7 +38,7 @@ class TestAuthService implements AuthService {
 }
 
 describe('App', () => {
-  it('answers, filters, saves, restores, and resets progress', async () => {
+  it('saves a submitted answer, filters, and resets progress', async () => {
     const store = memoryStore();
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
@@ -42,11 +49,10 @@ describe('App', () => {
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
     expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
+    await waitFor(() => expect(store.saveAnswer).toHaveBeenCalledWith('PMLE-0001', true, 'sha256:test', 'local-browser'));
+    expect(screen.getByText('✓ Saved!')).toBeVisible();
     expect(screen.queryByText('Report a problem with this question')).not.toBeInTheDocument();
     expect(screen.getByText('2 remaining of 3')).toBeVisible();
-    await userEvent.click(screen.getByRole('button', { name: 'Save progress' }));
-    await waitFor(() => expect(store.save).toHaveBeenCalled());
-    expect(screen.getByText('Progress saved')).toBeVisible();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Data & support' })).toBeVisible();
@@ -61,6 +67,24 @@ describe('App', () => {
     const store = memoryStore(); store.load = vi.fn().mockRejectedValue(new Error('Bad storage'));
     render(<App bankLoader={loader} progressStore={store} />);
     expect(await screen.findByText('Bad storage')).toBeVisible();
+  });
+
+  it('does not retry a failed answer when a later question saves', async () => {
+    const store = memoryStore();
+    store.saveAnswer.mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce(undefined);
+    render(<App bankLoader={loader} progressStore={store} />);
+    expect(await screen.findByText('3 questions')).toBeVisible();
+
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    expect(await screen.findByText(/something went wrong while saving your answer/i)).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: /^Next/ }));
+    await userEvent.click(screen.getByLabelText(/Vertex AI/));
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    expect(await screen.findByText('✓ Saved!')).toBeVisible();
+
+    expect(store.saveAnswer.mock.calls.map(([questionId]) => questionId)).toEqual(['PMLE-0001', 'PMLE-0002']);
   });
 
   it('opens a metadata-driven learning summary and returns to a review queue', async () => {
@@ -124,20 +148,20 @@ describe('App', () => {
     ));
   });
 
-  it('warns before signing out with unsaved progress', async () => {
+  it('signs out without an unsaved-progress prompt after submitted answers save independently', async () => {
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
     render(<App bankLoader={loader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
     expect(await screen.findByText('3 questions')).toBeVisible();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const confirm = vi.spyOn(window, 'confirm');
 
     await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Alice' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
-    expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Sign out and discard them?');
-    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(auth.signOut).toHaveBeenCalledOnce();
   });
 
   it('shows account settings and deletes progress before the authenticated account', async () => {

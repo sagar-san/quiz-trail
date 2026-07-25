@@ -1,14 +1,20 @@
 # Current status
 
-Last reviewed: 2026-07-24
+Last reviewed: 2026-07-25
 
 ## Active state
 
 - The production application is live at <https://quiz-trail.web.app> from commit `6827bbb` (`protect question bank build asset`).
+- The working tree replaces bulk Save Progress behavior with targeted persistence pending commit and deployment: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure. Production still has the prior explicit bulk-save behavior until an approved deployment.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
-- The canonical CSV now lives outside the public application repository in the sibling `quiz-trail-question-bank` directory. Production builds emit an AES-GCM-encrypted `/data/questions.bin` asset and decrypt it in browser memory. The sibling directory contains the verified CSV copy but still needs to be connected to its private GitHub repository.
+- The canonical CSV and its validation/build tooling live in the sibling
+  `quiz-trail-question-bank` directory, which is now initialized as its own
+  local Git repository but still needs to be connected to its private GitHub
+  repository. The tooling reports exact and near-duplicate prompts and builds
+  the AES-GCM-encrypted `/data/questions.bin` asset that the application
+  decrypts in browser memory.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
@@ -17,6 +23,25 @@ Last reviewed: 2026-07-24
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-25, for targeted answer and bookmark persistence:
+- Typecheck, targeted lint, all 63 unit/component tests, all 13 Firestore rules/store emulator tests, the Firebase-mode production build, and all 18 local browser tests passed.
+- Regression coverage confirms a failed answer is not retried by a later question submission, targeted Firestore transactions preserve unrelated answers from other tabs, and submitted answers plus bookmarks restore after reload on desktop and mobile.
+- Browser accessibility and horizontal-overflow checks passed. The standard `npm run test:rules` launcher could not start a second Firestore emulator because port 8080 was already occupied; the same rules suite passed directly against that existing local emulator.
+- No production deployment or live Firestore operation was performed.
+
+On 2026-07-24, for the private question-bank tooling separation:
+- The private question-bank repository typecheck and both duplicate-detector
+  tests passed; its standalone asset builder validated all 408 rows and emitted
+  an encrypted test asset.
+- Preflight passed the CSV contract and reported 12 exact duplicate pairs plus
+  6 likely near-duplicate pairs for editorial review. No question content was
+  changed automatically.
+- The public application typecheck, all 64 unit/component tests, targeted Vite
+  configuration lint, and the production build passed.
+- The production build's encrypted question asset decrypted to the exact source
+  CSV bytes, and candidate/baseline comparison arguments continued to work
+  through the public repository's delegated `npm run preflight` command.
 
 On 2026-07-24, for the external private bank and encrypted production asset:
 - The external CSV preflight passed for all 408 questions, and its SHA-256 matched the source before removal from the public working tree.

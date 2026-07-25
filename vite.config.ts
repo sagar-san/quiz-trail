@@ -1,48 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { createCipheriv, randomBytes } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
-import { isAbsolute, resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import type { Plugin } from 'vite';
-import { parseQuestionBank } from './src/data/csv/parseQuestionBank';
 import {
-  questionBankEncryptionKey,
-  questionBankFormatMagic,
-} from './src/data/csv/questionBankEncryption';
-
-const repositoryRoot = fileURLToPath(new URL('.', import.meta.url));
-const defaultQuestionBankPath = '../quiz-trail-question-bank/questions.csv';
-
-function resolveQuestionBankPath(): string {
-  const configuredPath = process.env.QUESTION_BANK_PATH ?? defaultQuestionBankPath;
-  return isAbsolute(configuredPath)
-    ? configuredPath
-    : resolve(repositoryRoot, configuredPath);
-}
-
-async function readValidatedQuestionBank(): Promise<Uint8Array> {
-  const bytes = new Uint8Array(await readFile(resolveQuestionBankPath()));
-  const csv = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-  parseQuestionBank(csv);
-  return bytes;
-}
-
-function encryptQuestionBank(plaintext: Uint8Array): Uint8Array {
-  const initializationVector = randomBytes(12);
-  const cipher = createCipheriv(
-    'aes-256-gcm',
-    Buffer.from(questionBankEncryptionKey),
-    initializationVector,
-  );
-  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
-  return Buffer.concat([
-    questionBankFormatMagic,
-    initializationVector,
-    ciphertext,
-    cipher.getAuthTag(),
-  ]);
-}
+  encryptQuestionBank,
+  readValidatedQuestionBank,
+} from '../quiz-trail-question-bank/scripts/question-bank.ts';
 
 function questionBankPlugin(): Plugin {
   return {
@@ -56,7 +19,7 @@ function questionBankPlugin(): Plugin {
         }
 
         try {
-          const bytes = await readValidatedQuestionBank();
+          const { bytes } = await readValidatedQuestionBank();
           response.statusCode = 200;
           response.setHeader('Content-Type', 'text/csv; charset=utf-8');
           response.setHeader('Cache-Control', 'no-store');
@@ -71,11 +34,11 @@ function questionBankPlugin(): Plugin {
       });
     },
     async generateBundle() {
-      const plaintext = await readValidatedQuestionBank();
+      const { bytes } = await readValidatedQuestionBank();
       this.emitFile({
         type: 'asset',
         fileName: 'data/questions.bin',
-        source: encryptQuestionBank(plaintext),
+        source: encryptQuestionBank(bytes),
       });
     },
   };

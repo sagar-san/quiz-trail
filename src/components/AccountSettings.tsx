@@ -46,7 +46,7 @@ export function AccountSettings({
 
       <section className="settings-card" aria-labelledby="data-heading">
         <h2 id="data-heading">Your quiz data</h2>
-        <p>{mode === 'firebase' ? 'Your answers, bookmarks, and saved return point are stored in Firebase and linked to your account. Changes are uploaded only when you choose Save progress.' : 'Your answers and bookmarks are stored only in this browser when you choose Save progress.'}</p>
+        <p>{mode === 'firebase' ? 'Submitted answers and bookmarks are saved to Firebase and linked to your account.' : 'Submitted answers and bookmarks are saved in this browser.'}</p>
         <button className="secondary-button danger-button" type="button" disabled={busy} onClick={onReset}>Reset all progress</button>
       </section>
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { questions } from '../test/fixtures';
 import { initialQuizState, quizReducer } from './quizReducer';
-import { filterQuestions, selectCounts, toUserProgress } from './selectors';
+import { filterQuestions, selectCounts } from './selectors';
 
 const loaded = quizReducer(initialQuizState, { type: 'bankLoaded', questions, questionBankVersion: 'sha256:test' });
 
@@ -10,7 +10,6 @@ describe('quiz domain', () => {
     const wrong = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: false });
     const corrected = quizReducer(wrong, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
     expect(selectCounts(corrected)).toEqual({ total: 3, attempted: 1, correct: 1, incorrect: 0, saved: 0, remaining: 2 });
-    expect(toUserProgress(corrected).questionBankVersion).toBe('sha256:test');
   });
 
   it('toggles saved independently and filters each view', () => {
@@ -33,35 +32,18 @@ describe('quiz domain', () => {
     expect(state.currentQuestionId).toBeNull();
   });
 
-  it('does not create unsaved changes when navigating after a save', () => {
+  it('keeps submitted outcomes while navigating', () => {
     let state = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
-    state = quizReducer(state, { type: 'saveSucceeded' });
     state = quizReducer(state, { type: 'questionChanged', questionId: 'PMLE-0002' });
-    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0002', unsavedAnswerIds: [], dirty: false, saveStatus: 'saved' });
-  });
-
-  it('tracks distinct questions answered since the last successful save', () => {
-    let state = quizReducer(loaded, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: false });
-    state = quizReducer(state, { type: 'answerSubmitted', questionId: 'PMLE-0001', correct: true });
-    state = quizReducer(state, { type: 'answerSubmitted', questionId: 'PMLE-0002', correct: true });
-    expect(state.unsavedAnswerIds).toEqual(['PMLE-0001', 'PMLE-0002']);
-
-    state = quizReducer(state, { type: 'saveSucceeded' });
-    expect(state.unsavedAnswerIds).toEqual([]);
+    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0002', progress: { 'PMLE-0001': true } });
   });
 
   it('loads saved outcomes without overriding the newly shuffled first question', () => {
     const progress = { schemaVersion: 1 as const, questionBankVersion: 'old', progress: { 'PMLE-0002': false }, savedForLater: ['PMLE-0002'], lastQuestionId: 'PMLE-0002' };
     let state = quizReducer(loaded, { type: 'progressLoaded', progress, reconciliationNotice: 'Updated' });
-    expect(state).toMatchObject({ dirty: false, currentQuestionId: 'PMLE-0001', reconciliationNotice: 'Updated' });
+    expect(state).toMatchObject({ currentQuestionId: 'PMLE-0001', reconciliationNotice: 'Updated' });
     expect(state.progress).toEqual({ 'PMLE-0002': false });
     expect(state.savedForLater).toEqual(['PMLE-0002']);
-    state = quizReducer(state, { type: 'saveStarted' });
-    expect(state.saveStatus).toBe('saving');
-    state = quizReducer(state, { type: 'saveFailed', message: 'nope' });
-    expect(state.saveError).toBe('nope');
-    state = quizReducer(state, { type: 'saveSucceeded' });
-    expect(state.dirty).toBe(false);
     state = quizReducer(state, { type: 'reset' });
     expect(state.progress).toEqual({});
   });

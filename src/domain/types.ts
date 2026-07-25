@@ -36,13 +36,9 @@ export interface QuizState {
   questions: QuizQuestion[];
   questionBankVersion: string;
   progress: Record<string, boolean>;
-  unsavedAnswerIds: string[];
   savedForLater: string[];
   currentQuestionId: string | null;
   filter: QuizFilter;
-  dirty: boolean;
-  saveStatus: 'idle' | 'saving' | 'saved' | 'failed';
-  saveError: string | null;
   reconciliationNotice: string | null;
 }
 
@@ -53,9 +49,6 @@ export type QuizAction =
   | { type: 'filterChanged'; filter: QuizFilter }
   | { type: 'questionChanged'; questionId: string }
   | { type: 'progressLoaded'; progress: UserProgress; reconciliationNotice?: string }
-  | { type: 'saveStarted' }
-  | { type: 'saveSucceeded' }
-  | { type: 'saveFailed'; message: string }
   | { type: 'reset' };
 
 export const createEmptyProgress = (questionBankVersion: string): UserProgress => ({

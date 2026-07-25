@@ -20,7 +20,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
-7. Save Progress explicitly persists the current answer and bookmark state.
+7. Submitting an answer saves that question's latest outcome; toggling Save for later saves that bookmark independently.
 8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
 9. A static public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq/`.
 10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
@@ -35,16 +35,15 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - A newly answered question remains visible even if its outcome would normally remove it from the active filtered queue.
 - Question order is shuffled once per page load and remains stable within that tab.
 - Each page load starts at the first question in its new shuffle; a stored return point does not override the new order.
-- Previous and Next navigation do not create unsaved changes by themselves.
+- Previous and Next navigation do not write progress by themselves.
 - The Unanswered view reports remaining questions against the full bank. All, Incorrect, and Saved report the current position within their respective queues.
 
 ### Progress and saving
 
 - Answer outcomes and saved-for-later bookmarks are keyed by permanent question ID.
-- Answer and bookmark changes are not persisted until the learner selects Save Progress.
+- Submitting an answer attempts to save only that question. A small status reports saving, success, or failure without blocking navigation.
+- Toggling Save for later persists only that question's bookmark state.
 - The active question filter is a separate browser preference and is stored immediately.
-- The app indicates meaningful unsaved progress changes and uses a browser unload warning when supported.
-- After ten distinct questions have unsaved answers, a warning above the progress-saving panel reminds the learner to save.
 - Local mode saves in the current browser. Firebase modes save to the signed-in account.
 - Reset all progress is destructive, requires confirmation, and lives in Settings.
 
@@ -62,7 +61,6 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 - Production authentication uses Google through Firebase Authentication; Quiz Trail does not manage passwords.
 - Cloud progress is scoped to the signed-in Firebase user and can resume across devices.
-- Sign-out warns before discarding unsaved changes.
 - Account deletion requires typed `DELETE` confirmation and Google reauthentication. It deletes the user's progress document and then the Firebase Authentication identity.
 - If identity deletion fails after progress deletion, the app reports the partial result instead of claiming complete deletion.
 - The application stores progress state, not copies of question text.
@@ -79,7 +77,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 - The question bank remains a versioned CSV outside the public application repository and is deployed as an encrypted static asset, not live Firestore content.
 - The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
-- Saving remains explicit rather than automatic.
+- Submitted answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.
 - Contribution links are optional, non-blocking, and shown only when configured with valid URLs.

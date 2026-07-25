@@ -101,13 +101,14 @@ test('practice entry is separate from public search pages', async ({ page }) => 
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/practice/');
 });
 
-test('answer, save, reload, filter, and reset the real question bank', async ({ page }, testInfo) => {
+test('submitted answers and bookmarks save, reload, filter, and reset', async ({ page }, testInfo) => {
   const firstCard = page.locator('.question-card');
   const firstQuestionId = await firstCard.locator('.question-meta span').last().textContent();
   expect(firstQuestionId).toMatch(/^PMLE-\d{4}$/);
   await firstCard.locator('input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
   await expect(page.locator('.feedback')).toBeVisible();
+  await expect(page.getByText('✓ Saved!')).toBeVisible();
   await page.getByRole('button', { name: 'Save for later' }).click();
 
   for (let index = 0; index < 9; index += 1) {
@@ -115,24 +116,17 @@ test('answer, save, reload, filter, and reset the real question bank', async ({ 
     await page.locator('.question-card input').first().check();
     await page.getByRole('button', { name: 'Submit answer' }).click();
     await expect(page.locator('.feedback')).toBeVisible();
+    await expect(page.getByText('✓ Saved!')).toBeVisible();
   }
 
-  await expect(page.getByText('Unsaved changes')).toBeVisible();
-  const saveWarning = page.getByText('You have 10 questions with unsaved answers. Save your progress so you don’t lose them.');
-  await expect(saveWarning).toBeVisible();
-  expect(await saveWarning.evaluate((warning) => warning.nextElementSibling?.classList.contains('save-panel'))).toBe(true);
   await page.addScriptTag({ content: axe.source });
-  const warningViolations = await page.evaluate(async () => {
+  const violations = await page.evaluate(async () => {
     const results = await window.axe.run('#quiz');
     return results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''));
   });
-  expect(warningViolations).toEqual([]);
+  expect(violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
-  await page.getByRole('button', { name: 'Save progress' }).click();
-  await expect(page.getByText('Progress saved')).toBeVisible();
-  await expect(saveWarning).toBeHidden();
   await page.reload();
-  await expect(page.getByText('Progress saved')).toBeVisible();
   await expect(page.locator('.stat-grid')).toContainText('Attempted10');
 
   if (testInfo.project.name === 'mobile') {

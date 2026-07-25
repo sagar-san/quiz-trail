@@ -20,38 +20,24 @@ const progressDocumentSchema = z.object({
   updatedAt: z.unknown(),
 }).strict();
 
-export class StaleProgressError extends ProgressStoreError {
-  constructor() {
-    super('Your progress was updated in another tab or device. Reload before saving so newer progress is not overwritten.');
-    this.name = 'StaleProgressError';
-  }
-}
-
 function requireUserId(userId?: string): string {
   if (!userId) throw new ProgressStoreError('A signed-in user is required to access cloud progress.');
   return userId;
 }
 
 export class FirestoreProgressStore implements ProgressStore {
-  private readonly loadedRevisions = new Map<string, number>();
-
   constructor(private readonly firestore: Firestore) {}
 
   async load(userId?: string): Promise<UserProgress | null> {
     const uid = requireUserId(userId);
     try {
       const snapshot = await getDoc(doc(this.firestore, 'userProgress', uid));
-      if (!snapshot.exists()) {
-        this.loadedRevisions.set(uid, 0);
-        return null;
-      }
+      if (!snapshot.exists()) return null;
 
       const result = progressDocumentSchema.safeParse(snapshot.data());
       if (!result.success) {
         throw new ProgressStoreError('Cloud progress is incompatible or damaged. Reset it or contact the site owner.');
       }
-      const { revision } = result.data;
-      this.loadedRevisions.set(uid, revision);
       return {
         schemaVersion: result.data.schemaVersion,
         questionBankVersion: result.data.questionBankVersion,
@@ -65,34 +51,65 @@ export class FirestoreProgressStore implements ProgressStore {
     }
   }
 
-  async save(progress: UserProgress, userId?: string): Promise<void> {
+  private async update(
+    questionBankVersion: string,
+    userId: string | undefined,
+    mutate: (progress: UserProgress) => UserProgress,
+  ): Promise<void> {
     const uid = requireUserId(userId);
-    const expectedRevision = this.loadedRevisions.get(uid);
-    if (expectedRevision === undefined) {
-      throw new ProgressStoreError('Cloud progress must finish loading before it can be saved.');
-    }
-
-    try {
-      const nextRevision = await runTransaction(this.firestore, async (transaction) => {
-        const reference = doc(this.firestore, 'userProgress', uid);
-        const snapshot = await transaction.get(reference);
-        const currentRevision = snapshot.exists() ? snapshot.data().revision : 0;
-        if (!Number.isInteger(currentRevision) || currentRevision !== expectedRevision) {
-          throw new StaleProgressError();
-        }
-
-        const revision = expectedRevision + 1;
-        transaction.set(reference, {
-          ...progress,
-          revision,
-          updatedAt: serverTimestamp(),
-        });
-        return revision;
+    await runTransaction(this.firestore, async (transaction) => {
+      const reference = doc(this.firestore, 'userProgress', uid);
+      const snapshot = await transaction.get(reference);
+      const existing = snapshot.exists() ? progressDocumentSchema.safeParse(snapshot.data()) : null;
+      if (existing && !existing.success) {
+        throw new ProgressStoreError('Cloud progress is incompatible or damaged. Reset it or contact the site owner.');
+      }
+      const current: UserProgress = existing?.success ? {
+        schemaVersion: existing.data.schemaVersion,
+        questionBankVersion: existing.data.questionBankVersion,
+        progress: existing.data.progress,
+        savedForLater: existing.data.savedForLater,
+        lastQuestionId: existing.data.lastQuestionId,
+      } : {
+        schemaVersion: 1,
+        questionBankVersion,
+        progress: {},
+        savedForLater: [],
+        lastQuestionId: null,
+      };
+      transaction.set(reference, {
+        ...mutate(current),
+        revision: existing?.success ? existing.data.revision + 1 : 1,
+        updatedAt: serverTimestamp(),
       });
-      this.loadedRevisions.set(uid, nextRevision);
+    });
+  }
+
+  async saveAnswer(questionId: string, correct: boolean, questionBankVersion: string, userId?: string): Promise<void> {
+    try {
+      await this.update(questionBankVersion, userId, (current) => ({
+        ...current,
+        questionBankVersion,
+        progress: { ...current.progress, [questionId]: correct },
+        lastQuestionId: questionId,
+      }));
     } catch (error) {
       if (error instanceof ProgressStoreError) throw error;
-      throw new ProgressStoreError('Cloud progress could not be saved. Check your connection and try again.');
+      throw new ProgressStoreError('Your answer could not be saved. Check your connection and try again.');
+    }
+  }
+
+  async saveBookmark(questionId: string, saved: boolean, questionBankVersion: string, userId?: string): Promise<void> {
+    try {
+      await this.update(questionBankVersion, userId, (current) => {
+        const bookmarks = new Set(current.savedForLater);
+        if (saved) bookmarks.add(questionId);
+        else bookmarks.delete(questionId);
+        return { ...current, questionBankVersion, savedForLater: [...bookmarks] };
+      });
+    } catch (error) {
+      if (error instanceof ProgressStoreError) throw error;
+      throw new ProgressStoreError('Your bookmark could not be saved. Check your connection and try again.');
     }
   }
 
@@ -100,7 +117,6 @@ export class FirestoreProgressStore implements ProgressStore {
     const uid = requireUserId(userId);
     try {
       await deleteDoc(doc(this.firestore, 'userProgress', uid));
-      this.loadedRevisions.set(uid, 0);
     } catch {
       throw new ProgressStoreError('Cloud progress could not be reset. Check your connection and try again.');
     }

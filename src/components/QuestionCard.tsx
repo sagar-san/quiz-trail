@@ -7,7 +7,7 @@ interface QuestionCardProps {
   saved: boolean;
   priorOutcome?: boolean;
   showInternalMetadata?: boolean;
-  onSubmit: (correct: boolean) => void;
+  onSubmit: (correct: boolean) => Promise<void>;
   onToggleSaved: () => void;
   onSubmitFeedback?: (feedbackText: string) => Promise<void>;
 }
@@ -99,6 +99,7 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'submitted' | 'failed'>('idle');
@@ -129,8 +130,14 @@ export function QuestionCard({
   };
   const submit = () => {
     if (!selected.length) return;
-    onSubmit(sameAnswers(selected, question.correctAnswers));
     setSubmitted(true);
+    setSaveStatus('saving');
+    void Promise.resolve(onSubmit(sameAnswers(selected, question.correctAnswers)))
+      .then(() => {
+        setSaveStatus('saved');
+        window.setTimeout(() => setSaveStatus('idle'), 2000);
+      })
+      .catch(() => setSaveStatus('failed'));
   };
   const copyReviewPrompt = () => {
     setCopyStatus(copyText(reviewPrompt) ? 'copied' : 'failed');
@@ -185,6 +192,11 @@ export function QuestionCard({
           );
         })}
       </fieldset>
+      {saveStatus !== 'idle' && (
+        <p className={`answer-save-status${saveStatus === 'failed' ? ' error-message' : ''}`} aria-live="polite">
+          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? '✓ Saved!' : 'We’re sorry, something went wrong while saving your answer.'}
+        </p>
+      )}
       {!submitted ? (
         <button type="button" className="primary-button" disabled={!selected.length} onClick={submit}>Submit answer</button>
       ) : (

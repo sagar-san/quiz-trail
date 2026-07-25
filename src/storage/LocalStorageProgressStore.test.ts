@@ -6,11 +6,18 @@ import { reconcileProgress } from './reconcileProgress';
 const progress = { schemaVersion: 1 as const, questionBankVersion: 'old', progress: { 'PMLE-0001': true, gone: false }, savedForLater: ['PMLE-0002', 'gone'], lastQuestionId: 'gone' };
 
 describe('LocalStorageProgressStore', () => {
-  it('saves, loads, and resets the compact state', async () => {
+  it('saves individual answers and bookmarks, loads, and resets the compact state', async () => {
     const store = new LocalStorageProgressStore();
     expect(await store.load()).toBeNull();
-    await store.save(progress);
-    expect(await new LocalStorageProgressStore().load()).toEqual(progress);
+    await store.saveAnswer('PMLE-0001', true, 'sha256:test');
+    await store.saveBookmark('PMLE-0002', true, 'sha256:test');
+    expect(await new LocalStorageProgressStore().load()).toEqual({
+      schemaVersion: 1,
+      questionBankVersion: 'sha256:test',
+      progress: { 'PMLE-0001': true },
+      savedForLater: ['PMLE-0002'],
+      lastQuestionId: 'PMLE-0001',
+    });
     await store.reset();
     expect(localStorage.getItem(LOCAL_PROGRESS_KEY)).toBeNull();
   });
@@ -25,7 +32,7 @@ describe('LocalStorageProgressStore', () => {
   it('surfaces storage operation failures', async () => {
     const broken = { getItem: () => null, setItem: () => { throw new DOMException(); }, removeItem: () => { throw new DOMException(); } } as unknown as Storage;
     const store = new LocalStorageProgressStore(broken);
-    await expect(store.save(progress)).rejects.toThrow('could not be saved');
+    await expect(store.saveAnswer('PMLE-0001', true, 'test')).rejects.toThrow('could not be saved');
     await expect(store.reset()).rejects.toThrow('could not be cleared');
   });
 
