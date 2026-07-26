@@ -4,7 +4,7 @@ Last reviewed: 2026-07-26
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `04bbe9c` (`feat: save submitted answers individually`).
+- The production application is live at <https://quiz-trail.web.app> from commit `f357c14` (`fix: version question bank cache by encryption key`).
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
@@ -25,6 +25,27 @@ Last reviewed: 2026-07-26
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-26, for the production question-bank key rotation:
+- Rotated the public AES key in private question-bank commit `52a592b`, passed
+  its typecheck, all 7 tooling tests, preflight, and encrypted asset build, then
+  published the verified 407-question asset to the approved GCS bucket.
+- The downloaded production object matched the local encrypted asset by
+  SHA-256 and retained the intended one-hour cache plus localhost and production
+  CORS policies.
+- Frontend commit `f357c14` derives a short cache version from the imported key
+  and appends it to the bucket request, preventing a rotated key from reusing a
+  cached object associated with the prior key.
+- Frontend typecheck, targeted lint, all 64 unit/component tests, all 18 local
+  desktop/mobile browser tests against the live GCS object, and the Firebase-mode
+  production build passed. The production build contains no question asset.
+  Repository-wide lint remains blocked by 19,208 third-party errors under the
+  ignored `.tmp/uv-cache`; the task-related files pass lint.
+- Firebase Hosting deployment succeeded. Live smoke checks returned HTTP 200
+  for all public routes, HTTP 404 for the retired Hosting question path, and
+  HTTP 200 with the expected CORS/cache headers for the versioned GCS request.
+  The deployed practice bundle matched the tested build by SHA-256. No live
+  Firestore data or rules were changed.
 
 On 2026-07-26, for independent Cloud Storage question-bank delivery:
 - Removed frontend bank generation and local plaintext middleware. All frontend
