@@ -4,8 +4,8 @@ Last reviewed: 2026-07-25
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `6827bbb` (`protect question bank build asset`).
-- The working tree replaces bulk Save Progress behavior with targeted persistence pending commit and deployment: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure. Production still has the prior explicit bulk-save behavior until an approved deployment.
+- The production application is live at <https://quiz-trail.web.app> from commit `04bbe9c` (`feat: save submitted answers individually`).
+- Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
@@ -28,7 +28,7 @@ On 2026-07-25, for targeted answer and bookmark persistence:
 - Typecheck, targeted lint, all 63 unit/component tests, all 13 Firestore rules/store emulator tests, the Firebase-mode production build, and all 18 local browser tests passed.
 - Regression coverage confirms a failed answer is not retried by a later question submission, targeted Firestore transactions preserve unrelated answers from other tabs, and submitted answers plus bookmarks restore after reload on desktop and mobile.
 - Browser accessibility and horizontal-overflow checks passed. The standard `npm run test:rules` launcher could not start a second Firestore emulator because port 8080 was already occupied; the same rules suite passed directly against that existing local emulator.
-- No production deployment or live Firestore operation was performed.
+- Commit `04bbe9c` was pushed and the Hosting-only production deployment succeeded. Live smoke tests returned HTTP 200 with `no-cache` for all public routes and `/data/questions.bin`; the legacy plaintext CSV returned HTTP 404. The deployed encrypted bank matched the verified build by SHA-256, and the deployed practice bundle contained the targeted saving/success/failure states while omitting the old bulk-save UI strings. No live Firestore data or rules were changed.
 
 On 2026-07-24, for the private question-bank tooling separation:
 - The private question-bank repository typecheck and both duplicate-detector
