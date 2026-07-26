@@ -34,7 +34,7 @@ export async function hashQuestionBank(bytes: Uint8Array): Promise<string> {
   return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
-export const defaultQuestionBankUrl = 'https://storage.googleapis.com/quiz-trail-question-banks/questions.bin';
+export const defaultQuestionBankUrl = `https://storage.googleapis.com/quiz-trail-question-banks/questions.bin?key=${__QUESTION_BANK_KEY_VERSION__}`;
 
 export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<LoadedQuestionBank> {
   let response: Response;
@@ -45,13 +45,11 @@ export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<Lo
   }
   if (!response.ok) throw new QuestionBankError(`The question bank could not be loaded (HTTP ${response.status}).`);
   const downloadedBytes = new Uint8Array(await response.arrayBuffer());
-  let bytes: Uint8Array = downloadedBytes;
-  if (url.endsWith('.bin')) {
-    try {
-      bytes = await decryptQuestionBank(downloadedBytes);
-    } catch {
-      throw new QuestionBankError('The encrypted question bank could not be opened. Reload the page and try again.');
-    }
+  let bytes: Uint8Array;
+  try {
+    bytes = await decryptQuestionBank(downloadedBytes);
+  } catch {
+    throw new QuestionBankError('The encrypted question bank could not be opened. Reload the page and try again.');
   }
   const csv = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   return { questions: shuffleQuestions(parseQuestionBank(csv)), version: await hashQuestionBank(bytes) };

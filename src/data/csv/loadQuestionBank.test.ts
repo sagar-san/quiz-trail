@@ -26,7 +26,7 @@ describe('shuffleQuestions', () => {
   });
 
   it('loads the bank from the public Cloud Storage bucket', () => {
-    expect(defaultQuestionBankUrl).toBe('https://storage.googleapis.com/quiz-trail-question-banks/questions.bin');
+    expect(defaultQuestionBankUrl).toBe(`https://storage.googleapis.com/quiz-trail-question-banks/questions.bin?key=${__QUESTION_BANK_KEY_VERSION__}`);
   });
 });
 

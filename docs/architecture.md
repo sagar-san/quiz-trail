@@ -151,8 +151,10 @@ asset, which is published independently at
 The frontend imports only the intentionally public key from the sibling
 repository at build time. The browser bundle necessarily contains that key, so
 encryption prevents casual plain-file downloads but is not intended to resist a
-determined extractor. The browser derives a shortened SHA-256 version marker
-from the decrypted payload bytes.
+determined extractor. A short version derived from the key is appended to the
+bucket URL so key rotations do not reuse a cached object from the prior key.
+The browser derives a shortened SHA-256 version marker from the decrypted
+payload bytes.
 
 The private tooling also performs exact and similarity-based duplicate review.
 It owns the encryption key and format used to build the asset. The frontend

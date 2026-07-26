@@ -3,10 +3,16 @@ import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { questionBankEncryptionKey } from '../quiz-trail-question-bank/scripts/encryption.ts';
 
+const questionBankKeyVersion = [...questionBankEncryptionKey]
+  .map((byte) => byte.toString(16).padStart(2, '0'))
+  .join('')
+  .slice(0, 12);
+
 export default defineConfig({
   plugins: [react()],
   define: {
     __QUESTION_BANK_ENCRYPTION_KEY__: JSON.stringify([...questionBankEncryptionKey]),
+    __QUESTION_BANK_KEY_VERSION__: JSON.stringify(questionBankKeyVersion),
   },
   build: {
     rollupOptions: {
