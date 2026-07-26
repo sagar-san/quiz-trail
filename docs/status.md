@@ -10,9 +10,9 @@ Last reviewed: 2026-07-25
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
 - The canonical CSV and its validation/build tooling live in the sibling
-  `quiz-trail-question-bank` directory, which is now initialized as its own
-  local Git repository but still needs to be connected to its private GitHub
-  repository. The tooling reports exact and near-duplicate prompts and builds
+  private `quiz-trail-question-bank` repository at
+  `git@github.com:sagar-san/quiz-trail-question-bank.git`. The tooling reports
+  exact and near-duplicate prompts and builds
   the AES-GCM-encrypted `/data/questions.bin` asset that the application
   decrypts in browser memory.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.

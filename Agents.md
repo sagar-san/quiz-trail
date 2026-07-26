@@ -20,6 +20,19 @@ Quiz Trail is a React and TypeScript practice application for Google Cloud's Pro
 - Verify mutable claims against the working tree or runtime state when possible; handoff notes are context, not proof.
 - Do not use destructive Git commands or rewrite shared history unless the human explicitly requests it.
 
+## Commit and push workflow
+
+- After completing and verifying an authorized update, commit only the
+  task-related changes and push the current branch before handing off.
+- When a change spans this repository and the sibling private
+  `quiz-trail-question-bank` repository, commit and push the task-related
+  changes in both repositories.
+- If a push is blocked by authentication, permissions, remote divergence, or
+  failing required checks, report the blocker instead of rewriting history or
+  bypassing verification.
+- A successful push does not authorize a production deployment or any other
+  console-sensitive action.
+
 ## Documentation workflow
 
 `AGENTS.md` is the documentation router. Do not recursively read `docs/` or preload every document.
