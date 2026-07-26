@@ -68,7 +68,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Question content
 
-The canonical `questions.csv` is maintained in a separate private question-bank repository. Production builds validate and encrypt it into the practice application's sole runtime question asset, `/data/questions.bin`. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample page is an intentional public SEO snapshot of ten selected questions and is maintained manually.
+The canonical source bank is maintained in a separate private question-bank repository. That repository validates, encrypts, and independently publishes the practice application's runtime `questions.bin` asset to Cloud Storage. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample page is an intentional public SEO snapshot of ten selected questions and is maintained manually.
 
 Question IDs are permanent progress keys. Wording, explanation, and reference corrections may retain an ID when saved outcomes should remain attached. A change to what a question tests or to its correct answer requires a new ID so learners receive it as unanswered.
 
@@ -76,7 +76,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 ## Product boundaries
 
-- The question bank remains a versioned CSV outside the public application repository and is deployed as an encrypted static asset, not live Firestore content.
+- The question bank remains versioned outside the public application repository and is published as an encrypted Cloud Storage asset, not live Firestore content. Bank updates do not require a frontend deployment.
 - The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
 - Submitted answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.

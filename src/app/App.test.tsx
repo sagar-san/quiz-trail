@@ -104,7 +104,7 @@ describe('App', () => {
     render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
 
     expect(screen.getByRole('heading', { name: 'What is the PMLE?' })).toBeVisible();
-    expect(screen.getByText('All 408 practice questions are completely free.')).toBeVisible();
+    expect(screen.getByText('All 400+ practice questions are completely free.')).toBeVisible();
     expect(screen.getByRole('link', { name: /Official certification/ })).toHaveAttribute('href', 'https://cloud.google.com/learn/certification/machine-learning-engineer');
     expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     expect(screen.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');

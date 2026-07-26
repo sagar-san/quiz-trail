@@ -9,12 +9,14 @@ Last reviewed: 2026-07-26
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 409 source questions: 407 active and 2 retired. The active bank has 396 single-choice and 11 multiple-choice questions.
-- The canonical CSV and its validation/build tooling live in the sibling
+- The canonical source bank and its validation/build tooling live in the sibling
   private `quiz-trail-question-bank` repository at
   `git@github.com:sagar-san/quiz-trail-question-bank.git`. The tooling reports
-  exact and near-duplicate prompts and builds
-  the AES-GCM-encrypted `/data/questions.bin` asset that the application
-  decrypts in browser memory.
+  exact and near-duplicate prompts and builds the AES-GCM-encrypted
+  `questions.bin` asset published independently to the public
+  `quiz-trail-question-banks` Cloud Storage bucket. The frontend imports only
+  the public key from the sibling repository and decrypts the bucket asset in
+  browser memory.
 - Local browser mode and Firebase emulator mode are the development environments. Do not infer that prior dev servers or emulators are still running; inspect before starting processes.
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
@@ -23,6 +25,21 @@ Last reviewed: 2026-07-26
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-26, for independent Cloud Storage question-bank delivery:
+- Removed frontend bank generation and local plaintext middleware. All frontend
+  modes now fetch the encrypted asset directly from the approved public bucket;
+  the production and normal local origins return the required CORS headers.
+- Moved the sole AES key definition into a minimal private-repository module and
+  inject it into the frontend bundle at build time. The existing encrypted CSV
+  format and runtime parser remain unchanged.
+- Exact learner totals remain derived from the loaded bank. Static public copy
+  now uses `400+`, so a bank-only publication can change 407 active questions
+  to 430 without stale exact claims or a frontend deployment.
+- The private bank typecheck, all 7 tooling tests, preflight, and encrypted asset
+  build passed. The frontend typecheck, all 64 unit/component tests, production
+  build, and all 18 local desktop/mobile browser tests passed. The frontend
+  production output contains no question-bank asset.
 
 On 2026-07-26, for the FAQ privacy and storage clarification:
 - Updated the visible FAQ and matching JSON-LD to describe saved answer outcomes, bookmarks, basic Google account data, Google/Firebase processing, non-sale and non-advertising sharing, Settings deletion controls, and separately stored voluntary question feedback.

@@ -8,7 +8,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: 'http://127.0.0.1:5174',
+    baseURL: 'http://localhost:5173',
     trace: 'retain-on-failure',
   },
 });

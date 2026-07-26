@@ -3,13 +3,13 @@ import axe from 'axe-core';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/practice/');
-  await expect(page.getByText('408 questions')).toBeVisible();
+  await expect(page.getByText(/\d+ questions/)).toBeVisible();
 });
 
 test('publishes search and sharing metadata', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle('Quiz Trail — Google Cloud PMLE Practice Questions');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /408 free practice questions/);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /400\+ free practice questions/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/');
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
@@ -72,7 +72,7 @@ test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
   expect(await faqSchema.evaluate((script) => script.textContent)).toContain('FAQPage');
   await page.getByRole('link', { name: 'Start practicing' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
-  await expect(page.getByText('408 questions')).toBeVisible();
+  await expect(page.getByText(/\d+ questions/)).toBeVisible();
 });
 
 test('sample page publishes ten canonical questions with explanations', async ({ page }) => {
@@ -189,7 +189,7 @@ test('primary screen has no serious accessibility violations or horizontal overf
 test('analytics summary is accessible and review queues return to practice', async ({ page }) => {
   await page.getByRole('button', { name: 'View full summary →' }).click();
   await expect(page.getByRole('heading', { name: 'See where you stand.' })).toBeVisible();
-  await expect(page.getByText('408', { exact: true }).first()).toBeVisible();
+  await expect(page.locator('.overall-grid > div').filter({ hasText: 'Remaining' }).locator('strong')).toHaveText(/^\d+$/);
   await page.getByText('By topic', { exact: true }).click();
   await expect(page.locator('details.analytics-details').filter({ hasText: 'By topic' })).toHaveAttribute('open', '');
 

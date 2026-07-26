@@ -34,10 +34,6 @@
       {
         "source": "/llms.txt",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
-      },
-      {
-        "source": "/data/questions.bin",
-        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ]
   },

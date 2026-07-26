@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __QUESTION_BANK_ENCRYPTION_KEY__: number[];
+
 interface ImportMetaEnv {
   readonly VITE_FIREBASE_API_KEY?: string;
   readonly VITE_FIREBASE_AUTH_DOMAIN?: string;

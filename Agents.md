@@ -2,7 +2,7 @@
 
 ## Project summary
 
-Quiz Trail is a React and TypeScript practice application for Google Cloud's Professional Machine Learning Engineer certification. Questions come from an external private `questions.csv` supplied through `QUESTION_BANK_PATH`; production builds deploy only an encrypted asset. Progress can be stored in the browser or in Firebase.
+Quiz Trail is a React and TypeScript practice application for Google Cloud's Professional Machine Learning Engineer certification. The browser downloads an encrypted question asset from Cloud Storage; the sibling private question-bank repository owns the source, asset build, and public decryption key. Progress can be stored in the browser or in Firebase.
 
 ## Safety and permissions
 

@@ -33,7 +33,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
   await signInWithNewEmulatorAccount(page);
   await expect(page.getByText('Trail Tester')).toBeVisible();
-  await expect(page.getByText('408 questions')).toBeVisible();
+  await expect(page.getByText(/\d+ questions/)).toBeVisible();
 
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();

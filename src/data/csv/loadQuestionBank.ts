@@ -16,7 +16,7 @@ export function shuffleQuestions(questions: QuizQuestion[], random: () => number
   return shuffled;
 }
 
-export async function hashCsv(bytes: Uint8Array): Promise<string> {
+export async function hashQuestionBank(bytes: Uint8Array): Promise<string> {
   // Web Crypto is unavailable on insecure LAN origins (for example, opening
   // the local dev server from a phone over HTTP). Production HTTPS continues
   // to use SHA-256; the fallback is only a deterministic bank-version marker.
@@ -34,9 +34,7 @@ export async function hashCsv(bytes: Uint8Array): Promise<string> {
   return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
-const defaultQuestionBankUrl = import.meta.env.PROD
-  ? '/data/questions.bin'
-  : '/data/questions.csv';
+export const defaultQuestionBankUrl = 'https://storage.googleapis.com/quiz-trail-question-banks/questions.bin';
 
 export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<LoadedQuestionBank> {
   let response: Response;
@@ -56,5 +54,5 @@ export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<Lo
     }
   }
   const csv = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-  return { questions: shuffleQuestions(parseQuestionBank(csv)), version: await hashCsv(bytes) };
+  return { questions: shuffleQuestions(parseQuestionBank(csv)), version: await hashQuestionBank(bytes) };
 }

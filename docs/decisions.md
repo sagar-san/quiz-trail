@@ -82,12 +82,14 @@ This log records meaningful durable choices and why they were made. It is not a 
 ## D012 — Keep the source bank private and deploy an encrypted asset
 
 - **Status:** Accepted
-- **Decision:** Maintain the canonical `questions.csv` in a separate private repository. The public application repository reads it from `QUESTION_BANK_PATH` at development and build time. Production builds validate and AES-GCM encrypt the CSV into `/data/questions.bin`; the browser decrypts that asset in memory.
+- **Decision:** Maintain the canonical source bank, validation, encryption, and publishing workflow in a separate private repository. Publish the AES-GCM-encrypted `questions.bin` independently to the approved public Cloud Storage bucket. The frontend fetches that object directly and imports only the intentionally public decryption key from the sibling repository at build time.
 - **Why:** The authored question bank should not be obtainable by cloning the public application repository or opening a readable production CSV URL.
-- **Consequences:** Local development and deployment require the private bank
-  repository beside the application. That repository owns CSV preflight,
-  duplicate review, and encrypted-asset construction, while the public
-  application retains its runtime parser/decryptor and a thin Vite integration.
+- **Consequences:** Frontend builds require the private bank repository beside
+  the application only for the public key. That repository owns source
+  preflight, duplicate review, encrypted-asset construction, and publishing,
+  while the public application retains its runtime parser and decryptor.
+  Question content can change independently without rebuilding or deploying
+  the frontend; clients may use the prior object for up to its one-hour cache.
   The browser still receives the complete bank and its public decryption
   material, so encryption is a download deterrent rather than a security
   boundary. Stronger extraction resistance would require server-side question

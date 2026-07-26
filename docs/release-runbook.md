@@ -26,10 +26,10 @@ Local browser-storage mode needs no Firebase configuration:
 ```bash
 nvm use
 npm ci
-npm run dev -- --host 127.0.0.1 --port 5173
+npm run dev -- --host localhost --port 5173
 ```
 
-Open <http://127.0.0.1:5173> for the static landing page or <http://127.0.0.1:5173/practice/> for the practice application.
+Open <http://localhost:5173> for the static landing page or <http://localhost:5173/practice/> for the practice application. Use this hostname because it is an approved origin for the question-bank bucket.
 
 ## Run with Firebase emulators
 
@@ -46,10 +46,10 @@ Wait for Auth `9099`, Firestore `8080`, Hosting `5002`, and Emulator UI `4000` t
 Terminal 2:
 
 ```bash
-npm run dev:firebase -- --host 127.0.0.1 --port 5173
+npm run dev:firebase -- --host localhost --port 5173
 ```
 
-Open the app at <http://127.0.0.1:5173/practice/> and the Emulator UI at <http://127.0.0.1:4000>.
+Open the app at <http://localhost:5173/practice/> and the Emulator UI at <http://127.0.0.1:4000>.
 
 Stop both processes with Ctrl-C when finished. Do not start duplicate emulator processes; inspect current terminal/process state first.
 
@@ -84,11 +84,11 @@ npm run test:rules
 Then start `npm run emulators` and a Firebase-mode app on the port expected by `playwright.firebase.config.ts`:
 
 ```bash
-npm run dev:firebase -- --host 127.0.0.1 --port 5174
+npm run dev:firebase -- --host localhost --port 5173
 npm run e2e:firebase
 ```
 
-`e2e:firebase` currently expects already-running emulators and the app at `127.0.0.1:5174`.
+`e2e:firebase` currently expects already-running emulators and the app at `localhost:5173`.
 
 ## Build a production release
 
@@ -157,12 +157,11 @@ curl -sS -I https://quiz-trail.web.app/
 curl -sS -I https://quiz-trail.web.app/practice/
 curl -sS -I https://quiz-trail.web.app/faq/
 curl -sS -I https://quiz-trail.web.app/sample-questions/
-curl -sS -I https://quiz-trail.web.app/data/questions.bin
-curl -sS -o /dev/null -w '%{http_code}\n' https://quiz-trail.web.app/data/questions.csv
+curl -sS -I -H 'Origin: https://quiz-trail.web.app' https://storage.googleapis.com/quiz-trail-question-banks/questions.bin
 curl -sS https://quiz-trail.web.app/
 ```
 
-Confirm HTTP 200 responses, expected HTML metadata and asset names, and `Cache-Control: no-cache` for the encrypted bank. Confirm the legacy plaintext CSV URL returns 404. In a browser, test sign-in, one answer, Save Progress, reload/restore, avatar menu, and Settings when those flows changed.
+Confirm HTTP 200 responses, expected HTML metadata and asset names, and the expected one-hour cache plus production-origin CORS header for the encrypted bank. In a browser, test sign-in, one answer, reload/restore, avatar menu, and Settings when those flows changed.
 
 Record the deployed commit, verification results, and remaining work in `docs/status.md`, then commit and push that handoff update.
 

@@ -8,7 +8,7 @@ repositories cloned as siblings, its default local path is:
 ../quiz-trail-question-bank/questions.csv
 ```
 
-The public application repository must not contain or commit a plaintext copy. A production build validates the external CSV and emits only the AES-GCM-encrypted `/data/questions.bin` runtime asset. Set `QUESTION_BANK_PATH` to use a different local or CI location.
+The public application repository must not contain or commit a plaintext copy. The private repository validates the source and builds the AES-GCM-encrypted `questions.bin` runtime asset. Publishing that asset to the approved public Cloud Storage bucket is independent of frontend builds and deployments.
 
 The static SEO page at `sample-questions/index.html` is a deliberate exception: it contains a manually copied snapshot of ten questions and is not consumed by the practice application. Each sample retains its permanent ID in a `data-question-id` attribute. When one of those canonical CSV questions changes, review the static snapshot separately and update it when the public sample should reflect the change.
 
@@ -40,7 +40,7 @@ npm run preflight -- /path/to/questions_candidate.csv --compare questions.csv
 For convenience, `npm run preflight` in the public application repository
 delegates to the private repository.
 
-An invalid row rejects the entire bank, preventing a silently incomplete dataset from reaching learners. The browser derives the question-bank version automatically from the exact CSV bytes using SHA-256; there is no manual version field to update.
+An invalid row rejects the entire bank, preventing a silently incomplete dataset from reaching learners. The browser derives the question-bank version automatically from the exact decrypted payload bytes using SHA-256; there is no manual version field to update.
 
 `question_id` is permanent identity:
 
@@ -77,8 +77,9 @@ Question content and metadata remain in the CSV; learner progress continues to j
 - `chatgpt_verified` may be `TRUE`, `FALSE`, or blank.
 - `is_retired` must be `TRUE` or `FALSE`; retired rows remain canonical but are omitted from the encrypted learner asset.
 
-After preflight, run the public application's normal tests and production build
-before committing and deploying the updated bank. The application build calls
-the private repository's validated AES-GCM asset builder. `QUESTION_BANK_PATH`
-can select a candidate CSV, but the private tooling repository must remain
-available beside the application.
+After preflight, build and verify the encrypted asset in the private repository.
+Publishing it to `gs://quiz-trail-question-banks/questions.bin` is a separate
+production action requiring explicit approval. The frontend fetches that object
+directly, so a bank-only publication does not require rebuilding or deploying
+the application. Frontend builds need the sibling private repository only to
+import its intentionally public decryption key.

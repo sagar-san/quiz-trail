@@ -5,13 +5,13 @@
 Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample page are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads and decrypts the complete question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
 
 ```text
-private questions.csv
+private authored bank
           |
           v
- validation + build-time encryption
+ validation + independent encryption/publish
           |
           v
- /data/questions.bin
+ public Cloud Storage questions.bin
           |
           v
  browser decryption <-> React app <-> quiz reducer/selectors
@@ -51,7 +51,7 @@ The primary boundaries are:
 ## Startup and load flow
 
 1. The application resolves the current identity through `AuthService`.
-2. Once a user identity exists, it loads `/data/questions.bin` as bytes.
+2. Once a user identity exists, it loads `questions.bin` from the public Cloud Storage bucket as bytes.
 3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version from the plaintext bytes, and shuffles the questions once.
 4. The reducer receives the bank, and the stored filter preference is applied.
 5. The selected `ProgressStore` loads saved progress.
@@ -144,25 +144,24 @@ contains an `enabled` boolean flag. Firestore security rules read this document 
 
 ## Question-bank identity and reconciliation
 
-The canonical `questions.csv` and its editorial/build tooling live in a separate
-private repository. The public application's thin Vite integration calls that
-tooling, optionally selecting another CSV through `QUESTION_BANK_PATH`. A
-production build validates and AES-GCM encrypts the selected CSV into
-`/data/questions.bin`. The browser bundle necessarily contains the decryption
-material, so this prevents casual plain-file downloads but is not intended to
-resist a determined extractor. The normal HTTPS path derives a shortened
-SHA-256 version marker from the decrypted CSV bytes.
+The canonical source bank and all editorial/build tooling live in a separate
+private repository. That repository validates and AES-GCM encrypts the learner
+asset, which is published independently at
+`https://storage.googleapis.com/quiz-trail-question-banks/questions.bin`.
+The frontend imports only the intentionally public key from the sibling
+repository at build time. The browser bundle necessarily contains that key, so
+encryption prevents casual plain-file downloads but is not intended to resist a
+determined extractor. The browser derives a shortened SHA-256 version marker
+from the decrypted payload bytes.
 
 The private tooling also performs exact and similarity-based duplicate review.
-It reuses the application's runtime parser and public encryption-format
-constants so build-time and browser-time contracts remain aligned. Duplicate
-matches are reported for editorial review and are never automatically removed.
-
-During local Vite development, the external CSV is served only by development middleware at `/data/questions.csv`. This preserves insecure local-network development, where Web Crypto may be unavailable, without placing the source file in the public application repository or production output.
+It owns the encryption key and format used to build the asset. The frontend
+retains the matching decryptor and runtime parser. Duplicate matches are
+reported for editorial review and are never automatically removed.
 
 The static `/sample-questions/` page deliberately contains a manually copied SEO snapshot of ten selected questions. It is not loaded by the practice application and does not participate in progress identity or grading. Its `data-question-id` attributes identify the corresponding canonical questions for maintenance.
 
-Permanent question IDs decouple saved progress from CSV order and page-load shuffling. When a bank changes, reconciliation:
+Permanent question IDs decouple saved progress from source order and page-load shuffling. When a bank changes, reconciliation:
 
 - retains outcomes and bookmarks for IDs still present;
 - removes references to deleted IDs;
@@ -170,7 +169,7 @@ Permanent question IDs decouple saved progress from CSV order and page-load shuf
 - updates the saved bank version;
 - produces a notice when saved references were removed.
 
-The full CSV contract and safe-edit rules live in [`question-bank.md`](question-bank.md).
+The full source contract and safe-edit rules live in [`question-bank.md`](question-bank.md).
 
 ## Authentication and account deletion
 
@@ -204,7 +203,7 @@ Firebase Hosting serves those files directly. There is no catch-all rewrite, so 
 
 - Hashed assets use long-lived immutable caching.
 - Public HTML and `practice/index.html` use `no-cache`.
-- `/data/questions.bin` uses `no-cache` so clients revalidate the encrypted bank.
+- The Cloud Storage `questions.bin` object uses a one-hour public cache; publishing a new object updates clients without a frontend deployment.
 
 The committed Firebase alias `production` targets the single live `quiz-trail` project. Local Firebase emulators are the development environment; there is no separate staging project.
 

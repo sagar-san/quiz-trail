@@ -16,7 +16,7 @@ Quiz Trail is a focused PMLE practice app for working through a growing question
 
 Requires Node.js 22 and npm.
 
-Clone the private `quiz-trail-question-bank` repository beside this repository first, or set `QUESTION_BANK_PATH` to its `questions.csv`.
+Clone the private `quiz-trail-question-bank` repository beside this repository so the frontend build can import its public decryption key.
 
 ```bash
 nvm use
@@ -35,4 +35,4 @@ Open [http://localhost:5173](http://localhost:5173). Local development defaults 
 - [Question bank guide](docs/question-bank.md) — CSV contract and safe content updates
 - [Release runbook](docs/release-runbook.md) — Firebase verification, deployment, and rollback
 
-The canonical question bank is maintained in a separate private repository. Production builds validate it and deploy only an encrypted asset; see the [question bank guide](docs/question-bank.md).
+The canonical question bank is maintained in a separate private repository and published independently as an encrypted Cloud Storage asset; see the [question bank guide](docs/question-bank.md).

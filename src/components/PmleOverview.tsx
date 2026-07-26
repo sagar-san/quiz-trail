@@ -11,7 +11,7 @@ export function PmleOverview() {
           and improving scalable AI and machine learning solutions—from data and model architecture to MLOps and monitoring.
         </p>
         <p className="pmle-free-message">
-          <strong>All 408 practice questions are completely free.</strong>
+          <strong>All 400+ practice questions are completely free.</strong>
           <span>No paywall, trial, or premium question tier.</span>
         </p>
         <p>

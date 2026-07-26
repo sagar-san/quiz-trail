@@ -1,9 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { questions } from '../../test/fixtures';
-import { hashCsv, shuffleQuestions } from './loadQuestionBank';
+import { defaultQuestionBankUrl, hashQuestionBank, shuffleQuestions } from './loadQuestionBank';
 import {
   decryptQuestionBank,
-  questionBankEncryptionKey,
   questionBankFormatMagic,
 } from './questionBankEncryption';
 
@@ -22,8 +21,12 @@ describe('shuffleQuestions', () => {
   it('uses a deterministic fallback when Web Crypto is unavailable on local HTTP', async () => {
     vi.stubGlobal('crypto', {});
     const bytes = new TextEncoder().encode('question bank');
-    expect(await hashCsv(bytes)).toBe(await hashCsv(bytes));
-    expect(await hashCsv(bytes)).toMatch(/^fnv1a:[0-9a-f]{8}$/);
+    expect(await hashQuestionBank(bytes)).toBe(await hashQuestionBank(bytes));
+    expect(await hashQuestionBank(bytes)).toMatch(/^fnv1a:[0-9a-f]{8}$/);
+  });
+
+  it('loads the bank from the public Cloud Storage bucket', () => {
+    expect(defaultQuestionBankUrl).toBe('https://storage.googleapis.com/quiz-trail-question-banks/questions.bin');
   });
 });
 
@@ -33,7 +36,7 @@ describe('question-bank encryption', () => {
     const initializationVector = new Uint8Array(12).fill(7);
     const key = await crypto.subtle.importKey(
       'raw',
-      questionBankEncryptionKey,
+      new Uint8Array(__QUESTION_BANK_ENCRYPTION_KEY__),
       'AES-GCM',
       false,
       ['encrypt'],
