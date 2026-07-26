@@ -49,18 +49,18 @@ An invalid row rejects the entire bank, preventing a silently incomplete dataset
 - Keep the same ID for wording, explanation, or reference corrections when saved outcomes should remain attached.
 - Use a new ID when changing what the question tests or changing its correct
   answer, so learners receive it as unanswered; retain the prior ID and row for
-  historical continuity.
+  historical continuity and set `is_retired=TRUE` after deliberate product-owner review.
 
-The treatment of duplicate, outdated, or invalid questions is intentionally
-deferred for product review in the private question-bank repository. There is
-currently no retirement mechanism. Do not delete a row, materially replace its
-question under the same ID, add build filtering, or assume that
-`is_outdated`/`review_status` removes it from learner delivery.
+Retired rows remain in the canonical CSV as historical records and are excluded
+from the encrypted learner asset. Do not delete a row, materially replace its
+question under the same ID, or assume that `is_outdated`/`review_status` removes
+it from learner delivery. Retirement and unretirement require deliberate
+product-owner review because historical learner progress may be affected.
 
 ## Required columns
 
 ```text
-question_id,question_type,question,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation,reference_url,chatgpt_verified,terminology_status,terminology_notes,exam_section,exam_objectives,topics,difficulty,question_source,review_status,is_outdated
+question_id,question_type,question,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation,reference_url,chatgpt_verified,terminology_status,terminology_notes,exam_section,exam_objectives,topics,difficulty,question_source,review_status,is_outdated,is_retired
 ```
 
 Question content and metadata remain in the CSV; learner progress continues to join by permanent `question_id`.
@@ -75,6 +75,7 @@ Question content and metadata remain in the CSV; learner progress continues to j
 - `question`, `explanation`, and a valid answer are required.
 - `reference_url` may be blank; when present it must use HTTP(S).
 - `chatgpt_verified` may be `TRUE`, `FALSE`, or blank.
+- `is_retired` must be `TRUE` or `FALSE`; retired rows remain canonical but are omitted from the encrypted learner asset.
 
 After preflight, run the public application's normal tests and production build
 before committing and deploying the updated bank. The application build calls

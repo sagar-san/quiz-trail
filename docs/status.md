@@ -1,6 +1,6 @@
 # Current status
 
-Last reviewed: 2026-07-25
+Last reviewed: 2026-07-26
 
 ## Active state
 
@@ -8,7 +8,7 @@ Last reviewed: 2026-07-25
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
-- The canonical question bank contains 408 valid questions: 397 single-choice and 11 multiple-choice.
+- The canonical question bank contains 409 source questions: 407 active and 2 retired. The active bank has 396 single-choice and 11 multiple-choice questions.
 - The canonical CSV and its validation/build tooling live in the sibling
   private `quiz-trail-question-bank` repository at
   `git@github.com:sagar-san/quiz-trail-question-bank.git`. The tooling reports
@@ -23,6 +23,11 @@ Last reviewed: 2026-07-25
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-26, for the corrected stratified-sampling question replacement:
+- Retired PMLE-0152 and added PMLE-0409 with the revised prompt, answer B, and an explanation grounded in stratified splitting.
+- The private bank typecheck, all 7 tooling tests, and preflight passed for 409 source rows, 407 active rows, 2 retired rows, and no invalid rows.
+- The public application typecheck, all 63 unit/component tests, and the production build passed; the encrypted learner asset contains 407 active questions.
 
 On 2026-07-25, for targeted answer and bookmark persistence:
 - Typecheck, targeted lint, all 63 unit/component tests, all 13 Firestore rules/store emulator tests, the Firebase-mode production build, and all 18 local browser tests passed.
