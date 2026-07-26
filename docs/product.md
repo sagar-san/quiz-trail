@@ -61,9 +61,10 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 - Production authentication uses Google through Firebase Authentication; Quiz Trail does not manage passwords.
 - Cloud progress is scoped to the signed-in Firebase user and can resume across devices.
+- Quiz Trail uses basic Google account details only to identify the learner's account. It does not sell learner data or share it with advertisers or unrelated third parties; Google and Firebase process the data required to provide authentication and cloud storage.
 - Account deletion requires typed `DELETE` confirmation and Google reauthentication. It deletes the user's progress document and then the Firebase Authentication identity.
 - If identity deletion fails after progress deletion, the app reports the partial result instead of claiming complete deletion.
-- The application stores progress state, not copies of question text.
+- The application stores the latest answer outcome by question ID and saved-for-later bookmarks, not copies of question text. Voluntary question feedback is stored separately for review.
 
 ## Question content
 

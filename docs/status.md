@@ -24,6 +24,11 @@ Last reviewed: 2026-07-26
 
 ## Recent verification
 
+On 2026-07-26, for the FAQ privacy and storage clarification:
+- Updated the visible FAQ and matching JSON-LD to describe saved answer outcomes, bookmarks, basic Google account data, Google/Firebase processing, non-sale and non-advertising sharing, Settings deletion controls, and separately stored voluntary question feedback.
+- Typecheck, the production build, the JSON-LD consistency check, and diff checks passed.
+- The local browser suite did not reach its assertions because its shared setup still expects `408 questions`; the current application correctly reports 407 active questions. No deployment was performed.
+
 On 2026-07-26, for the corrected stratified-sampling question replacement:
 - Retired PMLE-0152 and added PMLE-0409 with the revised prompt, answer B, and an explanation grounded in stratified splitting.
 - The private bank typecheck, all 7 tooling tests, and preflight passed for 409 source rows, 407 active rows, 2 retired rows, and no invalid rows.
