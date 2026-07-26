@@ -10,6 +10,8 @@ export function reconcileProgress(progress: UserProgress, questions: QuizQuestio
     + (progress.lastQuestionId && !lastQuestionId ? 1 : 0);
   return {
     progress: { ...progress, questionBankVersion: version, progress: validProgress, savedForLater: validSaved, lastQuestionId },
-    notice: removed ? `${removed} saved reference${removed === 1 ? '' : 's'} no longer exist in this question bank and were removed.` : undefined,
+    notice: removed
+      ? `${removed} saved reference${removed === 1 ? ' no longer exists' : 's no longer exist'} in this question bank and ${removed === 1 ? 'was' : 'were'} removed.`
+      : undefined,
   };
 }

@@ -280,7 +280,9 @@ export function App({
           <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
         </section>
         <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
-        {(state.reconciliationNotice || storageError) && <div className="notice" role="status">{state.reconciliationNotice ?? storageError}</div>}
+        {(storageError || (debugMetadata && state.reconciliationNotice)) && (
+          <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
+        )}
         <QuizFilters active={state.filter} onChange={changeFilter} />
         {current ? (
           <>

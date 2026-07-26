@@ -69,6 +69,25 @@ describe('App', () => {
     expect(await screen.findByText('Bad storage')).toBeVisible();
   });
 
+  it('shows progress-reconciliation details only in debug mode', async () => {
+    const saved: UserProgress = {
+      schemaVersion: 1,
+      questionBankVersion: 'sha256:old',
+      progress: { 'PMLE-retired': true },
+      savedForLater: [],
+      lastQuestionId: null,
+    };
+    const { unmount } = render(<App bankLoader={loader} progressStore={memoryStore(saved)} />);
+    expect(await screen.findByText('3 questions')).toBeVisible();
+    expect(screen.queryByText(/saved reference no longer exists/)).not.toBeInTheDocument();
+    unmount();
+
+    window.history.replaceState({}, '', '?debug=true');
+    render(<App bankLoader={loader} progressStore={memoryStore(saved)} />);
+    expect(await screen.findByText(/1 saved reference no longer exists/)).toBeVisible();
+    window.history.replaceState({}, '', '/');
+  });
+
   it('does not retry a failed answer when a later question saves', async () => {
     const store = memoryStore();
     store.saveAnswer.mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce(undefined);

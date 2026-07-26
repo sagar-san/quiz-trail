@@ -26,6 +26,13 @@ Last reviewed: 2026-07-26
 
 ## Recent verification
 
+On 2026-07-26, for debug-only progress reconciliation details:
+- Stale saved question references continue to be removed during reconciliation,
+  but the cleanup notice is now visible only with `?debug=true`; real storage
+  errors remain learner-visible.
+- Typecheck, targeted lint, all 65 unit/component tests, and all 18 local
+  desktop/mobile browser tests passed. No production deployment was performed.
+
 On 2026-07-26, for the production question-bank key rotation:
 - Rotated the public AES key in private question-bank commit `52a592b`, passed
   its typecheck, all 7 tooling tests, preflight, and encrypted asset build, then
