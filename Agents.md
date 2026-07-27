@@ -6,8 +6,11 @@ Quiz Trail is a React and TypeScript practice application for Google Cloud's Pro
 
 ## Safety and permissions
 
-- Work freely only inside this repository.
-- Ask for explicit human permission before reading, writing, moving, deleting, or otherwise touching anything outside this repository.
+- Work freely inside this repository and the sibling private
+  `../quiz-trail-question-bank` repository. Treat them as one authorized
+  workspace while preserving each repository's own instructions and history.
+- Ask for explicit human permission before reading, writing, moving, deleting,
+  or otherwise touching anything outside those two repositories.
 - Never run `sudo` without first showing the exact command and receiving explicit approval.
 - Never print or record secrets, credentials, tokens, API keys, or sensitive environment values in tracked files.
 - Production deployment, live Firestore rule or data changes, billing changes, App Check enforcement, OAuth consent changes, domain verification, and other console-sensitive actions require explicit product-owner approval.
