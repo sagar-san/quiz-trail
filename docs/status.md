@@ -4,12 +4,12 @@ Last reviewed: 2026-07-26
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `f357c14` (`fix: version question bank cache by encryption key`).
+- The production application is live at <https://quiz-trail.web.app> from commit `200e094`, including the reconciliation-notice fix from `73dc976`.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
 - The canonical question bank contains 409 source questions: 407 active and 2 retired. The active bank has 396 single-choice and 11 multiple-choice questions.
-- The canonical source bank and its validation/build tooling live in the sibling
+- The canonical per-question JSON bank and its validation/build tooling live in the sibling
   private `quiz-trail-question-bank` repository at
   `git@github.com:sagar-san/quiz-trail-question-bank.git`. The tooling reports
   exact and near-duplicate prompts and builds the AES-GCM-encrypted
@@ -25,6 +25,34 @@ Last reviewed: 2026-07-26
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-26, for the canonical JSON migration, question tooling, bank
+publication, and pending frontend release:
+- Replaced the private repository's monolithic authored CSV with 409 canonical
+  `questions/PMLE-####.json` files. Deterministic export preserves the existing
+  CSV runtime contract; compared with the prior bank, the only logical changes
+  are eight unused `chatgpt_verified` casing normalizations from `True` to
+  `TRUE`.
+- Added the local JSON-backed browser editor and a self-documenting agent CLI
+  with get, list, search, dry-run/write patch, validation, and export commands.
+  A dry-run and real write against a temporary copy of retired PMLE-0049 passed
+  without changing the canonical file.
+- Private commit `59c3abf` was pushed. Typecheck, all 13 tooling tests,
+  post-commit permanent-ID preflight, deterministic CSV export, and the
+  encrypted asset build passed for 409 source questions, 407 active questions,
+  2 retired questions, and 0 invalid rows.
+- Published the approved encrypted asset to the production question-bank
+  bucket. The downloaded object matched the local release candidate by SHA-256
+  (`56fac2a78c23af9c3f68571bb115461f1724c3717344dd006a1148f3e1ca7050`)
+  and returns HTTP 200 with the intended one-hour cache, binary content type,
+  and production-origin CORS policy.
+- Frontend typecheck, all 65 unit/component tests, all 18 local desktop/mobile
+  browser tests, and the Firebase-mode production build passed. Hosting commit
+  `200e094` was deployed, including the pending debug-only reconciliation notice
+  behavior from `73dc976`; the live practice bundle matched the tested build by
+  SHA-256, and all four public routes returned HTTP 200 with `no-cache`.
+- No Firestore rules, live data, authentication, or other Firebase services
+  were changed.
 
 On 2026-07-26, for debug-only progress reconciliation details:
 - Stale saved question references continue to be removed during reconciliation,
