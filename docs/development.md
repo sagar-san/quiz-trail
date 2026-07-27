@@ -44,8 +44,9 @@ npm run e2e
 npm run e2e:firebase    # emulators and dev:firebase must already be running
 ```
 
-`npm run preflight` delegates to the sibling private repository. Candidate-file
-selection and all source validation remain private-repository concerns.
+`npm run preflight` delegates to the sibling private repository. Candidate
+directory or generated-CSV selection and all source validation remain
+private-repository concerns.
 Duplicate-detector unit tests and a duplicate-only report can be run there with
 `npm test` and `npm run duplicates`.
 

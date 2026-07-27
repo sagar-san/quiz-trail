@@ -79,7 +79,8 @@ Do not update every document after every task. Do not change a date without a su
 
 ## Important invariants
 
-- The external private CSV is the application's only authored question source; never commit a plaintext bank to this public repository.
+- The external private per-question JSON bank is the application's only authored
+  question source; never commit plaintext bank content to this public repository.
 - Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
 - Progress saves only when Save Progress is selected; the active filter is a separate immediately stored preference.
 - Do not change persistence or authentication contracts without reading `docs/architecture.md` and reviewing the relevant decision in `docs/decisions.md`.
@@ -94,7 +95,7 @@ Run checks proportionate to the change:
 | Documentation only | Review links, paths, and internal consistency |
 | TypeScript or application logic | Typecheck and relevant tests |
 | Styling or user-facing UI | Relevant tests plus browser or end-to-end verification |
-| Question CSV or schema | Question-bank preflight and relevant tests |
+| Question JSON, CSV export, or schema | Question-bank preflight and relevant tests |
 | Firebase rules, authentication, or cloud persistence | Relevant emulator tests |
 | Release-related work | Follow `docs/release-runbook.md` |
 

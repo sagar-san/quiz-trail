@@ -4,7 +4,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D001 — Keep practice questions in one canonical CSV
 
-- **Status:** Superseded by D012; static SEO snapshot exception added by D011
+- **Status:** Superseded by D012 and D014; static SEO snapshot exception added by D011
 - **Decision:** `public/data/questions.csv` is the practice application's only runtime question source. The browser loads and validates it directly; no separately maintained runtime JSON or Firestore question collection is used.
 - **Why:** The question bank needs to remain portable, reviewable in source control, and editable without database migrations or an admin application.
 - **Consequences:** The whole bank is deployed as an asset, invalid rows reject the bank, and CSV changes go through preflight validation.
@@ -75,9 +75,9 @@ This log records meaningful durable choices and why they were made. It is not a 
 ## D011 — Separate static discovery pages from the practice application
 
 - **Status:** Accepted
-- **Decision:** Serve the landing page, FAQ, and ten-question sample page as static HTML, and host the React/Firebase application at `/practice/`. The static sample page intentionally copies ten selected questions for SEO rather than generating them from the CSV.
+- **Decision:** Serve the landing page, FAQ, and ten-question sample page as static HTML, and host the React/Firebase application at `/practice/`. The static sample page intentionally copies ten selected questions for SEO rather than generating them from the canonical bank.
 - **Why:** Public discovery content should expose complete headings, links, and useful copy without requiring JavaScript. Keeping the samples as a small static snapshot makes the public pages simple and fast.
-- **Consequences:** Firebase Hosting no longer uses a global SPA fallback, unknown paths return 404, and the copied samples can drift from the canonical CSV. Their permanent IDs remain in `data-question-id` attributes so maintainers can compare and update the snapshot deliberately.
+- **Consequences:** Firebase Hosting no longer uses a global SPA fallback, unknown paths return 404, and the copied samples can drift from the canonical bank. Their permanent IDs remain in `data-question-id` attributes so maintainers can compare and update the snapshot deliberately.
 
 ## D012 — Keep the source bank private and deploy an encrypted asset
 
@@ -102,3 +102,19 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Submitting an answer immediately attempts to persist only that question's latest outcome. Toggling Save for later persists only that bookmark. Navigation remains independent, and later submissions do not retry a failed answer.
 - **Why:** Mobile browsers may reload inactive tabs, which made explicitly batched in-memory progress easy to lose and caused answered questions to reappear. A submitted answer should have one clear save attempt without adding a separate Save Progress step.
 - **Consequences:** The bulk Save Progress panel, dirty-state warnings, and unload prompt are removed. Saving status appears with the submitted question and does not block navigation. Firestore transactions merge each targeted mutation into the latest user document, preserving unrelated changes from other tabs while retaining one compact document per user.
+
+## D014 — Keep each canonical question in its own JSON file
+
+- **Status:** Accepted
+- **Decision:** The private question-bank repository stores each authored
+  question as `questions/<question_id>.json`. Validation and asset builds
+  deterministically assemble those files into the existing CSV contract before
+  encryption; generated CSV is ignored and is never an authored source.
+- **Why:** Per-question JSON produces focused Git diffs, simple human and AI
+  edits, isolated merge conflicts, natural arrays and booleans, and direct local
+  editor saves without introducing a database or changing the frontend runtime
+  format.
+- **Consequences:** Filenames must match permanent IDs, deleting an existing
+  file is prohibited, complete-bank validation still runs after edits, and the
+  CSV exporter is a compatibility boundary whose deterministic behavior is
+  covered by round-trip tests.
