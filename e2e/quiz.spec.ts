@@ -3,7 +3,7 @@ import axe from 'axe-core';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/practice/');
-  await expect(page.getByText(/\d+ questions/)).toBeVisible();
+  await expect(page.locator('.total-count')).toHaveText(/\d+ questions/);
 });
 
 test('publishes search and sharing metadata', async ({ page }) => {
@@ -14,12 +14,12 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
-  await expect(page.getByRole('heading', { name: '400+ free PMLE practice questions' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PMLE practice engine' })).toBeVisible();
   await expect(page.locator('.landing-hero').getByRole('link', { name: 'Try it out' })).toHaveAttribute('href', '/practice/');
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();
-  expect(landingHtml).toContain('<h1>400+ free PMLE practice questions</h1>');
+  expect(landingHtml).toContain('<h1>PMLE practice engine</h1>');
   expect(landingHtml).toContain('href="/sample-questions/"');
 
   const robots = await page.request.get('/robots.txt');

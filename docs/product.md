@@ -15,7 +15,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 ## Main experience
 
 1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`.
-2. In cloud mode, the complete question bank loads for signed-in learners and guests. Guests can answer and bookmark questions in memory, while a concise banner offers Google sign-in for saved progress.
+2. In cloud mode, guests can try ten questions in memory, while a concise banner offers Google sign-in for the complete question bank and saved progress. Signed-in learners receive the complete bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
@@ -43,7 +43,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Answer outcomes and saved-for-later bookmarks are keyed by permanent question ID.
 - For local and signed-in cloud learners, submitting an answer attempts to save only that question. A small status reports saving, success, or failure without blocking navigation.
 - For local and signed-in cloud learners, toggling Save for later persists only that question's bookmark state.
-- Guest answers, bookmarks, and filter changes remain in memory and clear on reload or sign-in; guest UI never reports them as saved.
+- Guest sessions are limited to ten questions. Their answers, bookmarks, and filter changes remain in memory and clear on reload or sign-in; guest UI never reports them as saved.
 - The active question filter is a separate browser preference and is stored immediately outside guest sessions.
 - Local mode saves in the current browser. Firebase modes save only to the signed-in account.
 - Reset all progress is destructive, requires confirmation, and lives in Settings.

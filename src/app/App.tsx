@@ -26,6 +26,8 @@ export interface AppProps {
   dataMode?: DataMode;
 }
 
+const GUEST_QUESTION_LIMIT = 10;
+
 export function App({
   bankLoader = loadQuestionBank,
   progressStore,
@@ -104,7 +106,8 @@ export function App({
       try {
         const bank = await bankLoader();
         if (!active) return;
-        dispatch({ type: 'bankLoaded', questions: bank.questions, questionBankVersion: bank.version });
+        const sessionQuestions = userId ? bank.questions : bank.questions.slice(0, GUEST_QUESTION_LIMIT);
+        dispatch({ type: 'bankLoaded', questions: sessionQuestions, questionBankVersion: bank.version });
         dispatch({ type: 'filterChanged', filter: userId ? preferenceStore.loadFilter() : 'unanswered' });
         if (userId) {
           try {
@@ -265,21 +268,21 @@ export function App({
           <h1>Professional Machine Learning Engineer practice questions</h1>
           <p>400+ free, carefully curated questions with explanations and official references.</p>
         </section>
+        <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
+        {(storageError || (debugMetadata && state.reconciliationNotice)) && (
+          <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
+        )}
         {isGuest && (
           <aside className="guest-banner" id="guest-start" aria-labelledby="guest-title">
             <div>
               <strong id="guest-title">Practicing as a guest</strong>
-              <span>Answers and bookmarks last only for this session. Sign in to save progress across devices.</span>
+              <span>Try 10 questions as a guest. Sign in to save your progress and access all 400+ questions.</span>
               {authError && <span className="error-message" role="alert">{authError}</span>}
             </div>
             <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
               {authBusy ? 'Opening Google…' : 'Sign in to save progress'}
             </button>
           </aside>
-        )}
-        <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
-        {(storageError || (debugMetadata && state.reconciliationNotice)) && (
-          <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
         )}
         <QuizFilters active={state.filter} onChange={changeFilter} />
         {current ? (

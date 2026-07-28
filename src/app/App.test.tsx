@@ -10,6 +10,12 @@ import { questions } from '../test/fixtures';
 import { App } from './App';
 
 const loader = async () => ({ questions, version: 'sha256:test' });
+const expandedQuestions = Array.from({ length: 12 }, (_, index) => ({
+  ...questions[index % questions.length],
+  questionId: `PMLE-${String(index + 1).padStart(4, '0')}`,
+  prompt: `Question ${index + 1}`,
+}));
+const expandedLoader = async () => ({ questions: expandedQuestions, version: 'sha256:expanded-test' });
 const memoryStore = (saved: UserProgress | null = null): ProgressStore & {
   saveAnswer: ReturnType<typeof vi.fn>;
   saveBookmark: ReturnType<typeof vi.fn>;
@@ -125,10 +131,12 @@ describe('App', () => {
       loadFilter: vi.fn<QuizPreferences['loadFilter']>(() => 'saved'),
       saveFilter: vi.fn(),
     };
-    render(<App bankLoader={loader} progressStore={store} preferences={guestPreferences} authService={auth} dataMode="firebase-emulator" />);
+    const { container } = render(<App bankLoader={expandedLoader} progressStore={store} preferences={guestPreferences} authService={auth} dataMode="firebase-emulator" />);
 
     expect(await screen.findByText('Practicing as a guest')).toBeVisible();
-    expect(screen.getByText(/Answers and bookmarks last only for this session/)).toBeVisible();
+    expect(screen.getByText(/Try 10 questions as a guest/)).toBeVisible();
+    expect(screen.getByText('10 questions')).toBeVisible();
+    expect(container.querySelector('.guest-banner')?.nextElementSibling).toBe(container.querySelector('.filter-wrap'));
     expect(store.load).not.toHaveBeenCalled();
     expect(guestPreferences.loadFilter).not.toHaveBeenCalled();
     expect(screen.queryByText('Report a problem with this question')).not.toBeInTheDocument();
@@ -150,6 +158,7 @@ describe('App', () => {
     expect(screen.getByText('Emulator mode')).toBeVisible();
     expect(auth.signIn).toHaveBeenCalledOnce();
     await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
+    expect(await screen.findByText('12 questions')).toBeVisible();
     expect(screen.getByText('0% explored')).toBeVisible();
   });
 

@@ -53,7 +53,7 @@ The primary boundaries are:
 1. The application resolves the current identity through `AuthService`; a null Firebase identity represents a guest session.
 2. It loads `questions.bin` from the public Cloud Storage bucket as bytes regardless of sign-in state.
 3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version from the plaintext bytes, and shuffles the questions once.
-4. The reducer receives the bank. Signed-in and local learners receive their stored filter preference; guests start in Unanswered without reading or writing preferences.
+4. The reducer receives the complete bank for signed-in and local learners, or the first ten questions from the shuffled bank for guests. Signed-in and local learners receive their stored filter preference; guests start in Unanswered without reading or writing preferences.
 5. When a user identity exists, the selected `ProgressStore` loads saved progress.
 6. Saved question IDs are reconciled against the current bank before entering reducer state. Guests skip persistence entirely.
 
@@ -175,7 +175,7 @@ The full source contract and safe-edit rules live in [`question-bank.md`](questi
 
 ## Authentication and account deletion
 
-Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue as a guest, persist authenticated Firebase sessions locally, and use Google popup authentication. Moving from guest to authenticated state resets the temporary quiz state before loading that account's saved progress; guest activity is not migrated.
+Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue with a ten-question guest session, persist authenticated Firebase sessions locally, and use Google popup authentication. Moving from guest to authenticated state resets the temporary quiz state, loads the complete bank, and then loads that account's saved progress; guest activity is not migrated.
 
 Cloud account deletion is deliberately ordered:
 

@@ -31,6 +31,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   test.setTimeout(60_000);
   await page.goto('/practice/');
   await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await expect(page.getByText('10 questions', { exact: true })).toBeVisible();
+  expect(await page.locator('.guest-banner').evaluate((banner) => banner.nextElementSibling?.classList.contains('filter-wrap'))).toBe(true);
   await expect(page.getByRole('button', { name: 'Sign in to save progress' })).toBeVisible();
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();

@@ -1,11 +1,11 @@
 # Current status
 
-Last reviewed: 2026-07-27
+Last reviewed: 2026-07-28
 
 ## Active state
 
 - The production application is live at <https://quiz-trail.web.app> from commit `200e094`, including the reconciliation-notice fix from `73dc976`.
-- The current source, pending deployment approval, lets cloud visitors use the full practice engine as guests without persistence. A guest banner and header action offer Google sign-in to save across devices; signing in discards temporary guest activity and loads account progress. The public homepage now prioritizes starting the interactive quiz, while the static ten-question page remains a lower-prominence SEO surface.
+- The current release candidate limits cloud guest sessions to ten shuffled questions without persistence and places the guest sign-in notice directly above the filters. Signing in discards temporary guest activity, loads the complete bank, and loads account progress. The public homepage uses a restrained, factual presentation, prioritizes starting the interactive quiz, and includes a direct sign-in link for returning learners; the static ten-question page remains a lower-prominence SEO surface.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
@@ -26,6 +26,17 @@ Last reviewed: 2026-07-27
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-28, for the ten-question guest limit and public homepage refinement:
+- Anonymous Firebase-mode visitors receive ten questions from the shuffled bank
+  without progress, preference, or feedback writes. Signing in resets the guest
+  session, loads the complete bank, and restores the account's progress.
+- Simplified the public homepage with smaller typography, factual feature copy,
+  unboxed feature columns, a plain action row, and a header sign-in link.
+- Typecheck, targeted lint, all 65 unit/component tests, the Firebase-mode
+  production build, all 18 local desktop/mobile browser tests, and the
+  Firebase-emulator guest/sign-in/persistence browser test passed. No
+  deployment was performed.
 
 On 2026-07-27, for guest practice and the public-entry hierarchy:
 - Anonymous Firebase-mode visitors loaded the complete bank, answered and
