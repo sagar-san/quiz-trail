@@ -10,6 +10,7 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle('Quiz Trail — Google Cloud PMLE Practice Questions');
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /400\+ free practice questions/);
+  await expect(page.locator('meta[name="msvalidate.01"]')).toHaveAttribute('content', '8F229F43FC2B6591BCF83CD94C352C76');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/');
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
