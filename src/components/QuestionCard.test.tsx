@@ -144,6 +144,79 @@ describe('QuestionCard', () => {
     await userEvent.click(submitBtn);
     expect(feedbackMock).toHaveBeenCalledWith('This is a test feedback for a bad question.');
 
-    expect(await screen.findByText('Feedback submitted successfully. Thank you!')).toBeVisible();
+    expect(await screen.findByText('Feedback saved successfully.')).toBeVisible();
+    expect(screen.getByPlaceholderText(/Describe what seems incorrect/)).toHaveValue(
+      'This is a test feedback for a bad question.',
+    );
+    expect(screen.getByRole('button', { name: 'Update feedback' })).toBeDisabled();
+  });
+
+  it('loads existing feedback only when More is opened and allows an update', async () => {
+    const loadFeedback = vi.fn().mockResolvedValue('The original feedback.');
+    const submitFeedback = vi.fn().mockResolvedValue(undefined);
+    render(
+      <QuestionCard
+        question={questions[0]}
+        progressLabel="Question 1 of 3"
+        saved={false}
+        onSubmit={vi.fn()}
+        onToggleSaved={vi.fn()}
+        onLoadFeedback={loadFeedback}
+        onSubmitFeedback={submitFeedback}
+      />
+    );
+
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    expect(loadFeedback).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByText('More'));
+    expect(await screen.findByDisplayValue('The original feedback.')).toBeVisible();
+    expect(loadFeedback).toHaveBeenCalledTimes(1);
+
+    await userEvent.click(screen.getByText('More'));
+    await userEvent.click(screen.getByText('More'));
+    expect(loadFeedback).toHaveBeenCalledTimes(1);
+
+    const textarea = screen.getByDisplayValue('The original feedback.');
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, 'The updated feedback.');
+    await userEvent.click(screen.getByRole('button', { name: 'Update feedback' }));
+
+    expect(submitFeedback).toHaveBeenCalledWith('The updated feedback.');
+    expect(await screen.findByText('Feedback saved successfully.')).toBeVisible();
+    expect(textarea).toHaveValue('The updated feedback.');
+  });
+
+  it('prevents overwriting unseen feedback after a load failure and allows retrying', async () => {
+    const loadFeedback = vi.fn()
+      .mockRejectedValueOnce(new Error('Unavailable'))
+      .mockResolvedValueOnce('The saved feedback.');
+    const submitFeedback = vi.fn().mockResolvedValue(undefined);
+    render(
+      <QuestionCard
+        question={questions[0]}
+        progressLabel="Question 1 of 3"
+        saved={false}
+        onSubmit={vi.fn()}
+        onToggleSaved={vi.fn()}
+        onLoadFeedback={loadFeedback}
+        onSubmitFeedback={submitFeedback}
+      />
+    );
+
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    await userEvent.click(screen.getByText('More'));
+    expect(await screen.findByText('Your existing feedback could not be loaded.')).toBeVisible();
+
+    const textarea = screen.getByPlaceholderText(/Describe what seems incorrect/);
+    await userEvent.type(textarea, 'A replacement that should not submit yet.');
+    expect(screen.getByRole('button', { name: 'Submit feedback' })).toBeDisabled();
+    expect(submitFeedback).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByDisplayValue('The saved feedback.')).toBeVisible();
+    expect(loadFeedback).toHaveBeenCalledTimes(2);
   });
 });

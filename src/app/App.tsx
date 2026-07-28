@@ -310,6 +310,9 @@ export function App({
               onSubmitFeedback={feedbackStore && user ? async (feedbackText) => {
                 await feedbackStore.submitFeedback(current.questionId, feedbackText, user.uid);
               } : undefined}
+              onLoadFeedback={feedbackStore && user ? async () => (
+                feedbackStore.loadFeedback(current.questionId, user.uid)
+              ) : undefined}
             />
             <QuestionNavigation
               hasPrevious={currentIndex > 0}

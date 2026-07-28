@@ -130,7 +130,7 @@ Each document contains:
 - `text`: the learner's feedback, from 1 to 1000 characters;
 - `submittedAt`: a Firestore server timestamp.
 
-The authenticated user's UID is the submission document ID, so each learner has at most one feedback document per question. Submitting again replaces that document. Learners can read only their own direct document and cannot list feedback. The external review exporter uses privileged Application Default Credentials to run a collection-group query across `submissions`; no reviewer access exists in the learner UI.
+The authenticated user's UID is the submission document ID, so each learner has at most one feedback document per question. Opening More lazily reads that direct document once for the displayed question and populates the existing feedback form; navigating between questions does not fetch feedback. Submitting again replaces the document. Learners can read only their own direct document and cannot list feedback. The external review exporter uses privileged Application Default Credentials to run a collection-group query across `submissions`; no reviewer access exists in the learner UI.
 
 ### Kill-switch config
 

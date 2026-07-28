@@ -61,6 +61,17 @@ describe('Firestore question feedback', () => {
     expect(snapshot.data()).not.toHaveProperty('userId');
   });
 
+  it('loads the learner\'s existing feedback and returns null when none exists', async () => {
+    const firestore = environment.authenticatedContext('user-a').firestore();
+    const store = new FirestoreFeedbackStore(firestore);
+
+    await expect(store.loadFeedback('PMLE-0001', 'user-a')).resolves.toBeNull();
+    await store.submitFeedback('PMLE-0001', 'The reference needs clarification.', 'user-a');
+    await expect(store.loadFeedback('PMLE-0001', 'user-a')).resolves.toBe(
+      'The reference needs clarification.',
+    );
+  });
+
   it('allows direct reads only for the document owner and denies learner listing', async () => {
     await assertSucceeds(setDoc(feedbackRef('user-a'), {
       text: 'The answer needs clarification.',

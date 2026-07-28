@@ -143,6 +143,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .feedback-form-actions span { font-size: 12px; color: var(--muted); }
 .feedback-success { color: var(--green-dark); font-weight: 700; font-size: 14px; }
 .feedback-error { color: var(--red); font-size: 12px; margin-top: 8px; }
+.feedback-load-error { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 8px; }.feedback-load-error .feedback-error { margin: 0; }.feedback-load-error .secondary-button { min-height: 36px; padding: 0 14px; }
 
 footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; } footer > div { display: flex; align-items: center; gap: 18px; } footer .mode-badge { padding: 5px 9px; font-size: 10px; } footer a { color: var(--green-dark); font-weight: 700; }
 

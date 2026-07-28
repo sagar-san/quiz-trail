@@ -11,6 +11,7 @@ interface QuestionCardProps {
   onSubmit: (correct: boolean) => Promise<void>;
   onToggleSaved: () => void;
   onSubmitFeedback?: (feedbackText: string) => Promise<void>;
+  onLoadFeedback?: () => Promise<string | null>;
 }
 
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
@@ -98,12 +99,15 @@ export function QuestionCard({
   onSubmit,
   onToggleSaved,
   onSubmitFeedback,
+  onLoadFeedback,
 }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [feedbackText, setFeedbackText] = useState('');
+  const [savedFeedbackText, setSavedFeedbackText] = useState<string | null>(null);
+  const [feedbackLoadStatus, setFeedbackLoadStatus] = useState<'not-loaded' | 'loading' | 'loaded' | 'failed'>('not-loaded');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'submitted' | 'failed'>('idle');
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
@@ -114,11 +118,25 @@ export function QuestionCard({
     setFeedbackError(null);
     try {
       await onSubmitFeedback(feedbackText.trim());
+      setSavedFeedbackText(feedbackText.trim());
+      setFeedbackLoadStatus('loaded');
       setFeedbackStatus('submitted');
-      setFeedbackText('');
     } catch (err) {
       setFeedbackStatus('failed');
       setFeedbackError(err instanceof Error ? err.message : 'Failed to submit feedback.');
+    }
+  };
+
+  const loadExistingFeedback = async () => {
+    if (!onLoadFeedback || feedbackLoadStatus === 'loading' || feedbackLoadStatus === 'loaded') return;
+    setFeedbackLoadStatus('loading');
+    try {
+      const existingFeedback = await onLoadFeedback();
+      setSavedFeedbackText(existingFeedback);
+      setFeedbackText(existingFeedback ?? '');
+      setFeedbackLoadStatus('loaded');
+    } catch {
+      setFeedbackLoadStatus('failed');
     }
   };
 
@@ -226,22 +244,28 @@ export function QuestionCard({
             </button>
           </div>
           {copyStatus === 'failed' && <p className="ai-review-error" role="alert">Could not access your clipboard. Copying may be blocked by your browser.</p>}
-          <details className="more-options-details" aria-label="More options">
+          <details
+            className="more-options-details"
+            aria-label="More options"
+            onToggle={(event) => {
+              if (event.currentTarget.open) void loadExistingFeedback();
+            }}
+          >
             <summary>More <span aria-hidden="true">⌄</span></summary>
             <div className="more-options-content">
               {onSubmitFeedback && (
                 <div className="question-feedback-action">
                   <h4>Report a problem with this question</h4>
-                  {feedbackStatus === 'submitted' ? (
-                    <p className="feedback-success">Feedback submitted successfully. Thank you!</p>
-                  ) : (
-                    <form onSubmit={handleFeedbackSubmit}>
+                  <form onSubmit={handleFeedbackSubmit}>
                       <textarea
                         value={feedbackText}
-                        onChange={(e) => setFeedbackText(e.target.value)}
+                        onChange={(e) => {
+                          setFeedbackText(e.target.value);
+                          if (feedbackStatus === 'submitted') setFeedbackStatus('idle');
+                        }}
                         placeholder="Describe what seems incorrect, unclear, or outdated..."
                         maxLength={1000}
-                        disabled={feedbackStatus === 'submitting'}
+                        disabled={feedbackLoadStatus === 'loading' || feedbackStatus === 'submitting'}
                         rows={3}
                       />
                       <div className="feedback-form-actions">
@@ -249,16 +273,37 @@ export function QuestionCard({
                         <button
                           type="submit"
                           className="secondary-button"
-                          disabled={!feedbackText.trim() || feedbackStatus === 'submitting'}
+                          disabled={
+                            !feedbackText.trim()
+                            || (Boolean(onLoadFeedback) && feedbackLoadStatus !== 'loaded')
+                            || feedbackStatus === 'submitting'
+                            || feedbackText.trim() === savedFeedbackText
+                          }
                         >
-                          {feedbackStatus === 'submitting' ? 'Submitting...' : 'Submit feedback'}
+                          {feedbackLoadStatus === 'loading'
+                            ? 'Loading...'
+                            : feedbackStatus === 'submitting'
+                              ? 'Saving...'
+                              : savedFeedbackText
+                                ? 'Update feedback'
+                                : 'Submit feedback'}
                         </button>
                       </div>
+                      {feedbackStatus === 'submitted' && (
+                        <p className="feedback-success">Feedback saved successfully.</p>
+                      )}
+                      {feedbackLoadStatus === 'failed' && (
+                        <div className="feedback-load-error" role="alert">
+                          <p className="feedback-error">Your existing feedback could not be loaded.</p>
+                          <button type="button" className="secondary-button" onClick={() => void loadExistingFeedback()}>
+                            Try again
+                          </button>
+                        </div>
+                      )}
                       {feedbackStatus === 'failed' && (
                         <p className="feedback-error" role="alert">{feedbackError || 'Failed to submit feedback.'}</p>
                       )}
                     </form>
-                  )}
                 </div>
               )}
               <div className="content-metadata-section" aria-label="Question content details">

@@ -55,7 +55,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Strength and weak-area guidance is sample-gated so very small samples are not presented as meaningful conclusions.
 - Editorial source, review-status, and terminology metadata is hidden from ordinary learners. Maintainers can inspect it after answering by loading the page with `?debug=true`.
 - The post-answer AI review prompt directs third-party agents to solve independently before auditing the question bank's answer and explanation as untrusted claims.
-- After answering, signed-in cloud learners can report an incorrect, unclear, or outdated question through the feedback form in More. A later report for the same question replaces that learner's earlier report.
+- After answering, signed-in cloud learners can report an incorrect, unclear, or outdated question through the feedback form in More. Opening More loads that learner's existing report for the question into the same form, where it can be edited and resubmitted. A later report for the same question replaces the earlier report.
 - Post-answer metadata is collapsed behind a Question details disclosure.
 
 ## Accounts and data

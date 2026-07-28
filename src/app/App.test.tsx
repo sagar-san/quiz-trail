@@ -164,7 +164,10 @@ describe('App', () => {
 
   it('submits cloud feedback with the question ID and authenticated user ID', async () => {
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
-    const feedbackStore: FeedbackStore = { submitFeedback: vi.fn().mockResolvedValue(undefined) };
+    const feedbackStore: FeedbackStore = {
+      loadFeedback: vi.fn().mockResolvedValue(null),
+      submitFeedback: vi.fn().mockResolvedValue(undefined),
+    };
     render(
       <App
         bankLoader={loader}
@@ -178,7 +181,12 @@ describe('App', () => {
     expect(await screen.findByText('3 questions')).toBeVisible();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    expect(feedbackStore.loadFeedback).not.toHaveBeenCalled();
     await userEvent.click(screen.getByText('More'));
+    await waitFor(() => expect(feedbackStore.loadFeedback).toHaveBeenCalledWith(
+      questions[0].questionId,
+      'user-a',
+    ));
     await userEvent.type(
       screen.getByPlaceholderText(/Describe what seems incorrect/),
       'The explanation needs clarification.',
