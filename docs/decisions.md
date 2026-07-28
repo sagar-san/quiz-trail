@@ -118,3 +118,19 @@ This log records meaningful durable choices and why they were made. It is not a 
   file is prohibited, complete-bank validation still runs after edits, and the
   CSV exporter is a compatibility boundary whose deterministic behavior is
   covered by round-trip tests.
+
+## D015 — Allow guest practice but persist only authenticated cloud progress
+
+- **Status:** Accepted
+- **Decision:** Load the complete practice bank for anonymous cloud visitors and
+  let them answer, bookmark, filter, and inspect session analytics in memory.
+  Do not read or write progress, preferences, or feedback for guests. Offer
+  Google sign-in as the way to save across devices; signing in discards the
+  temporary guest session and loads the account's existing progress.
+- **Why:** Learners should be able to experience the real product before being
+  asked for an account, while the persistence boundary remains explicit and
+  avoids ambiguous guest-to-account merging.
+- **Consequences:** `/practice/` remains a client-rendered, `noindex` product
+  route, while the static landing, FAQ, and sample pages remain the indexable
+  discovery surfaces. Guest UI must not claim that answers or bookmarks are
+  saved, and account-only feedback and settings remain unavailable until sign-in.

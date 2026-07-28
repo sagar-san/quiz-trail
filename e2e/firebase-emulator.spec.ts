@@ -9,7 +9,7 @@ test.beforeEach(async () => {
 
 async function signInWithNewEmulatorAccount(page: Page) {
   const popupPromise = page.waitForEvent('popup');
-  await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await page.getByRole('button', { name: 'Sign in to save progress' }).click();
   const popup = await popupPromise;
   await popup.locator('.js-new-account').click();
   await expect(popup.locator('#email-input')).toBeVisible();
@@ -21,7 +21,7 @@ async function signInWithNewEmulatorAccount(page: Page) {
 
 async function signInWithExistingEmulatorAccount(page: Page) {
   const popupPromise = page.waitForEvent('popup');
-  await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await page.getByRole('button', { name: 'Sign in to save progress' }).click();
   const popup = await popupPromise;
   await popup.getByText('trail-tester@example.com', { exact: true }).click();
   await popup.waitForEvent('close');
@@ -30,10 +30,19 @@ async function signInWithExistingEmulatorAccount(page: Page) {
 test('signs in, saves to Firestore, signs out, and restores after signing back in', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/practice/');
-  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+  await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign in to save progress' })).toBeVisible();
+  await page.locator('.question-card input').first().check();
+  await page.getByRole('button', { name: 'Submit answer' }).click();
+  await expect(page.locator('.feedback')).toBeVisible();
+  await expect(page.getByText('✓ Saved!')).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await expect(page.locator('.stat-grid')).toContainText('Attempted0');
   await signInWithNewEmulatorAccount(page);
   await expect(page.getByText('Trail Tester')).toBeVisible();
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
+  await expect(page.locator('.stat-grid')).toContainText('Attempted0');
 
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
@@ -44,7 +53,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByRole('heading', { name: 'Account & data' })).toBeVisible();
   await expect(page.getByText('trail-tester@example.com')).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+  await expect(page.getByText('Practicing as a guest')).toBeVisible();
   await signInWithExistingEmulatorAccount(page);
 
   await expect(page.getByText('Trail Tester')).toBeVisible();
@@ -59,5 +68,5 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   const popup = await reauthenticationPopup;
   await popup.getByText('trail-tester@example.com', { exact: true }).click();
   await popup.waitForEvent('close');
-  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+  await expect(page.getByText('Practicing as a guest')).toBeVisible();
 });

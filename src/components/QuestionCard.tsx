@@ -7,6 +7,7 @@ interface QuestionCardProps {
   saved: boolean;
   priorOutcome?: boolean;
   showInternalMetadata?: boolean;
+  sessionOnly?: boolean;
   onSubmit: (correct: boolean) => Promise<void>;
   onToggleSaved: () => void;
   onSubmitFeedback?: (feedbackText: string) => Promise<void>;
@@ -93,6 +94,7 @@ export function QuestionCard({
   saved,
   priorOutcome,
   showInternalMetadata = false,
+  sessionOnly = false,
   onSubmit,
   onToggleSaved,
   onSubmitFeedback,
@@ -131,6 +133,10 @@ export function QuestionCard({
   const submit = () => {
     if (!selected.length) return;
     setSubmitted(true);
+    if (sessionOnly) {
+      void onSubmit(sameAnswers(selected, question.correctAnswers));
+      return;
+    }
     setSaveStatus('saving');
     void Promise.resolve(onSubmit(sameAnswers(selected, question.correctAnswers)))
       .then(() => {
@@ -161,7 +167,9 @@ export function QuestionCard({
           onClick={onToggleSaved}
         >
           <span aria-hidden="true">{saved ? '★' : '☆'}</span>
-          {saved ? 'Saved for later' : 'Save for later'}
+          {sessionOnly
+            ? saved ? 'Marked this session' : 'Mark for this session'
+            : saved ? 'Saved for later' : 'Save for later'}
         </button>
       </div>
       {priorOutcome !== undefined && !submitted && (

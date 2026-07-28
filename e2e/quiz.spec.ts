@@ -14,12 +14,12 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
-  await expect(page.getByRole('heading', { name: 'Google Cloud PMLE practice questions' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Start practicing' })).toHaveAttribute('href', '/practice/');
+  await expect(page.getByRole('heading', { name: '400+ free PMLE practice questions' })).toBeVisible();
+  await expect(page.locator('.landing-hero').getByRole('link', { name: 'Start practicing' })).toHaveAttribute('href', '/practice/');
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();
-  expect(landingHtml).toContain('<h1>Google Cloud PMLE practice questions</h1>');
+  expect(landingHtml).toContain('<h1>400+ free PMLE practice questions</h1>');
   expect(landingHtml).toContain('href="/sample-questions/"');
 
   const robots = await page.request.get('/robots.txt');
@@ -70,7 +70,7 @@ test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
   const faqSchema = page.locator('script[data-quiz-trail-schema="faq"]');
   await expect(faqSchema).toHaveCount(1);
   expect(await faqSchema.evaluate((script) => script.textContent)).toContain('FAQPage');
-  await page.getByRole('link', { name: 'Start practicing' }).click();
+  await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Start practicing' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
 });
@@ -99,6 +99,7 @@ test('practice entry is separate from public search pages', async ({ page }) => 
   await expect(page).toHaveTitle('Practice Google Cloud PMLE Questions | Quiz Trail');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/practice/');
+  await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
 });
 
 test('submitted answers and bookmarks save, reload, filter, and reset', async ({ page }, testInfo) => {

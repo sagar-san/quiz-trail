@@ -5,6 +5,7 @@ import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthServi
 import type { UserProgress } from '../domain/types';
 import type { FeedbackStore } from '../storage/FeedbackStore';
 import type { ProgressStore } from '../storage/ProgressStore';
+import type { QuizPreferences } from '../storage/QuizPreferences';
 import { questions } from '../test/fixtures';
 import { App } from './App';
 
@@ -117,24 +118,39 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Submit answer' })).toBeVisible();
   });
 
-  it('requires sign-in in Firebase mode and shows the signed-in identity', async () => {
+  it('allows guest practice without saving and loads account progress after sign-in', async () => {
     const auth = new TestAuthService(null);
     const store = memoryStore();
-    render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
+    const guestPreferences: QuizPreferences = {
+      loadFilter: vi.fn<QuizPreferences['loadFilter']>(() => 'saved'),
+      saveFilter: vi.fn(),
+    };
+    render(<App bankLoader={loader} progressStore={store} preferences={guestPreferences} authService={auth} dataMode="firebase-emulator" />);
 
-    expect(screen.getByRole('heading', { name: 'What is the PMLE?' })).toBeVisible();
-    expect(screen.getByText('All 400+ practice questions are completely free.')).toBeVisible();
-    expect(screen.getByRole('link', { name: /Official certification/ })).toHaveAttribute('href', 'https://cloud.google.com/learn/certification/machine-learning-engineer');
-    expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
-    expect(screen.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    expect(await screen.findByText('Practicing as a guest')).toBeVisible();
+    expect(screen.getByText(/Answers and bookmarks last only for this session/)).toBeVisible();
+    expect(store.load).not.toHaveBeenCalled();
+    expect(guestPreferences.loadFilter).not.toHaveBeenCalled();
+    expect(screen.queryByText('Report a problem with this question')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText(/BigQuery/));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+    expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
+    expect(screen.queryByText('✓ Saved!')).not.toBeInTheDocument();
+    expect(store.saveAnswer).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Mark for this session' }));
+    expect(screen.getByRole('button', { name: 'Marked this session' })).toBeVisible();
+    expect(store.saveBookmark).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'All' }));
+    expect(guestPreferences.saveFilter).not.toHaveBeenCalled();
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Sign in with Google' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in to save progress' }));
 
     expect(await screen.findByText('Alice')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Open account menu for Alice' }).querySelector('img')).toHaveAttribute('src', 'https://example.com/alice.jpg');
     expect(screen.getByText('Emulator mode')).toBeVisible();
     expect(auth.signIn).toHaveBeenCalledOnce();
     await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
+    expect(screen.getByText('0% explored')).toBeVisible();
   });
 
   it('submits cloud feedback with the question ID and authenticated user ID', async () => {

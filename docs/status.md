@@ -1,10 +1,11 @@
 # Current status
 
-Last reviewed: 2026-07-26
+Last reviewed: 2026-07-27
 
 ## Active state
 
 - The production application is live at <https://quiz-trail.web.app> from commit `200e094`, including the reconciliation-notice fix from `73dc976`.
+- The current source, pending deployment approval, lets cloud visitors use the full practice engine as guests without persistence. A guest banner and header action offer Google sign-in to save across devices; signing in discards temporary guest activity and loads account progress. The public homepage now prioritizes starting the interactive quiz, while the static ten-question page remains a lower-prominence SEO surface.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
@@ -25,6 +26,24 @@ Last reviewed: 2026-07-26
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-27, for guest practice and the public-entry hierarchy:
+- Anonymous Firebase-mode visitors loaded the complete bank, answered and
+  bookmarked in memory without progress, preference, or feedback writes, and
+  saw session-specific wording instead of saved-status claims. Signing in
+  discarded the temporary guest state and loaded the account's Firestore
+  progress; signing out returned to a fresh guest session.
+- Simplified the practice introduction and public homepage typography and copy,
+  removed the duplicated hero statistics card, promoted Start practicing and
+  sign-in/resume actions, and moved the static sample-question CTA lower on the
+  homepage. `/practice/` remains `noindex,follow`; the landing, FAQ, and sample
+  pages remain static discovery surfaces.
+- Typecheck, targeted lint, all 65 unit/component tests, the Firebase-mode
+  production build, all 18 local desktop/mobile browser tests, and the
+  Firebase-emulator guest/sign-in/persistence browser test passed. Visual review
+  covered the revised desktop homepage and guest practice page. Repository-wide
+  lint remains blocked by 19,208 third-party errors under `.tmp/uv-cache`; the
+  task-related TypeScript and test files pass lint. No deployment was performed.
 
 On 2026-07-26, for the canonical JSON migration, question tooling, bank
 publication, and pending frontend release:

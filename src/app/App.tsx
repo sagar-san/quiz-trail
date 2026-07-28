@@ -4,7 +4,6 @@ import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
 import { AnalyticsSummary } from '../components/AnalyticsSummary';
 import { ProgressSummary } from '../components/ProgressSummary';
-import { PmleOverview } from '../components/PmleOverview';
 import { QuestionCard } from '../components/QuestionCard';
 import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
@@ -51,6 +50,7 @@ export function App({
   const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
+  const isGuest = auth.mode === 'firebase' && authResolved && !user;
   const accountMenu = useRef<HTMLDivElement>(null);
   const initialProgressScrollDone = useRef(false);
 
@@ -74,7 +74,7 @@ export function App({
     if (initialProgressScrollDone.current || loading || !state.questions.length || settingsOpen || activeView !== 'practice') return;
     initialProgressScrollDone.current = true;
     const frame = window.requestAnimationFrame(() => {
-      const target = document.getElementById('progress-start');
+      const target = document.getElementById(isGuest ? 'guest-start' : 'progress-start');
       if (!target || typeof window.scrollTo !== 'function') return;
       const headerHeight = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
       const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 42;
@@ -84,7 +84,7 @@ export function App({
       document.documentElement.style.scrollBehavior = priorScrollBehavior;
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [activeView, loading, settingsOpen, state.questions.length]);
+  }, [activeView, isGuest, loading, settingsOpen, state.questions.length]);
 
   useEffect(() => auth.subscribe((nextUser) => {
     setUser(nextUser);
@@ -93,8 +93,9 @@ export function App({
   }), [auth]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!authResolved) return;
     let active = true;
+    const userId = user?.uid;
     async function start() {
       setLoading(true);
       setFatalError(null);
@@ -104,15 +105,17 @@ export function App({
         const bank = await bankLoader();
         if (!active) return;
         dispatch({ type: 'bankLoaded', questions: bank.questions, questionBankVersion: bank.version });
-        dispatch({ type: 'filterChanged', filter: preferenceStore.loadFilter() });
-        try {
-          const saved = await store.load(user!.uid);
-          if (saved && active) {
-            const reconciled = reconcileProgress(saved, bank.questions, bank.version);
-            dispatch({ type: 'progressLoaded', progress: reconciled.progress, reconciliationNotice: reconciled.notice });
+        dispatch({ type: 'filterChanged', filter: userId ? preferenceStore.loadFilter() : 'unanswered' });
+        if (userId) {
+          try {
+            const saved = await store.load(userId);
+            if (saved && active) {
+              const reconciled = reconcileProgress(saved, bank.questions, bank.version);
+              dispatch({ type: 'progressLoaded', progress: reconciled.progress, reconciliationNotice: reconciled.notice });
+            }
+          } catch (error) {
+            if (active) setStorageError(error instanceof Error ? error.message : 'Saved progress could not be loaded.');
           }
-        } catch (error) {
-          if (active) setStorageError(error instanceof Error ? error.message : 'Saved progress could not be loaded.');
         }
       } catch (error) {
         if (active) setFatalError(error instanceof Error ? error.message : 'The question bank could not be loaded.');
@@ -122,7 +125,7 @@ export function App({
     }
     void start();
     return () => { active = false; };
-  }, [bankLoader, preferenceStore, store, user]);
+  }, [authResolved, bankLoader, preferenceStore, store, user?.uid]);
 
   const visible = selectFilteredQuestions(state);
   const currentFromBank = state.questions.find((question) => question.questionId === state.currentQuestionId);
@@ -142,7 +145,7 @@ export function App({
         : `Question ${queuePosition} of ${displayQuestions.length}`;
   const debugMetadata = new URLSearchParams(window.location.search).get('debug') === 'true';
   const changeFilter = (filter: typeof state.filter) => {
-    preferenceStore.saveFilter(filter);
+    if (!isGuest) preferenceStore.saveFilter(filter);
     dispatch({ type: 'filterChanged', filter });
   };
   const openReviewQueue = (filter: typeof state.filter) => {
@@ -206,24 +209,8 @@ export function App({
   };
 
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
-  if (!user) return (
-    <>
-      <main className="centered-state auth-state">
-        <span className="brand-mark" aria-hidden="true">Q</span>
-        <p className="eyebrow">PMLE practice</p>
-        <h1>Continue your trail</h1>
-        <p>Sign in with Google to load and save your progress across devices.</p>
-        <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
-          {authBusy ? 'Opening Google…' : 'Sign in with Google'}
-        </button>
-        {authError && <p className="error-message" role="alert">{authError}</p>}
-        <PmleOverview />
-      </main>
-      <footer><span>Quiz Trail</span><div><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></div></footer>
-    </>
-  );
-  if (loading) return <main className="centered-state"><div className="loader" /><h1>Loading your trail…</h1><p>Preparing the question bank.</p></main>;
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
+  if (loading || !state.questions.length) return <main className="centered-state"><div className="loader" /><h1>Loading the question bank…</h1><p>Preparing Quiz Trail.</p></main>;
 
   return (
     <>
@@ -234,7 +221,7 @@ export function App({
           <button className="header-button" type="button" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView((view) => view === 'summary' ? 'practice' : 'summary'); }}>{activeView === 'summary' && !settingsOpen ? 'Practice' : 'Summary'}</button>
           {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setActiveView('practice'); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
-            <div className="account-menu" ref={accountMenu}>
+            user ? <div className="account-menu" ref={accountMenu}>
               <button className="header-identity" type="button" title={user.email ?? user.displayName} aria-label={`Open account menu for ${user.displayName}`} aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen((open) => !open)}>
                 {user.photoUrl
                   ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" />
@@ -248,11 +235,11 @@ export function App({
                   <button type="button" role="menuitem" disabled={authBusy} onClick={() => { setAccountError(null); setAccountMenuOpen(false); setSettingsOpen(true); }}>Settings</button>
                 </div>
               )}
-            </div>
+            </div> : <button className="header-button" type="button" disabled={authBusy} onClick={() => void signIn()}>{authBusy ? 'Opening Google…' : 'Sign in'}</button>
           )}
         </div>
       </header>
-      {settingsOpen ? (
+      {settingsOpen && user ? (
         <AccountSettings
           user={user}
           mode={auth.mode}
@@ -275,10 +262,21 @@ export function App({
           />
         ) : <>
         <section className="intro">
-          <p className="eyebrow">PMLE practice</p>
-          <h1>One question at a time. <em>Keep moving forward.</em></h1>
-          <p>Prepare for Google Cloud’s Professional Machine Learning Engineer certification with focused practice, immediate feedback, and progress you can resume across devices.</p>
+          <h1>Professional Machine Learning Engineer practice questions</h1>
+          <p>400+ free, carefully curated questions with explanations and official references.</p>
         </section>
+        {isGuest && (
+          <aside className="guest-banner" id="guest-start" aria-labelledby="guest-title">
+            <div>
+              <strong id="guest-title">Practicing as a guest</strong>
+              <span>Answers and bookmarks last only for this session. Sign in to save progress across devices.</span>
+              {authError && <span className="error-message" role="alert">{authError}</span>}
+            </div>
+            <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
+              {authBusy ? 'Opening Google…' : 'Sign in to save progress'}
+            </button>
+          </aside>
+        )}
         <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
         {(storageError || (debugMetadata && state.reconciliationNotice)) && (
           <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
@@ -293,14 +291,16 @@ export function App({
               saved={state.savedForLater.includes(current.questionId)}
               priorOutcome={state.progress[current.questionId]}
               showInternalMetadata={debugMetadata}
+              sessionOnly={isGuest}
               onSubmit={async (correct) => {
                 dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct });
-                await store.saveAnswer(current.questionId, correct, state.questionBankVersion, user?.uid);
+                if (user) await store.saveAnswer(current.questionId, correct, state.questionBankVersion, user.uid);
               }}
               onToggleSaved={() => {
                 const saved = !state.savedForLater.includes(current.questionId);
                 dispatch({ type: 'savedToggled', questionId: current.questionId });
-                void store.saveBookmark(current.questionId, saved, state.questionBankVersion, user?.uid)
+                if (!user) return;
+                void store.saveBookmark(current.questionId, saved, state.questionBankVersion, user.uid)
                   .then(() => setStorageError(null))
                   .catch((error) => setStorageError(error instanceof Error ? error.message : 'Your bookmark could not be saved.'));
               }}
@@ -328,8 +328,8 @@ export function App({
       <footer>
         <span>Quiz Trail</span>
         <div>
-          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
-          <span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span>
+          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : isGuest ? 'Guest session' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
+          <span>{dataMode === 'local' ? 'Progress stays on this device' : isGuest ? 'Progress is not saved' : 'Progress is linked to your signed-in account'}</span>
           <a href="/faq/">FAQ</a>
           <a href="/sample-questions/">Sample questions</a>
           <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>

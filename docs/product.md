@@ -15,12 +15,12 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 ## Main experience
 
 1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`.
-2. In cloud mode, the learner signs in with Google before the practice app loads and validates the complete question bank.
+2. In cloud mode, the complete question bank loads for signed-in learners and guests. Guests can answer and bookmark questions in memory, while a concise banner offers Google sign-in for saved progress.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
-7. Submitting an answer saves that question's latest outcome; toggling Save for later saves that bookmark independently.
+7. For signed-in cloud learners and local-mode development, submitting an answer saves that question's latest outcome and toggling Save for later saves that bookmark independently. Guest changes remain only in the current session.
 8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
 9. A static public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq/`.
 10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
@@ -41,10 +41,11 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 ### Progress and saving
 
 - Answer outcomes and saved-for-later bookmarks are keyed by permanent question ID.
-- Submitting an answer attempts to save only that question. A small status reports saving, success, or failure without blocking navigation.
-- Toggling Save for later persists only that question's bookmark state.
-- The active question filter is a separate browser preference and is stored immediately.
-- Local mode saves in the current browser. Firebase modes save to the signed-in account.
+- For local and signed-in cloud learners, submitting an answer attempts to save only that question. A small status reports saving, success, or failure without blocking navigation.
+- For local and signed-in cloud learners, toggling Save for later persists only that question's bookmark state.
+- Guest answers, bookmarks, and filter changes remain in memory and clear on reload or sign-in; guest UI never reports them as saved.
+- The active question filter is a separate browser preference and is stored immediately outside guest sessions.
+- Local mode saves in the current browser. Firebase modes save only to the signed-in account.
 - Reset all progress is destructive, requires confirmation, and lives in Settings.
 
 ### Review and analytics
@@ -60,6 +61,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 ## Accounts and data
 
 - Production authentication uses Google through Firebase Authentication; Quiz Trail does not manage passwords.
+- Authentication is optional for practice. An anonymous cloud visitor receives no synthetic account and no progress writes.
 - Cloud progress is scoped to the signed-in Firebase user and can resume across devices.
 - Quiz Trail uses basic Google account details only to identify the learner's account. It does not sell learner data or share it with advertisers or unrelated third parties; Google and Firebase process the data required to provide authentication and cloud storage.
 - Account deletion requires typed `DELETE` confirmation and Google reauthentication. It deletes the user's progress document and then the Firebase Authentication identity.
@@ -78,7 +80,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 - The question bank remains versioned outside the public application repository and is published as an encrypted Cloud Storage asset, not live Firestore content. Bank updates do not require a frontend deployment.
 - The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
-- Submitted answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots.
+- Signed-in answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots; guest activity is session-only.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.
 - Contribution links are optional, non-blocking, and shown only when configured with valid URLs.

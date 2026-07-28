@@ -31,8 +31,8 @@ Firebase Hosting serves the production build. Firebase Authentication supplies G
 | Mode | Identity | Progress store | Intended use |
 |---|---|---|---|
 | `local` | Automatic `local-browser` identity | Browser `localStorage` | Default local development |
-| `firebase-emulator` | Firebase Auth emulator | Firestore emulator | Firebase integration development and tests |
-| `firebase` | Google via production Firebase Auth | Production Firestore | Production build |
+| `firebase-emulator` | Guest or Firebase Auth emulator user | None for guests; Firestore emulator when signed in | Firebase integration development and tests |
+| `firebase` | Guest or Google user | None for guests; production Firestore when signed in | Production build |
 
 Firebase modules are dynamically imported only for Firebase modes. Default local development therefore requires no Firebase configuration and does not initialize a cloud connection.
 
@@ -50,12 +50,12 @@ The primary boundaries are:
 
 ## Startup and load flow
 
-1. The application resolves the current identity through `AuthService`.
-2. Once a user identity exists, it loads `questions.bin` from the public Cloud Storage bucket as bytes.
+1. The application resolves the current identity through `AuthService`; a null Firebase identity represents a guest session.
+2. It loads `questions.bin` from the public Cloud Storage bucket as bytes regardless of sign-in state.
 3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version from the plaintext bytes, and shuffles the questions once.
-4. The reducer receives the bank, and the stored filter preference is applied.
-5. The selected `ProgressStore` loads saved progress.
-6. Saved question IDs are reconciled against the current bank before entering reducer state.
+4. The reducer receives the bank. Signed-in and local learners receive their stored filter preference; guests start in Unanswered without reading or writing preferences.
+5. When a user identity exists, the selected `ProgressStore` loads saved progress.
+6. Saved question IDs are reconciled against the current bank before entering reducer state. Guests skip persistence entirely.
 
 The entire bank is rejected when loading or validation fails; the application does not silently run with a partial dataset.
 
@@ -92,7 +92,7 @@ interface UserProgress {
 
 `progress` records only the latest correct/incorrect outcome. It does not record attempt counts or history. `lastQuestionId` remains in the persistence contract, but a new page load begins at the first question in the newly shuffled bank.
 
-Submitting an answer updates the in-memory quiz state and independently attempts to persist only that question's latest outcome. The question UI reports `Saving…`, briefly confirms success, or reports failure without blocking navigation. A failed answer is not retried by later submissions. Bookmark toggles similarly persist only the affected question. Navigation and filter changes do not write progress.
+Submitting an answer always updates the in-memory quiz state. Local and signed-in cloud sessions independently attempt to persist only that question's latest outcome; the question UI reports `Saving…`, briefly confirms success, or reports failure without blocking navigation. A failed answer is not retried by later submissions. Their bookmark toggles similarly persist only the affected question. Guest answers, bookmarks, and filters remain in memory, use session-specific wording, and are discarded on reload or sign-in. Navigation does not write progress.
 
 ### Local storage
 
@@ -175,7 +175,7 @@ The full source contract and safe-edit rules live in [`question-bank.md`](questi
 
 ## Authentication and account deletion
 
-Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes persist the Firebase Authentication session locally and use Google popup authentication.
+Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue as a guest, persist authenticated Firebase sessions locally, and use Google popup authentication. Moving from guest to authenticated state resets the temporary quiz state before loading that account's saved progress; guest activity is not migrated.
 
 Cloud account deletion is deliberately ordered:
 
