@@ -4,7 +4,7 @@ Last reviewed: 2026-07-28
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `d7871be`, including the ten-question guest limit, refined public homepage, and Bing site-verification tag.
+- The production application is live at <https://quiz-trail.web.app> from commit `8d78098`, including editable saved question feedback, the ten-question guest limit, refined public homepage, and Bing site-verification tag.
 - Cloud guest sessions receive ten shuffled questions without persistence and place the guest sign-in notice directly above the filters. Signing in discards temporary guest activity, loads the complete bank, and loads account progress. The public homepage uses a restrained, factual presentation, prioritizes starting the interactive quiz, and includes a direct sign-in link for returning learners; the static ten-question page remains a lower-prominence SEO surface.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
@@ -22,10 +22,15 @@ Last reviewed: 2026-07-28
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 - Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. The copied prompt frames the agent as an instructor guiding a student, requires an independent conclusion before considering the learner or bank answers, groups the bank content as untrusted claims, and supports agree, disagree, ambiguous, outdated, and invalid verdicts.
-- Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Existing array-based feedback was intentionally not migrated.
+- Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Opening More lazily loads the learner's existing report into the form for editing; a failed load prevents an unseen report from being overwritten and offers a retry. Existing array-based feedback was intentionally not migrated.
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-28, for learner-visible saved question feedback:
+- Opening More after answering now lazily loads the signed-in learner's existing report for that question, keeps saved text visible, and supports editing and replacing the same Firestore document. A failed read disables submission until retry succeeds, preventing an unseen report from being overwritten.
+- Typecheck, targeted lint, all 67 unit/component tests, all 14 Firestore rules/storage tests, the signed-in Firebase-emulator browser flow, all 18 local desktop/mobile browser tests, and the Firebase-mode production build passed. Browser coverage verifies an existing report appears, can be updated, and reloads after the question component remounts.
+- Commit `8d78098` was pushed and the Hosting-only production deployment succeeded. All four public routes returned HTTP 200 with `no-cache`; the encrypted bank retained its intended one-hour cache and production-origin CORS header. The deployed practice and feedback-store bundles matched the tested build by SHA-256 and contained the saved-feedback, update, retry, and failure-state UI. No Firestore rules, live data, authentication, or other Firebase services were changed.
 
 On 2026-07-28, for the ten-question guest limit and public homepage refinement:
 - Anonymous Firebase-mode visitors receive ten questions from the shuffled bank
