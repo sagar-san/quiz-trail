@@ -15,7 +15,7 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
   await expect(page.getByRole('heading', { name: '400+ free PMLE practice questions' })).toBeVisible();
-  await expect(page.locator('.landing-hero').getByRole('link', { name: 'Start practicing' })).toHaveAttribute('href', '/practice/');
+  await expect(page.locator('.landing-hero').getByRole('link', { name: 'Try it out' })).toHaveAttribute('href', '/practice/');
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();
@@ -70,7 +70,7 @@ test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
   const faqSchema = page.locator('script[data-quiz-trail-schema="faq"]');
   await expect(faqSchema).toHaveCount(1);
   expect(await faqSchema.evaluate((script) => script.textContent)).toContain('FAQPage');
-  await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Start practicing' }).click();
+  await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Try it out' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
 });

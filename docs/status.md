@@ -34,7 +34,7 @@ On 2026-07-27, for guest practice and the public-entry hierarchy:
   discarded the temporary guest state and loaded the account's Firestore
   progress; signing out returned to a fresh guest session.
 - Simplified the practice introduction and public homepage typography and copy,
-  removed the duplicated hero statistics card, promoted Start practicing and
+  removed the duplicated hero statistics card, promoted Try it out and
   sign-in/resume actions, and moved the static sample-question CTA lower on the
   homepage. `/practice/` remains `noindex,follow`; the landing, FAQ, and sample
   pages remain static discovery surfaces.
