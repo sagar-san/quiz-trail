@@ -74,7 +74,7 @@ test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
   await expect(faqSchema).toHaveCount(1);
   const faqSchemaText = await faqSchema.evaluate((script) => script.textContent);
   expect(faqSchemaText).toContain('FAQPage');
-  expect(faqSchemaText).not.toContain('Buy Me a Coffee');
+  expect(faqSchemaText).not.toMatch(/Buy Me a Coffee|GitHub/);
   await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Try it out' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
@@ -107,25 +107,31 @@ test('practice entry is separate from public search pages', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
 });
 
-test('monetary contribution UI is visible only in debug mode', async ({ page }) => {
-  await expect(page.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveCount(0);
+test('contribution and GitHub support UI is visible only in debug mode', async ({ page }) => {
+  await expect(page.getByRole('link', { name: /Buy Me a Coffee|GitHub/ })).toHaveCount(0);
 
   for (const path of ['/', '/faq/', '/sample-questions/']) {
     await page.goto(path);
-    await expect(page.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /Buy Me a Coffee|GitHub/ })).toHaveCount(0);
   }
 
   await page.goto('/?debug=true');
   await expect(page.getByRole('link', { name: 'Buy Me a Coffee' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /GitHub/ })).toBeVisible();
   await page.goto('/faq/?debug=true');
   await expect(page.getByRole('link', { name: /Buy Me a Coffee/ })).toHaveCount(2);
+  await expect(page.getByRole('link', { name: /GitHub/ })).toHaveCount(3);
   await page.goto('/sample-questions/?debug=true');
   await expect(page.getByRole('link', { name: 'Buy Me a Coffee' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /GitHub/ })).toBeVisible();
 
   await page.goto('/practice/?debug=true');
   await expect(page.getByRole('link', { name: 'Buy Me a Coffee' })).toHaveCount(2);
+  await expect(page.getByRole('link', { name: /GitHub/ })).toBeVisible();
   await page.getByRole('button', { name: 'Settings' }).click();
   await expect(page.getByRole('link', { name: 'Support via Buy Me a Coffee' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open a GitHub issue' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Star Quiz Trail on GitHub' })).toBeVisible();
 });
 
 test('submitted answers and bookmarks save, reload, filter, and reset', async ({ page }, testInfo) => {

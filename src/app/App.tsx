@@ -259,6 +259,7 @@ export function App({
           busy={authBusy}
           error={accountError}
           buyMeACoffeeUrl={debugMetadata ? buyMeACoffeeUrl : undefined}
+          showSupport={debugMetadata}
           onBack={() => setSettingsOpen(false)}
           onReset={() => void reset()}
           onSignOut={() => void signOut()}
@@ -348,8 +349,7 @@ export function App({
           <span>{dataMode === 'local' ? 'Progress stays on this device' : isGuest ? 'Progress is not saved' : 'Progress is linked to your signed-in account'}</span>
           <a href="/faq/">FAQ</a>
           <a href="/sample-questions/">Sample questions</a>
-          <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-          {debugMetadata && <a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>}
+          {debugMetadata && <><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></>}
         </div>
       </footer>
     </>

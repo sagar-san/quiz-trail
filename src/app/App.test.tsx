@@ -51,7 +51,7 @@ describe('App', () => {
     expect(await screen.findByText('3 questions')).toBeVisible();
     expect(screen.getByText('3 remaining of 3')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Outdated' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
+    expect(screen.queryByRole('link', { name: /GitHub/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Try 10 free PMLE sample questions/ })).not.toBeInTheDocument();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
@@ -62,7 +62,7 @@ describe('App', () => {
     expect(screen.getByText('2 remaining of 3')).toBeVisible();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
-    expect(screen.getByRole('heading', { name: 'Data & support' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Quiz data' })).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'Reset all progress' }));
     await waitFor(() => expect(store.reset).toHaveBeenCalled());
   });
@@ -254,9 +254,9 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
     expect(screen.getByText('alice@example.com')).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Open a GitHub issue' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail/issues/new/choose');
+    expect(screen.queryByRole('link', { name: 'Open a GitHub issue' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Support via Buy Me a Coffee' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Star Quiz Trail on GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
+    expect(screen.queryByRole('link', { name: 'Star Quiz Trail on GitHub' })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));
     const deleteButton = screen.getByRole('button', { name: 'Permanently delete account' });
     expect(deleteButton).toBeDisabled();
@@ -276,7 +276,9 @@ describe('App', () => {
     expect(await screen.findAllByRole('link', { name: 'Buy Me a Coffee' })).toHaveLength(2);
     await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Alice' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
+    expect(screen.getByRole('link', { name: 'Open a GitHub issue' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail/issues/new/choose');
     expect(screen.getByRole('link', { name: 'Support via Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    expect(screen.getByRole('link', { name: 'Star Quiz Trail on GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     window.history.replaceState({}, '', '/practice/');
   });
 

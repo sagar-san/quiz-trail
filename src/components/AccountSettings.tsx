@@ -6,6 +6,7 @@ export function AccountSettings({
   busy,
   error,
   buyMeACoffeeUrl,
+  showSupport,
   onBack,
   onReset,
   onSignOut,
@@ -17,6 +18,7 @@ export function AccountSettings({
   busy: boolean;
   error: string | null;
   buyMeACoffeeUrl?: string;
+  showSupport: boolean;
   onBack: () => void;
   onReset: () => void;
   onSignOut: () => void;
@@ -31,7 +33,7 @@ export function AccountSettings({
       <button className="settings-back" type="button" onClick={onBack}>← Back to quiz</button>
       <div className="settings-heading">
         <p className="eyebrow">Settings</p>
-        <h1>{mode === 'firebase' ? 'Account & data' : 'Data & support'}</h1>
+        <h1>{mode === 'firebase' ? 'Account & data' : showSupport ? 'Data & support' : 'Quiz data'}</h1>
         <p>{mode === 'firebase' ? 'Manage your Quiz Trail account and the progress saved to it.' : 'Manage the Quiz Trail progress saved in this browser.'}</p>
       </div>
 
@@ -50,7 +52,7 @@ export function AccountSettings({
         <button className="secondary-button danger-button" type="button" disabled={busy} onClick={onReset}>Reset all progress</button>
       </section>
 
-      <section className="settings-card" aria-labelledby="support-heading">
+      {showSupport && <section className="settings-card" aria-labelledby="support-heading">
         <h2 id="support-heading">Support</h2>
         <p>Found a bug, an outdated question, or have an idea? Open a public GitHub issue and do not include personal or account information. If a contribution is not an option, starring Quiz Trail on GitHub is a free way to help others find it.</p>
         <div className="settings-links">
@@ -58,7 +60,7 @@ export function AccountSettings({
           {supportUrl && <a className="settings-link" href={supportUrl} target="_blank" rel="noopener noreferrer">Support via Buy Me a Coffee</a>}
           <a className="settings-link" href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">Star Quiz Trail on GitHub</a>
         </div>
-      </section>
+      </section>}
 
       {mode === 'firebase' && <section className="settings-card danger-zone" aria-labelledby="delete-heading">
         <h2 id="delete-heading">Delete account</h2>
