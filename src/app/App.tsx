@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
@@ -55,6 +55,7 @@ export function App({
   const isGuest = auth.mode === 'firebase' && authResolved && !user;
   const accountMenu = useRef<HTMLDivElement>(null);
   const initialProgressScrollDone = useRef(false);
+  const signInRequested = useRef(new URLSearchParams(window.location.search).get('signIn') === 'true');
 
   useEffect(() => {
     if (!accountMenuOpen) return;
@@ -168,7 +169,7 @@ export function App({
     }
   };
 
-  const signIn = async () => {
+  const signIn = useCallback(async () => {
     setAuthBusy(true);
     setAuthError(null);
     try {
@@ -178,7 +179,16 @@ export function App({
     } finally {
       setAuthBusy(false);
     }
-  };
+  }, [auth]);
+
+  useEffect(() => {
+    if (!authResolved || !signInRequested.current) return;
+    signInRequested.current = false;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('signIn');
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    if (auth.mode === 'firebase' && !user) queueMicrotask(() => void signIn());
+  }, [auth.mode, authResolved, signIn, user]);
 
   const signOut = async () => {
     setAuthBusy(true);

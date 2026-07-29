@@ -19,10 +19,14 @@ test.beforeEach(async () => {
   expect(feedbackConfigResponse.ok).toBe(true);
 });
 
-async function signInWithNewEmulatorAccount(page: Page) {
+async function signInWithNewEmulatorAccount(
+  page: Page,
+  trigger: () => Promise<void> = () => page.getByRole('button', { name: 'Sign in to save progress' }).click(),
+) {
   const popupPromise = page.waitForEvent('popup');
-  await page.getByRole('button', { name: 'Sign in to save progress' }).click();
+  await trigger();
   const popup = await popupPromise;
+  await popup.waitForLoadState('load');
   await popup.getByRole('button', { name: 'Add new account' }).click();
   await expect(popup.locator('#email-input')).toBeVisible();
   await popup.locator('#email-input').fill('trail-tester@example.com');
@@ -30,6 +34,19 @@ async function signInWithNewEmulatorAccount(page: Page) {
   await popup.locator('#sign-in').click();
   await popup.waitForEvent('close');
 }
+
+test('homepage sign-in opens Google authentication and returns to clean practice URL', async ({ page }) => {
+  await page.goto('/');
+
+  await signInWithNewEmulatorAccount(
+    page,
+    () => page.getByRole('link', { name: /Already have saved progress/ }).click(),
+  );
+
+  await expect(page).toHaveURL(/\/practice\/$/);
+  await expect(page.getByText('Trail Tester')).toBeVisible();
+  await expect(page.getByText(/\d+ questions/)).toBeVisible();
+});
 
 async function signInWithExistingEmulatorAccount(page: Page) {
   const popupPromise = page.waitForEvent('popup');

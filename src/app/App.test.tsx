@@ -162,6 +162,31 @@ describe('App', () => {
     expect(screen.getByText('0% explored')).toBeVisible();
   });
 
+  it('opens sign-in once for a homepage sign-in request and removes the request from the URL', async () => {
+    window.history.replaceState({}, '', '/practice/?signIn=true');
+    const auth = new TestAuthService(null);
+
+    render(<App bankLoader={expandedLoader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
+
+    await waitFor(() => expect(auth.signIn).toHaveBeenCalledOnce());
+    expect(window.location.pathname).toBe('/practice/');
+    expect(window.location.search).toBe('');
+  });
+
+  it('keeps guest practice available when a homepage sign-in request fails', async () => {
+    window.history.replaceState({}, '', '/practice/?signIn=true');
+    const auth = new TestAuthService(null);
+    auth.signIn.mockRejectedValueOnce(new Error('Google sign-in was canceled.'));
+
+    render(<App bankLoader={expandedLoader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
+
+    expect(await screen.findByText('Google sign-in was canceled.')).toBeVisible();
+    expect(screen.getByText('Practicing as a guest')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Sign in to save progress' })).toBeVisible();
+    expect(window.location.pathname).toBe('/practice/');
+    expect(window.location.search).toBe('');
+  });
+
   it('submits cloud feedback with the question ID and authenticated user ID', async () => {
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
     const feedbackStore: FeedbackStore = {

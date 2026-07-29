@@ -180,6 +180,6 @@ Firestore rule and data changes need case-specific recovery; a Hosting rollback 
 - **Firestore emulator cannot find Java:** use Java 21+. Apple Silicon scripts already include Homebrew's `/opt/homebrew/opt/openjdk@21/bin`.
 - **Port 5000 unavailable:** this repository intentionally uses Hosting emulator port 5002 because macOS may reserve 5000.
 - **Port permission or occupancy errors:** stop duplicate processes or approve local listening when the execution sandbox requests it.
-- **`e2e:firebase` connection refused:** start the Firebase-mode Vite server on port 5174; confirm emulators are also running.
+- **`e2e:firebase` connection refused:** start the Firebase-mode Vite server on port 5173; confirm emulators are also running.
 - **Google sign-in says unauthorized domain:** do not alter OAuth or authorized-domain settings without explicit approval.
 - **Stale Firestore write:** reload the app before saving so newer progress is not overwritten.

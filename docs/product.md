@@ -14,7 +14,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`.
+1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`. The homepage's returning-learner links request Google sign-in on entry, while Try it out opens guest practice.
 2. In cloud mode, guests can try ten questions in memory, while a concise banner offers Google sign-in for the complete question bank and saved progress. Signed-in learners receive the complete bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.

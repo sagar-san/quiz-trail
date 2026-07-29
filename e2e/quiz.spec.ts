@@ -17,6 +17,8 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
   await expect(page.getByRole('heading', { name: 'PMLE practice engine' })).toBeVisible();
   await expect(page.locator('.landing-hero').getByRole('link', { name: 'Try it out' })).toHaveAttribute('href', '/practice/');
+  await expect(page.getByRole('link', { name: /Already have saved progress/ })).toHaveAttribute('href', '/practice/?signIn=true');
+  await expect(page.locator('.public-nav a', { hasText: 'Sign in' })).toHaveAttribute('href', '/practice/?signIn=true');
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();

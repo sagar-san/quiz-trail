@@ -175,7 +175,7 @@ The full source contract and safe-edit rules live in [`question-bank.md`](questi
 
 ## Authentication and account deletion
 
-Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue with a ten-question guest session, persist authenticated Firebase sessions locally, and use Google popup authentication. Moving from guest to authenticated state resets the temporary quiz state, loads the complete bank, and then loads that account's saved progress; guest activity is not migrated.
+Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue with a ten-question guest session, persist authenticated Firebase sessions locally, and use Google popup authentication. Homepage sign-in links add a one-time query parameter that the practice application removes before opening the popup, so refreshes do not repeat the request. Moving from guest to authenticated state resets the temporary quiz state, loads the complete bank, and then loads that account's saved progress; guest activity is not migrated.
 
 Cloud account deletion is deliberately ordered:
 
