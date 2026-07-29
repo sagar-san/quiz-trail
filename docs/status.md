@@ -4,8 +4,8 @@ Last reviewed: 2026-07-29
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `8d78098`, including editable saved question feedback, the ten-question guest limit, refined public homepage, and Bing site-verification tag.
-- Cloud guest sessions receive ten shuffled questions without persistence and place the guest sign-in notice directly above the filters. Signing in discards temporary guest activity, loads the complete bank, and loads account progress. Current source makes the public homepage's returning-learner links open Google sign-in on practice entry; that homepage fix is not yet deployed. The static ten-question page remains a lower-prominence SEO surface.
+- The production application is live at <https://quiz-trail.web.app> from commit `7fd915c`, including direct returning-learner sign-in, editable saved question feedback, the ten-question guest limit, refined public homepage, and Bing site-verification tag.
+- Cloud guest sessions receive ten shuffled questions without persistence and place the guest sign-in notice directly above the filters. Signing in discards temporary guest activity, loads the complete bank, and loads account progress. The public homepage's returning-learner links open Google sign-in on practice entry. The static ten-question page remains a lower-prominence SEO surface.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
 - Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu.
@@ -30,7 +30,7 @@ Last reviewed: 2026-07-29
 On 2026-07-29, for direct returning-learner sign-in from the homepage:
 - The homepage header and saved-progress links now carry a one-time sign-in intent into `/practice/`. The practice app removes that intent before opening Google authentication, remains on the clean practice URL after sign-in, and leaves guest practice plus its retry button available after cancellation or failure.
 - Typecheck, targeted lint, all 69 unit/component tests, the Auth emulator test, all 14 Firestore rules/storage tests, the Firebase-mode production build, all 18 local desktop/mobile browser tests, and both Firebase-emulator browser flows passed. The new Firebase flow verifies the homepage link opens authentication, completes sign-in, loads the full quiz, and ends at `/practice/`.
-- Corrected the release runbook's stale Firebase browser-test port from 5174 to the configured 5173. No production deployment or live Firebase change was performed.
+- Corrected the release runbook's stale Firebase browser-test port from 5174 to the configured 5173. Commit `7fd915c` was pushed and the Hosting-only production deployment succeeded. All four public routes returned HTTP 200 with `no-cache`; the live homepage contained both corrected sign-in links, and the deployed practice bundle matched the tested build by SHA-256. No Firestore rules, live data, Authentication settings, or other Firebase services were changed.
 
 On 2026-07-28, for learner-visible saved question feedback:
 - Opening More after answering now lazily loads the signed-in learner's existing report for that question, keeps saved text visible, and supports editing and replacing the same Firestore document. A failed read disables submission until retry succeeds, preventing an unseen report from being overwritten.
