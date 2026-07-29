@@ -4,11 +4,11 @@ Last reviewed: 2026-07-29
 
 ## Active state
 
-- The production application is live at <https://quiz-trail.web.app> from commit `7fd915c`, including direct returning-learner sign-in, editable saved question feedback, the ten-question guest limit, refined public homepage, and Bing site-verification tag.
+- The production application is live at <https://quiz-trail.web.app> from commit `dedb92f`, including debug-only contribution and GitHub support UI, direct returning-learner sign-in, editable saved question feedback, the ten-question guest limit, refined public homepage, and Bing site-verification tag.
 - Cloud guest sessions receive ten shuffled questions without persistence and place the guest sign-in notice directly above the filters. Signing in discards temporary guest activity, loads the complete bank, and loads account progress. The public homepage's returning-learner links open Google sign-in on practice entry. The static ten-question page remains a lower-prominence SEO surface.
 - Production uses targeted progress persistence: submitting an answer saves only that question, bookmark toggles save only that bookmark, and a small non-blocking status reports answer-save progress or failure.
 - The Git remote is `git@github.com:Ameenota/quiz-trail.git` and the Firebase production project is `quiz-trail`.
-- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, Buy Me a Coffee and GitHub-star support options, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu. Current source gates contribution, GitHub issue, repository, and star UI behind `?debug=true`; that visibility change is not yet deployed.
+- Production includes Google sign-in, explicit Firestore progress saving, learner analytics, Settings and account deletion, the public PMLE overview, a public SEO-focused FAQ at `/faq`, ten curated canonical-bank questions at `/sample-questions`, a post-answer AI review prompt, a Firestore question feedback form, and a collapsed More options menu. Contribution, GitHub issue, repository, and star UI is preserved behind `?debug=true` and hidden during ordinary learner visits.
 - The canonical question bank contains 409 source questions: 407 active and 2 retired. The active bank has 396 single-choice and 11 multiple-choice questions.
 - The canonical per-question JSON bank and its validation/build tooling live in the sibling
   private `quiz-trail-question-bank` repository at
@@ -30,7 +30,7 @@ Last reviewed: 2026-07-29
 On 2026-07-29, for hiding contribution and support prompts until they are ready:
 - Preserved the Buy Me a Coffee, optional Venmo, GitHub issue, repository, and star implementation but made it visible only with `?debug=true` across Settings, the practice banner and footer, static public-page footers, and FAQ copy. Public FAQ structured data no longer mentions monetary contributions or GitHub support.
 - Typecheck, targeted lint, all 70 unit/component tests, the Firebase-mode production build, and all 20 local desktop/mobile browser tests passed. Browser coverage verifies contribution and GitHub support UI is absent on every ordinary public/practice route and restored across all surfaces in debug mode.
-- No production deployment or live Firebase change was performed.
+- Commits `faba9be` and `dedb92f` were pushed and the Hosting-only production deployment succeeded. All four public routes returned HTTP 200 with `no-cache`; deployed static pages marked contribution and GitHub links as debug-only, and the deployed practice and public-debug bundles matched the tested build by SHA-256. No Firestore rules, live data, Authentication settings, or other Firebase services were changed.
 
 On 2026-07-29, for direct returning-learner sign-in from the homepage:
 - The homepage header and saved-progress links now carry a one-time sign-in intent into `/practice/`. The practice app removes that intent before opening Google authentication, remains on the clean practice URL after sign-in, and leaves guest practice plus its retry button available after cancellation or failure.
