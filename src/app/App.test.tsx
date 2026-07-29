@@ -255,7 +255,7 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Account & data' })).toBeVisible();
     expect(screen.getByText('alice@example.com')).toBeVisible();
     expect(screen.getByRole('link', { name: 'Open a GitHub issue' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail/issues/new/choose');
-    expect(screen.getByRole('link', { name: 'Support via Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    expect(screen.queryByRole('link', { name: 'Support via Buy Me a Coffee' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Star Quiz Trail on GitHub' })).toHaveAttribute('href', 'https://github.com/Ameenota/quiz-trail');
     await userEvent.click(screen.getByRole('button', { name: 'Delete account' }));
     const deleteButton = screen.getByRole('button', { name: 'Permanently delete account' });
@@ -266,6 +266,18 @@ describe('App', () => {
     await waitFor(() => expect(auth.deleteAccount).toHaveBeenCalledOnce());
     expect(store.reset).toHaveBeenCalledWith('user-a');
     expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
+  });
+
+  it('shows preserved monetary contribution links only in debug mode', async () => {
+    window.history.replaceState({}, '', '/practice/?debug=true');
+    const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
+    render(<App bankLoader={loader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
+
+    expect(await screen.findAllByRole('link', { name: 'Buy Me a Coffee' })).toHaveLength(2);
+    await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Alice' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
+    expect(screen.getByRole('link', { name: 'Support via Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+    window.history.replaceState({}, '', '/practice/');
   });
 
 });

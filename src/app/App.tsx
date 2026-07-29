@@ -258,7 +258,7 @@ export function App({
           mode={auth.mode}
           busy={authBusy}
           error={accountError}
-          buyMeACoffeeUrl={buyMeACoffeeUrl}
+          buyMeACoffeeUrl={debugMetadata ? buyMeACoffeeUrl : undefined}
           onBack={() => setSettingsOpen(false)}
           onReset={() => void reset()}
           onSignOut={() => void signOut()}
@@ -339,7 +339,7 @@ export function App({
           </section>
         )}
         </>}
-        <TipJar buyMeACoffeeUrl={buyMeACoffeeUrl} venmoUrl={import.meta.env.VITE_VENMO_URL} />
+        {debugMetadata && <TipJar buyMeACoffeeUrl={buyMeACoffeeUrl} venmoUrl={import.meta.env.VITE_VENMO_URL} />}
       </main>}
       <footer>
         <span>Quiz Trail</span>
@@ -349,7 +349,7 @@ export function App({
           <a href="/faq/">FAQ</a>
           <a href="/sample-questions/">Sample questions</a>
           <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-          <a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
+          {debugMetadata && <a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>}
         </div>
       </footer>
     </>

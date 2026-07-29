@@ -21,7 +21,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. For signed-in cloud learners and local-mode development, submitting an answer saves that question's latest outcome and toggling Save for later saves that bookmark independently. Guest changes remain only in the current session.
-8. Settings provides data information, progress reset, contribution links, and a free GitHub-star support option. Cloud users can also sign out or delete their account.
+8. Settings provides data information, progress reset, and a free GitHub-star support option. Cloud users can also sign out or delete their account. Monetary contribution links remain available only in maintainer debug mode.
 9. A static public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq/`.
 10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
 11. A manually curated `/llms.txt` summarizes the application, its public pages, access requirements, and authoritative certification source for AI agents.
@@ -83,7 +83,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 - Signed-in answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots; guest activity is session-only.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.
-- Contribution links are optional, non-blocking, and shown only when configured with valid URLs.
+- Monetary contribution links are optional, non-blocking, and shown only in `?debug=true` maintainer mode when configured with valid URLs.
 - The product does not currently provide timed mock exams, named study sessions, attempt history, spaced repetition, adaptive learning, readiness scoring, leaderboards, social features, native mobile apps, or an admin question editor.
 - Internal editorial notes must not be exposed to learners without deliberate product review.
 

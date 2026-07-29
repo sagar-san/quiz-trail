@@ -23,7 +23,7 @@ public AES decryption key from that repository at build time. Both development
 and production builds download the encrypted bank from its public Cloud Storage
 URL; the frontend never reads or builds the authored source bank.
 
-The Buy Me a Coffee link defaults to the project's public support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`. A valid `VITE_VENMO_URL` is also displayed when configured; blank or invalid optional values are hidden.
+In `?debug=true` maintainer mode, the Buy Me a Coffee link defaults to the project's support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`. A valid `VITE_VENMO_URL` is also displayed in that mode when configured; ordinary learner visits and blank or invalid optional URLs keep monetary-contribution UI hidden.
 
 ## Commands
 
