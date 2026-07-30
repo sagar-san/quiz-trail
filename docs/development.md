@@ -32,7 +32,6 @@ npm run dev             # local-storage mode
 npm run emulators       # Auth, Firestore, Hosting, and Emulator UI
 npm run dev:firebase    # app connected to already-running emulators
 npm run preflight       # validate and summarize the question bank
-npm run download-feedback # export cloud question feedback with Admin credentials
 npm run typecheck
 npm run lint
 npm run test
@@ -52,7 +51,10 @@ Duplicate-detector unit tests and a duplicate-only report can be run there with
 
 The local public landing page is `/`; the React practice application is `/practice/`. The FAQ and sample pages are `/faq/` and `/sample-questions/`.
 
-`download-feedback` writes `feedback_export.md` using the Firebase Admin SDK. For production, authenticate with Application Default Credentials that can read Firestore and optionally set `GOOGLE_CLOUD_PROJECT` (it defaults to `quiz-trail`). To review emulator data instead, set `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`; no cloud credentials are used in that mode. The exporter reads all `submissions` documents, while learner-facing Firestore rules intentionally deny collection listing.
+Question-feedback download and local review are owned by the sibling private
+question-bank repository. Run its `npm run feedback:download` command before
+opening its local editor. The public application repository does not store
+downloaded learner feedback or reviewer credentials.
 
 Local emulator ports:
 

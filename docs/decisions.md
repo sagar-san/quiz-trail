@@ -68,9 +68,9 @@ This log records meaningful durable choices and why they were made. It is not a 
 ## D010 — Store one feedback document per learner and question
 
 - **Status:** Accepted
-- **Decision:** Cloud question feedback is stored at `questionFeedback/{questionId}/submissions/{uid}`. A later submission replaces that learner's earlier feedback for the same question. Feedback is not stored in local mode, and review happens through a privileged external script rather than the learner UI.
+- **Decision:** Cloud question feedback is stored at `questionFeedback/{questionId}/submissions/{uid}`. A later submission replaces that learner's earlier feedback for the same question. Feedback is not stored in local mode, and review happens through the private question-bank repository's local downloader and editor rather than the learner UI.
 - **Why:** Direct document access is efficient for a learner's own feedback, per-question and cross-question review remain queryable, and feedback from different learners does not accumulate toward a single Firestore document-size limit.
-- **Consequences:** Learners cannot list other submissions, existing array-based feedback is not migrated, and the review script requires trusted Application Default Credentials.
+- **Consequences:** Learners cannot list other submissions, existing array-based feedback is not migrated, and the private review command requires trusted Application Default Credentials. Downloads are nondestructive by default; optional remote deletion requires an exact per-report confirmation after the local file is verified.
 
 ## D011 — Separate static discovery pages from the practice application
 

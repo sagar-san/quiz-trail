@@ -1,6 +1,6 @@
 # Current status
 
-Last reviewed: 2026-07-29
+Last reviewed: 2026-07-30
 
 ## Active state
 
@@ -22,10 +22,15 @@ Last reviewed: 2026-07-29
 - Production includes an iOS clipboard reliability fix that replaces the AI review prompt's hanging asynchronous clipboard write with a synchronous selection-based copy. Real-device verification remains pending.
 - Production also includes a learner-facing queue cleanup: Unanswered now shows remaining progress against the full bank, All/Incorrect/Saved use descriptive queue positions, and the Outdated filter has been removed while its editorial metadata remains internal.
 - Production includes an answered-state cleanup: the separate AI explanation block is replaced by a compact `✨ Copy AI prompt` action beside the reference link, and the existing More-section question feedback form is available to all learners after answering rather than only in debug mode. The copied prompt frames the agent as an instructor guiding a student, requires an independent conclusion before considering the learner or bank answers, groups the bank content as untrusted claims, and supports agree, disagree, ambiguous, outdated, and invalid verdicts.
-- Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, prevents learner listing, and uses an Admin SDK script for external review. Opening More lazily loads the learner's existing report into the form for editing; a failed load prevents an unseen report from being overwritten and offers a retry. Existing array-based feedback was intentionally not migrated.
+- Feedback persistence stores one document per question and learner at `questionFeedback/{questionId}/submissions/{uid}`, replaces that learner's earlier report, hides feedback in local mode, and prevents learner listing. The private question-bank repository downloads reports into ignored stable text files and shows them in its local editor. Downloads are nondestructive by default; optional source deletion is version-checked and requires the exact response `yes` for every report. Opening More lazily loads the learner's existing report into the form for editing; a failed load prevents an unseen report from being overwritten and offers a retry. Existing array-based feedback was intentionally not migrated.
 - Production serves static landing, FAQ, and ten-question sample pages; hosts the React/Firebase application at `/practice/`; returns a real 404 for unknown paths; and includes the manually curated `llms.txt` and owner-provided Google Search Console verification file.
 
 ## Recent verification
+
+On 2026-07-30, for the private question-feedback review workflow:
+- Moved feedback download ownership from the public application into the private question-bank repository. The command writes stable ignored `PMLE-####_feedback_<userId>.txt` files, atomically replaces existing files, and never deletes remotely unless `--delete` is present, the local file is verified, the user types the exact response `yes` for that report, and the Firestore document version is unchanged.
+- Extended the existing local question editor with a feedback inbox, direct question links, per-question feedback below the edit form, URL-based question loading, and confirmed local-file deletion that never changes Firestore.
+- The nondestructive production download succeeded for 15 reports with 15 local files saved, 0 remote deletions, and 0 failures; a second run through the final dependency-free REST implementation replaced the same 15 filenames without duplication. Private typecheck, all 19 tooling tests, preflight, and dependency audit passed for 409 source questions, 407 active questions, 2 retired questions, 0 invalid rows, and 0 dependency advisories. Public typecheck and all 70 unit/component tests passed. Local browser verification confirmed inbox navigation and feedback rendering; the local delete endpoint removed only the named temporary feedback file. No production feedback, Firestore rules, learner data, hosting, authentication, or other cloud configuration was changed.
 
 On 2026-07-29, for hiding contribution and support prompts until they are ready:
 - Preserved the Buy Me a Coffee, optional Venmo, GitHub issue, repository, and star implementation but made it visible only with `?debug=true` across Settings, the practice banner and footer, static public-page footers, and FAQ copy. Public FAQ structured data no longer mentions monetary contributions or GitHub support.

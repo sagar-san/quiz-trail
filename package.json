@@ -16,8 +16,7 @@
     "e2e": "playwright test",
     "e2e:firebase": "playwright test --config playwright.firebase.config.ts",
     "emulators": "PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache firebase emulators:start --only auth,firestore,hosting",
-    "preflight": "npm --prefix ../quiz-trail-question-bank run preflight --",
-    "download-feedback": "node --experimental-strip-types scripts/download-feedback.ts"
+    "preflight": "npm --prefix ../quiz-trail-question-bank run preflight --"
   },
   "dependencies": {
     "firebase": "^12.16.0",
@@ -43,7 +42,6 @@
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
-    "firebase-admin": "^14.2.0",
     "firebase-tools": "^15.24.0",
     "globals": "latest",
     "jsdom": "latest",
