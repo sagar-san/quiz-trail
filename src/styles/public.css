@@ -72,6 +72,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid #e9a468; outline-off
 .public-nav .header-button:hover { background: var(--green-dark); }
 .primary-button { border: 1px solid var(--green); background: var(--green); color: white; }
 .primary-button:hover { background: var(--green-dark); }
+.primary-button:disabled { border-color: var(--line); background: #e6e8eb; color: #737b86; font-family: inherit; cursor: not-allowed; }
 .secondary-button { border: 1px solid var(--line); background: var(--cream); color: var(--ink); }
 
 main { width: min(100% - 32px, 1080px); margin: 0 auto; }
