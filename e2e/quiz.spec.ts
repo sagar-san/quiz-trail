@@ -249,6 +249,6 @@ test('certification catalog is accessible and unreleased routes fail closed', as
   await page.goto('/practice/?cert=unknown');
   await expect(page.getByText('Unknown certification. Return home to choose a certification.')).toBeVisible();
   await page.goto('/practice/?cert=agentic-ai');
-  await expect(page.getByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.locator('.question-card')).toHaveCount(0);
 });

@@ -180,7 +180,7 @@ async function seedPrivatePreview() {
 test('private preview denies guests and other signed-in users', async ({ page }) => {
   await seedPrivatePreview();
   await page.goto('/practice/?cert=agentic-ai');
-  await expect(page.getByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
   await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
   await expect(page.getByText('This preview is not available to this account.')).toBeVisible();
@@ -191,14 +191,14 @@ test('owner preview loads protected content and retains independent progress acr
   await seedPrivatePreview();
   await page.goto('/practice/?cert=agentic-ai');
   await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click(), 'ssanghani@gmail.com');
-  await expect(page.getByRole('heading', { name: 'Agentic AI practice questions' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
   await page.getByRole('radio', { name: 'A First choice' }).check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
   await expect(page.getByText('✓ Saved!')).toBeVisible();
   await page.getByRole('button', { name: 'Save for later' }).click();
   await page.getByRole('link', { name: 'PMLE', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
-  await page.getByRole('link', { name: 'Agentic AI preview', exact: true }).click();
+  await page.getByRole('link', { name: 'PAA preview', exact: true }).click();
   await page.getByRole('button', { name: 'Saved', exact: true }).click();
   await expect(page.getByText('Synthetic private preview question', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Saved for later' })).toHaveAttribute('aria-pressed', 'true');

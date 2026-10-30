@@ -290,7 +290,7 @@ it('never loads private content or progress for a guest or a different account',
   const store = memoryStore();
   const auth = new TestAuthService(null);
   render(<App certification={certifications['agentic-ai']} bankLoader={bankLoader} progressStore={store} authService={auth} />);
-  expect(await screen.findByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
   expect(await screen.findByText('This preview is not available to this account.')).toBeVisible();
   expect(bankLoader).not.toHaveBeenCalled();
@@ -300,10 +300,10 @@ it('loads the preview only for the verified owner and hides it immediately on si
   const auth = new TestAuthService({ uid: 'owner', displayName: 'Owner', email: 'ssanghani@gmail.com', emailVerified: true });
   const bankLoader = vi.fn(loader);
   render(<App certification={certifications['agentic-ai']} bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} />);
-  expect(await screen.findByRole('heading', { name: 'Agentic AI practice questions' })).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Owner' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
   await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
-  expect(await screen.findByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   expect(bankLoader).toHaveBeenCalledTimes(1);
 });

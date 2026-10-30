@@ -2,6 +2,11 @@
 
 Last reviewed: 2026-10-30
 
+## Pending Hosting update: official exam title
+
+- Updated learner-facing titles, homepage metadata, and review-prompt context to the official “Professional Agentic Architect” name, with PAA as the short label. Internal `agentic-ai` routes and storage keys are unchanged.
+- This display-name correction is not yet deployed; the previous release below remains live. Public typecheck, targeted lint, 74 unit tests, 22 desktop/mobile browser tests, and Firebase-mode build passed; private typecheck and 20 tests passed. Auth/rules tests were not rerun because access and persistence logic are unchanged.
+
 ## Live: certification catalog and Agentic AI preview
 
 - With explicit product-owner approval on 2026-10-30, deployed Firestore rules and Firebase Hosting from frontend commit `e035664`, and published the private Agentic AI bank from private commit `4892a87`. Production is https://quiz-trail.web.app/. No user-progress migration or PMLE asset publication was performed.

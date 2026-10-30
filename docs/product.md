@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Quiz Trail is a practice application for Google Cloud AI certifications. PMLE is available; Agentic AI is in an owner-only preview. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
+Quiz Trail is a practice application for Google Cloud AI certifications. PMLE is available; Professional Agentic Architect is in an owner-only preview. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
 
 The public application is <https://quiz-trail.web.app>.
 
@@ -95,6 +95,8 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 ## Certification catalog
 
-The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and an Agentic AI “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. Public FAQ and samples remain explicitly PMLE-specific.
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and an Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. Public FAQ and samples remain explicitly PMLE-specific.
 
-The signed-in preview owner can open Agentic AI from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Agentic AI currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
+The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
+
+The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; this wording correction does not change routes or persisted keys.
