@@ -97,3 +97,16 @@ describe('FirestoreProgressStore', () => {
     await expect(storeFor('user-b').saveAnswer('PMLE-0001', true, 'test')).rejects.toThrow('signed-in user is required');
   });
 });
+
+it('isolates certification resets and deletes all progress including orphaned children', async () => {
+  const db = environment.authenticatedContext('owner', { email: 'ssanghani@gmail.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } }).firestore();
+  const pmle = new FirestoreProgressStore(db);
+  const agentic = new FirestoreProgressStore(db, 'agentic-ai');
+  await pmle.saveAnswer('PMLE-0001', true, 'pmle', 'owner');
+  await agentic.saveAnswer('PAA-0001', false, 'agentic', 'owner');
+  await pmle.reset('owner');
+  expect((await agentic.load('owner'))?.progress).toEqual({ 'PAA-0001': false });
+  await pmle.resetAll('owner');
+  expect(await agentic.load('owner')).toBeNull();
+  expect(await pmle.load('owner')).toBeNull();
+});

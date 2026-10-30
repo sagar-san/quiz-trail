@@ -135,3 +135,17 @@ This log records meaningful durable choices and why they were made. It is not a 
   route, while the static landing, FAQ, and sample pages remain the indexable
   discovery surfaces. Guest UI must not claim that answers or bookmarks are
   saved, and account-only feedback and settings remain unavailable until sign-in.
+
+## D016 — Preserve PMLE storage while adding certification-scoped progress
+
+- **Status:** Accepted
+- **Decision:** Keep the existing PMLE document, browser keys, question IDs, and default practice URL. Route new certifications to child progress documents and suffixed browser keys through the storage adapters.
+- **Why:** Existing users and older PMLE tabs continue working without data migration or competing copies of progress.
+- **Consequences:** PMLE is a deliberate adapter-level exception. Account deletion must enumerate children even when the legacy parent does not exist. Adding a certification requires explicit registry and security-rule changes.
+
+## D017 — Protect the Agentic AI preview with server-side authorization
+
+- **Status:** Accepted
+- **Decision:** Deliver the small preview bank from a protected Firestore document readable only by the owner's verified Google account. Never publish the preview to PMLE's public bucket. Public visitors see “Coming soon.”
+- **Why:** Public encryption keys cannot enforce private access; hiding navigation is insufficient.
+- **Consequences:** Publication requires approved Firestore rules and a separate approved private-document write. The private publisher checks a 900,000-byte encoded budget. A larger or public release requires revisiting delivery and access deliberately.

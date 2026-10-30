@@ -45,6 +45,10 @@ export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<Lo
   }
   if (!response.ok) throw new QuestionBankError(`The question bank could not be loaded (HTTP ${response.status}).`);
   const downloadedBytes = new Uint8Array(await response.arrayBuffer());
+  return decodeQuestionBank(downloadedBytes);
+}
+
+export async function decodeQuestionBank(downloadedBytes: Uint8Array): Promise<LoadedQuestionBank> {
   let bytes: Uint8Array;
   try {
     bytes = await decryptQuestionBank(downloadedBytes);

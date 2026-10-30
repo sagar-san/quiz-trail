@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ChoiceKey, QuizQuestion } from '../domain/types';
 
 interface QuestionCardProps {
+  certificationTitle?: string;
   question: QuizQuestion;
   progressLabel: string;
   saved: boolean;
@@ -17,10 +18,10 @@ interface QuestionCardProps {
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
   selected.length === correct.length && selected.every((answer) => correct.includes(answer));
 
-function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[]) {
+function buildReviewPrompt(question: QuizQuestion, selected: ChoiceKey[], certificationTitle: string) {
   const choices = question.options.map((option) => `- **${option.key}.** ${option.text}`).join('\n');
   return [
-    "You are an instructor guiding a student who is preparing for Google Cloud's Professional Machine Learning Engineer certification. Review this practice question for technical accuracy using current official Google Cloud documentation, and explain your conclusions in clear teaching language.",
+    `You are an instructor guiding a student who is preparing for Google Cloud's ${certificationTitle} certification. Review this practice question for technical accuracy using current official Google Cloud documentation, and explain your conclusions in clear teaching language.`,
     '',
     '# Review instructions',
     '',
@@ -90,6 +91,7 @@ function copyText(text: string) {
 }
 
 export function QuestionCard({
+  certificationTitle = 'Professional Machine Learning Engineer',
   question,
   progressLabel,
   saved,
@@ -141,7 +143,7 @@ export function QuestionCard({
   };
 
   const multiple = question.questionType === 'multiple_choice';
-  const reviewPrompt = buildReviewPrompt(question, selected);
+  const reviewPrompt = buildReviewPrompt(question, selected, certificationTitle);
   const toggleChoice = (key: ChoiceKey) => {
     if (submitted) return;
     setSelected((current) => multiple

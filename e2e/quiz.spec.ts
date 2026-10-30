@@ -8,21 +8,21 @@ test.beforeEach(async ({ page }) => {
 
 test('publishes search and sharing metadata', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('Quiz Trail — Google Cloud PMLE Practice Questions');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /400\+ free practice questions/);
+  await expect(page).toHaveTitle('Quiz Trail — GCP AI Certification Practice');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /GCP AI certification practice/);
   await expect(page.locator('meta[name="msvalidate.01"]')).toHaveAttribute('content', '8F229F43FC2B6591BCF83CD94C352C76');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/');
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Quiz Trail/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
-  await expect(page.getByRole('heading', { name: 'PMLE practice engine' })).toBeVisible();
-  await expect(page.locator('.landing-hero').getByRole('link', { name: 'Try it out' })).toHaveAttribute('href', '/practice/');
+  await expect(page.getByRole('heading', { name: 'GCP AI Certification practice' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Practice PMLE' })).toHaveAttribute('href', '/practice/');
   await expect(page.getByRole('link', { name: /Already have saved progress/ })).toHaveAttribute('href', '/practice/?signIn=true');
   await expect(page.locator('.public-nav a', { hasText: 'Sign in' })).toHaveAttribute('href', '/practice/?signIn=true');
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();
-  expect(landingHtml).toContain('<h1>PMLE practice engine</h1>');
+  expect(landingHtml).toContain('<h1>GCP AI Certification<br />practice</h1>');
   expect(landingHtml).toContain('href="/sample-questions/"');
 
   const robots = await page.request.get('/robots.txt');
@@ -181,7 +181,7 @@ test('submitted answers and bookmarks save, reload, filter, and reset', async ({
 
   page.on('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByRole('button', { name: 'Reset all progress' }).click();
+  await page.getByRole('button', { name: 'Reset certification progress' }).click();
   await page.getByRole('button', { name: '← Back to quiz' }).click();
   await expect(page.locator('.stat-grid')).toContainText('Attempted0');
 });
@@ -236,4 +236,19 @@ test('analytics summary is accessible and review queues return to practice', asy
 
   await page.getByRole('button', { name: /Unanswered/ }).click();
   await expect(page.getByRole('button', { name: 'Submit answer' })).toBeVisible();
+});
+
+test('certification catalog is accessible and unreleased routes fail closed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('Coming soon', { exact: true })).toBeVisible();
+  await expect(page.locator('a[href*="cert=agentic-ai"]')).toHaveCount(0);
+  await page.addScriptTag({ content: axe.source });
+  const violations = await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => issue.impact === 'serious' || issue.impact === 'critical'));
+  expect(violations).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.goto('/practice/?cert=unknown');
+  await expect(page.getByText('Unknown certification. Return home to choose a certification.')).toBeVisible();
+  await page.goto('/practice/?cert=agentic-ai');
+  await expect(page.getByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  await expect(page.locator('.question-card')).toHaveCount(0);
 });

@@ -4,6 +4,7 @@ export interface ProgressStore {
   load(userId?: string): Promise<UserProgress | null>;
   saveAnswer(questionId: string, correct: boolean, questionBankVersion: string, userId?: string): Promise<void>;
   saveBookmark(questionId: string, saved: boolean, questionBankVersion: string, userId?: string): Promise<void>;
+  resetAll?(userId?: string): Promise<void>;
   reset(userId?: string): Promise<void>;
 }
 

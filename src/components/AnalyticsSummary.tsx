@@ -86,7 +86,7 @@ export function AnalyticsSummary({ questions, progress, savedForLater, onBack, o
         </div>
       </section>
 
-      <AnalyticsTable title="By exam section" description="Official PMLE domains are the primary subject grouping." stats={analytics.byExamSection} />
+      <AnalyticsTable title="By exam section" description="Exam domains are the primary subject grouping." stats={analytics.byExamSection} />
       <AnalyticsTable title="By objective" description="Questions can contribute to more than one exam objective." stats={analytics.byObjective} collapsible />
       <AnalyticsTable title="By topic" description="Detailed concepts, with missed questions highlighted for review." stats={analytics.byTopic} showMissed collapsible />
       <AnalyticsTable title="By difficulty" description="How your current answers compare across Easy, Medium, and Hard questions." stats={analytics.byDifficulty} />

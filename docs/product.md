@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Quiz Trail is a focused practice application for learners preparing for Google Cloud's Professional Machine Learning Engineer certification. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
+Quiz Trail is a practice application for Google Cloud AI certifications. PMLE is available; Agentic AI is in an owner-only preview. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
 
 The public application is <https://quiz-trail.web.app>.
 
@@ -92,3 +92,9 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 - A deferred backlog item is not authorization to implement it.
 - Production deployment, billing changes, App Check enforcement, OAuth consent changes, domain verification, and other console-sensitive actions require explicit product-owner approval.
 - Reliability, correct cross-user isolation, safe question-bank evolution, accessibility, and mobile usability take priority over growth features.
+
+## Certification catalog
+
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and an Agentic AI “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. Public FAQ and samples remain explicitly PMLE-specific.
+
+The signed-in preview owner can open Agentic AI from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Agentic AI currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.

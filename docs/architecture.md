@@ -22,7 +22,7 @@ private authored bank
  local/Firebase       localStorage/Firestore
 ```
 
-Firebase Hosting serves the production build. Firebase Authentication supplies Google identity, and Cloud Firestore stores one compact progress document per cloud user.
+Firebase Hosting serves the production build. Firebase Authentication supplies Google identity, and Cloud Firestore stores compact progress documents per user and certification; PMLE retains its legacy location.
 
 ## Runtime modes
 
@@ -181,7 +181,7 @@ Cloud account deletion is deliberately ordered:
 
 1. Require typed confirmation in the UI.
 2. Reauthenticate the current user with Google.
-3. Delete `userProgress/{uid}`.
+3. Enumerate and delete `userProgress/{uid}/certifications/*`, then delete the legacy `userProgress/{uid}` document.
 4. Delete the Firebase Authentication identity.
 
 This avoids leaving progress behind after a successful identity deletion. Because the operations are not an atomic cross-service transaction, the UI reports when progress deletion succeeded but identity deletion failed.
@@ -235,10 +235,20 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 ## Architectural invariants
 
-- The private CSV is the only authored question source; production runs from its encrypted build artifact.
+- Private per-question JSON banks are the only authored sources; CSV is generated compatibility output.
 - Question IDs are permanent progress keys, never row positions.
 - Domain logic must remain independent of Firebase-specific APIs.
 - Progress remains a compact per-user snapshot unless a separately reviewed schema and rules migration changes it.
 - Cloud access remains owner-scoped and stale saves must not silently overwrite newer data.
 - Firebase must not initialize in default local mode.
 - Production or console-sensitive changes require explicit human approval.
+
+## Multiple certifications and restricted previews
+
+`src/config/certifications.ts` defines stable IDs, labels, question prefixes, and preview status. `/practice/` defaults to PMLE; `/practice/?cert=agentic-ai` selects Agentic AI. Unknown IDs fail explicitly. Switching uses full-page navigation, retaining Firebase identity while constructing a fresh bank loader and scoped stores; no in-flight bank request is reused across certifications. Navigation waits for pending answer and bookmark saves.
+
+PMLE retains `userProgress/{uid}`, `quizTrail.progress.v1`, and `quizTrail.filter.v1` without migration. Agentic AI uses `userProgress/{uid}/certifications/agentic-ai` and browser keys suffixed `.agentic-ai`. The existing progress schema and targeted transactional updates are unchanged. Reset affects only the selected certification. Account deletion removes all child progress documents before the legacy parent and Auth identity; feedback retention is unchanged.
+
+PMLE keeps its public encrypted asset. Agentic AI must never be published into that bucket or bundled with frontend assets. Its encrypted base64 payload is read from `privateQuestionBanks/agentic-ai`, using a server read without persistent offline caching. Rules require the verified Google identity `ssanghani@gmail.com`; guests, other users, unverified identities, non-Google providers, collection listing, and client writes are denied. The client check only controls presentation; rules enforce access. The private publisher refuses assets over 900,000 encoded bytes; larger banks will require a separate delivery design. Existing encryption remains a format compatibility measure, not the authorization boundary.
+
+Feedback keeps globally unique PMLE/PAA IDs and its current path; PAA feedback requires preview authorization. New certification IDs require explicit registry, loader, and rule entries rather than automatically exposing arbitrary paths.

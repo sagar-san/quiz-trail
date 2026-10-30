@@ -26,6 +26,7 @@ function toAuthUser(user: User): AuthUser {
     uid: user.uid,
     displayName: user.displayName || user.email || 'Signed-in learner',
     email: user.email || undefined,
+    emailVerified: user.emailVerified,
     photoUrl: user.photoURL || undefined,
   };
 }

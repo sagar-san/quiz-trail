@@ -6,6 +6,27 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    function previewOwner() {
+      return request.auth != null
+        && request.auth.token.email == 'ssanghani@gmail.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    match /privateQuestionBanks/{certificationId} {
+      allow get: if certificationId == 'agentic-ai' && previewOwner();
+      allow list, write: if false;
+    }
+
+    match /userProgress/{userId}/certifications/{certificationId} {
+      allow read, delete: if ownsProgress(userId);
+      allow create: if ownsProgress(userId) && certificationId == 'agentic-ai' && previewOwner()
+        && hasValidProgressShape(request.resource.data) && request.resource.data.revision == 1;
+      allow update: if ownsProgress(userId) && certificationId == 'agentic-ai' && previewOwner()
+        && hasValidProgressShape(request.resource.data)
+        && request.resource.data.revision == resource.data.revision + 1;
+    }
+
     function hasValidProgressShape(data) {
       return data.keys().hasOnly([
           'schemaVersion',
@@ -59,10 +80,12 @@ service cloud.firestore {
     }
 
     match /questionFeedback/{questionId}/submissions/{userId} {
-      allow get: if request.auth != null && request.auth.uid == userId;
+      allow get: if request.auth != null && request.auth.uid == userId
+        && (!questionId.matches('PAA-.*') || previewOwner());
       allow list, delete: if false;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
+        && (!questionId.matches('PAA-.*') || previewOwner())
         && hasValidFeedbackShape(request.resource.data)
         && get(/databases/$(database)/documents/config/feedback).data.enabled == true;
     }

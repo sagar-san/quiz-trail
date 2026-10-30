@@ -6,7 +6,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, getDocs, collection, serverTimestamp, setDoc } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 
 const projectId = 'quiz-trail-rules-test';
@@ -79,4 +79,27 @@ describe('Firestore progress ownership rules', () => {
     await assertFails(setDoc(ownProgress, { ...validProgress(), unexpected: true }));
     await assertFails(setDoc(ownProgress, { ...validProgress(), schemaVersion: 2 }));
   });
+});
+
+const ownerClaims = { email: 'ssanghani@gmail.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } };
+it('protects the private bank from guests, other users, unverified identities and client writes', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'privateQuestionBanks/agentic-ai'), { format: 'aes-gcm-v1', asset: 'test-only' });
+  });
+  const owner = environment.authenticatedContext('owner', ownerClaims).firestore();
+  await assertSucceeds(getDoc(doc(owner, 'privateQuestionBanks/agentic-ai')));
+  for (const context of [environment.unauthenticatedContext(), environment.authenticatedContext('other', { ...ownerClaims, email: 'other@example.com' }), environment.authenticatedContext('unverified', { ...ownerClaims, email_verified: false }), environment.authenticatedContext('password', { ...ownerClaims, firebase: { sign_in_provider: 'password' } })]) {
+    await assertFails(getDoc(doc(context.firestore(), 'privateQuestionBanks/agentic-ai')));
+  }
+  await assertFails(getDocs(collection(owner, 'privateQuestionBanks')));
+  await assertFails(setDoc(doc(owner, 'privateQuestionBanks/agentic-ai'), { asset: 'changed' }));
+  await assertFails(getDoc(doc(owner, 'privateQuestionBanks/unknown')));
+});
+it('limits preview progress writes to the owner and denies cross-user access', async () => {
+  const owner = environment.authenticatedContext('owner', ownerClaims).firestore();
+  const other = environment.authenticatedContext('other').firestore();
+  await assertSucceeds(setDoc(doc(owner, 'userProgress/owner/certifications/agentic-ai'), validProgress()));
+  await assertFails(getDoc(doc(other, 'userProgress/owner/certifications/agentic-ai')));
+  await assertFails(setDoc(doc(other, 'userProgress/other/certifications/agentic-ai'), validProgress()));
+  await assertFails(setDoc(doc(owner, 'userProgress/owner/certifications/unknown'), validProgress()));
 });

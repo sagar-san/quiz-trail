@@ -1,3 +1,5 @@
+import { expectedHeaders } from '../src/data/csv/questionCsvSchema';
+import { encryptQuestionBank } from '../../quiz-trail-question-bank/scripts/question-bank';
 import { expect, test, type Page } from '@playwright/test';
 
 test.beforeEach(async () => {
@@ -22,6 +24,7 @@ test.beforeEach(async () => {
 async function signInWithNewEmulatorAccount(
   page: Page,
   trigger: () => Promise<void> = () => page.getByRole('button', { name: 'Sign in to save progress' }).click(),
+  email = 'trail-tester@example.com',
 ) {
   const popupPromise = page.waitForEvent('popup');
   await trigger();
@@ -29,7 +32,7 @@ async function signInWithNewEmulatorAccount(
   await popup.waitForLoadState('load');
   await popup.getByRole('button', { name: 'Add new account' }).click();
   await expect(popup.locator('#email-input')).toBeVisible();
-  await popup.locator('#email-input').fill('trail-tester@example.com');
+  await popup.locator('#email-input').fill(email);
   await popup.locator('#display-name-input').fill('Trail Tester');
   await popup.locator('#sign-in').click();
   await popup.waitForEvent('close');
@@ -161,4 +164,42 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await popup.getByText('trail-tester@example.com', { exact: true }).click();
   await popup.waitForEvent('close');
   await expect(page.getByText('Practicing as a guest')).toBeVisible();
+});
+
+async function seedPrivatePreview() {
+  const values: Record<string, string> = { question_id: 'PAA-0001', question_type: 'single_choice', question: 'Synthetic private preview question', option_a: 'First choice', option_b: 'Second choice', correct_answer: 'A', explanation: 'Synthetic test explanation', exam_section: 'Test section', exam_objectives: 'Test objective', topics: 'Test topic', question_source: 'Synthetic test', review_status: 'Needs Review', difficulty: 'Medium', is_outdated: 'FALSE' };
+  const csv = [expectedHeaders.join(','), expectedHeaders.map((key) => JSON.stringify(values[key] ?? '')).join(',')].join('\n');
+  const asset = Buffer.from(encryptQuestionBank(new TextEncoder().encode(csv))).toString('base64');
+  const response = await fetch('http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/privateQuestionBanks/agentic-ai', {
+    method: 'PATCH', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { asset: { stringValue: asset }, format: { stringValue: 'aes-gcm-v1' } } }),
+  });
+  expect(response.ok).toBe(true);
+}
+
+test('private preview denies guests and other signed-in users', async ({ page }) => {
+  await seedPrivatePreview();
+  await page.goto('/practice/?cert=agentic-ai');
+  await expect(page.getByRole('heading', { name: 'Agentic AI is coming soon' })).toBeVisible();
+  await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
+  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
+  await expect(page.getByText('This preview is not available to this account.')).toBeVisible();
+  await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
+});
+
+test('owner preview loads protected content and retains independent progress across certification switches', async ({ page }) => {
+  await seedPrivatePreview();
+  await page.goto('/practice/?cert=agentic-ai');
+  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click(), 'ssanghani@gmail.com');
+  await expect(page.getByRole('heading', { name: 'Agentic AI practice questions' })).toBeVisible();
+  await page.getByRole('radio', { name: 'A First choice' }).check();
+  await page.getByRole('button', { name: 'Submit answer' }).click();
+  await expect(page.getByText('✓ Saved!')).toBeVisible();
+  await page.getByRole('button', { name: 'Save for later' }).click();
+  await page.getByRole('link', { name: 'PMLE', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
+  await page.getByRole('link', { name: 'Agentic AI preview', exact: true }).click();
+  await page.getByRole('button', { name: 'Saved', exact: true }).click();
+  await expect(page.getByText('Synthetic private preview question', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Saved for later' })).toHaveAttribute('aria-pressed', 'true');
 });

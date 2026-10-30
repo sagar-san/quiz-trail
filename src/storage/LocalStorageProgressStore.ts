@@ -1,3 +1,4 @@
+import { scopedKey, type CertificationId } from '../config/certifications';
 import { z } from 'zod';
 import type { UserProgress } from '../domain/types';
 import { ProgressStoreError, type ProgressStore } from './ProgressStore';
@@ -13,11 +14,14 @@ const schema = z.object({
 });
 
 export class LocalStorageProgressStore implements ProgressStore {
-  constructor(private readonly storage: Storage = window.localStorage) {}
+  private readonly key: string;
+  constructor(private readonly storage: Storage = window.localStorage, certificationId: CertificationId = 'pmle') {
+    this.key = scopedKey(LOCAL_PROGRESS_KEY, certificationId);
+  }
 
   async load(): Promise<UserProgress | null> {
     try {
-      const raw = this.storage.getItem(LOCAL_PROGRESS_KEY);
+      const raw = this.storage.getItem(this.key);
       if (!raw) return null;
       const result = schema.safeParse(JSON.parse(raw));
       if (!result.success) throw new ProgressStoreError('Saved progress is incompatible or damaged. Reset it to continue.');
@@ -29,7 +33,7 @@ export class LocalStorageProgressStore implements ProgressStore {
   }
 
   private readForUpdate(questionBankVersion: string): UserProgress {
-    const raw = this.storage.getItem(LOCAL_PROGRESS_KEY);
+    const raw = this.storage.getItem(this.key);
     if (!raw) return {
       schemaVersion: 1,
       questionBankVersion,
@@ -43,7 +47,7 @@ export class LocalStorageProgressStore implements ProgressStore {
   async saveAnswer(questionId: string, correct: boolean, questionBankVersion: string): Promise<void> {
     try {
       const current = this.readForUpdate(questionBankVersion);
-      this.storage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify({
+      this.storage.setItem(this.key, JSON.stringify({
         ...current,
         questionBankVersion,
         progress: { ...current.progress, [questionId]: correct },
@@ -60,7 +64,7 @@ export class LocalStorageProgressStore implements ProgressStore {
       const bookmarks = new Set(current.savedForLater);
       if (saved) bookmarks.add(questionId);
       else bookmarks.delete(questionId);
-      this.storage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify({
+      this.storage.setItem(this.key, JSON.stringify({
         ...current,
         questionBankVersion,
         savedForLater: [...bookmarks],
@@ -72,7 +76,7 @@ export class LocalStorageProgressStore implements ProgressStore {
 
   async reset(): Promise<void> {
     try {
-      this.storage.removeItem(LOCAL_PROGRESS_KEY);
+      this.storage.removeItem(this.key);
     } catch {
       throw new ProgressStoreError('Saved progress could not be cleared. Check browser storage permissions.');
     }

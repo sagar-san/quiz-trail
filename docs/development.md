@@ -84,3 +84,7 @@ VITE_DATA_MODE=firebase npm run build
 Deployment requires an authenticated Firebase CLI account with access to the target project. Confirm the authenticated account and exact project before deploying. Production deployment, billing changes, App Check enforcement, OAuth changes, and domain changes remain explicit approval operations.
 
 The public production site is [quiz-trail.web.app](https://quiz-trail.web.app).
+
+## Certification development
+
+`/practice/` and `?cert=pmle` use legacy PMLE storage. `?cert=agentic-ai` requires the verified preview owner in Firebase modes. Default local mode deliberately does not bypass preview authorization; use Auth/Firestore emulators to test it. Emulator browser tests seed a synthetic encrypted bank and test both authorized and unauthorized accounts. `PLAYWRIGHT_BASE_URL` can override their base URL, but the public PMLE bucket permits only configured localhost origins (use port 5173 for combined flows).

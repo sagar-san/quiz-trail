@@ -1,3 +1,4 @@
+import { scopedKey, type CertificationId } from '../config/certifications';
 import type { QuizFilter } from '../domain/types';
 
 export interface QuizPreferences {
@@ -9,11 +10,14 @@ export const FILTER_PREFERENCE_KEY = 'quizTrail.filter.v1';
 const validFilters: QuizFilter[] = ['all', 'unanswered', 'incorrect', 'saved'];
 
 export class LocalStorageQuizPreferences implements QuizPreferences {
-  constructor(private readonly storage: Storage = window.localStorage) {}
+  private readonly key: string;
+  constructor(private readonly storage: Storage = window.localStorage, certificationId: CertificationId = 'pmle') {
+    this.key = scopedKey(FILTER_PREFERENCE_KEY, certificationId);
+  }
 
   loadFilter(): QuizFilter {
     try {
-      const value = this.storage.getItem(FILTER_PREFERENCE_KEY);
+      const value = this.storage.getItem(this.key);
       return validFilters.includes(value as QuizFilter) ? value as QuizFilter : 'unanswered';
     } catch {
       return 'unanswered';
@@ -22,7 +26,7 @@ export class LocalStorageQuizPreferences implements QuizPreferences {
 
   saveFilter(filter: QuizFilter): void {
     try {
-      this.storage.setItem(FILTER_PREFERENCE_KEY, filter);
+      this.storage.setItem(this.key, filter);
     } catch {
       // A preference write failure should not interrupt studying.
     }

@@ -1,3 +1,4 @@
+import { certifications, canAccessCertification, type Certification } from '../config/certifications';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
@@ -18,6 +19,7 @@ import { reconcileProgress } from '../storage/reconcileProgress';
 import type { FeedbackStore } from '../storage/FeedbackStore';
 
 export interface AppProps {
+  certification?: Certification;
   bankLoader?: () => Promise<LoadedQuestionBank>;
   progressStore?: ProgressStore;
   preferences?: QuizPreferences;
@@ -29,6 +31,7 @@ export interface AppProps {
 const GUEST_QUESTION_LIMIT = 10;
 
 export function App({
+  certification = certifications.pmle,
   bankLoader = loadQuestionBank,
   progressStore,
   preferences,
@@ -49,10 +52,25 @@ export function App({
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
-  const store = useMemo(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
+  const store = useMemo<ProgressStore>(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
+  const allowed = canAccessCertification(certification, user);
   const isGuest = auth.mode === 'firebase' && authResolved && !user;
+  const pendingWrites = useRef(new Set<Promise<void>>());
+  function trackWrite(write: Promise<void>): Promise<void> {
+    const tracked = write.finally(() => pendingWrites.current.delete(tracked));
+    pendingWrites.current.add(tracked);
+    return tracked;
+  }
+  async function switchCertification(href: string) {
+    try {
+      await Promise.all([...pendingWrites.current]);
+      window.location.assign(href);
+    } catch {
+      setStorageError('A save failed. Review your progress before switching certifications.');
+    }
+  }
   const accountMenu = useRef<HTMLDivElement>(null);
   const initialProgressScrollDone = useRef(false);
   const signInRequested = useRef(new URLSearchParams(window.location.search).get('signIn') === 'true');
@@ -96,7 +114,7 @@ export function App({
   }), [auth]);
 
   useEffect(() => {
-    if (!authResolved) return;
+    if (!authResolved || !allowed) return;
     let active = true;
     const userId = user?.uid;
     async function start() {
@@ -129,7 +147,7 @@ export function App({
     }
     void start();
     return () => { active = false; };
-  }, [authResolved, bankLoader, preferenceStore, store, user?.uid]);
+  }, [authResolved, allowed, bankLoader, preferenceStore, store, user?.uid]);
 
   const visible = selectFilteredQuestions(state);
   const currentFromBank = state.questions.find((question) => question.questionId === state.currentQuestionId);
@@ -158,9 +176,10 @@ export function App({
   };
 
   const reset = async () => {
-    const warning = `Reset all progress saved ${dataMode === 'local' ? 'in this browser' : 'for this account'}?`;
+    const warning = `Reset ${certification.label} progress saved ${dataMode === 'local' ? 'in this browser' : 'for this account'}?`;
     if (!window.confirm(warning)) return;
     try {
+      await Promise.all([...pendingWrites.current]);
       await store.reset(user?.uid);
       dispatch({ type: 'reset' });
       setStorageError(null);
@@ -209,8 +228,9 @@ export function App({
     setAccountError(null);
     let progressDeleted = false;
     try {
+      await Promise.all([...pendingWrites.current]);
       await auth.reauthenticate();
-      await store.reset(user.uid);
+      await (store.resetAll ? store.resetAll(user.uid) : store.reset(user.uid));
       progressDeleted = true;
       await auth.deleteAccount();
     } catch (error) {
@@ -222,6 +242,7 @@ export function App({
   };
 
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
+  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>Agentic AI is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href="/">Back to certifications</a></main>;
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
   if (loading || !state.questions.length) return <main className="centered-state"><div className="loader" /><h1>Loading the question bank…</h1><p>Preparing Quiz Trail.</p></main>;
 
@@ -230,6 +251,8 @@ export function App({
       <header className="site-header">
         <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView('practice'); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
+          <a className="header-button header-link" href="/" onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); void switchCertification('/'); } }}>Certifications</a>
+          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); void switchCertification(event.currentTarget.href); } }}>{certification.id === 'pmle' ? 'Agentic AI preview' : 'PMLE'}</a>}
           <a className="header-button header-link" href="/faq/">FAQ</a>
           <button className="header-button" type="button" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView((view) => view === 'summary' ? 'practice' : 'summary'); }}>{activeView === 'summary' && !settingsOpen ? 'Practice' : 'Summary'}</button>
           {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setActiveView('practice'); setSettingsOpen(true); }}>Settings</button>}
@@ -276,8 +299,8 @@ export function App({
           />
         ) : <>
         <section className="intro">
-          <h1>Professional Machine Learning Engineer practice questions</h1>
-          <p>400+ free, carefully curated questions with explanations and official references.</p>
+          <h1>{certification.title} practice questions</h1>
+          <p>{certification.preview ? 'Private preview · Questions are under review.' : 'Free practice questions with explanations and official references.'}</p>
         </section>
         <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
         {(storageError || (debugMetadata && state.reconciliationNotice)) && (
@@ -299,6 +322,7 @@ export function App({
         {current ? (
           <>
             <QuestionCard
+              certificationTitle={certification.title}
               key={current.questionId}
               question={current}
               progressLabel={progressLabel}
@@ -308,13 +332,13 @@ export function App({
               sessionOnly={isGuest}
               onSubmit={async (correct) => {
                 dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct });
-                if (user) await store.saveAnswer(current.questionId, correct, state.questionBankVersion, user.uid);
+                if (user) await trackWrite(store.saveAnswer(current.questionId, correct, state.questionBankVersion, user.uid));
               }}
               onToggleSaved={() => {
                 const saved = !state.savedForLater.includes(current.questionId);
                 dispatch({ type: 'savedToggled', questionId: current.questionId });
                 if (!user) return;
-                void store.saveBookmark(current.questionId, saved, state.questionBankVersion, user.uid)
+                void trackWrite(store.saveBookmark(current.questionId, saved, state.questionBankVersion, user.uid))
                   .then(() => setStorageError(null))
                   .catch((error) => setStorageError(error instanceof Error ? error.message : 'Your bookmark could not be saved.'));
               }}

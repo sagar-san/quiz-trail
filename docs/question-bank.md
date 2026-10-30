@@ -120,3 +120,9 @@ production action requiring explicit approval. The frontend fetches that object
 directly, so a bank-only publication does not require rebuilding or deploying
 the application. Frontend builds need the sibling private repository only to
 import its intentionally public decryption key.
+
+## Agentic AI bank
+
+The supplied `question-bank/` folder has been organized as `../quiz-trail-question-bank/agentic-ai-questions/`, preserving all 150 `PAA-####` IDs and source files. PMLE stays in `questions/`. Set `QUESTION_BANK_ID=agentic-ai` for preflight, duplicate review, CLI, editor, CSV export, and private publication; omission means PMLE. Permanent-ID baselines are selected per bank. Shared feedback downloads recognize both ID prefixes; the editor filters its inbox to the selected bank.
+
+Agentic AI is private. Do not upload its asset to the public bucket. `QUESTION_BANK_ID=agentic-ai npm run publish:private` prepares an ignored Firestore payload without remote writes. Explicit publication is documented in the release runbook and requires product-owner approval. The public frontend never imports these question files.

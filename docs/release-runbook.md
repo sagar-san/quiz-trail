@@ -183,3 +183,13 @@ Firestore rule and data changes need case-specific recovery; a Hosting rollback 
 - **`e2e:firebase` connection refused:** start the Firebase-mode Vite server on port 5173; confirm emulators are also running.
 - **Google sign-in says unauthorized domain:** do not alter OAuth or authorized-domain settings without explicit approval.
 - **Stale Firestore write:** reload the app before saving so newer progress is not overwritten.
+
+## First multi-certification release (approval required)
+
+1. Verify both repositories, including private-bank preflight, public Auth/rules tests, and owner/non-owner emulator browser flows. Build with `VITE_DATA_MODE=firebase`.
+2. Obtain explicit approval for the production Firestore rule deployment, private bank publication, and Hosting deployment. Commit/push is not production authorization.
+3. Deploy the reviewed rules first. Verify unauthenticated and ordinary-user reads of `privateQuestionBanks/agentic-ai` are denied before adding private content.
+4. In the private repository run `QUESTION_BANK_ID=agentic-ai npm run publish:private` for a dry run. After publication approval, run `QUESTION_BANK_ID=agentic-ai npm run publish:private -- --publish --project=quiz-trail`. This uses existing ADC without printing credentials and writes only `privateQuestionBanks/agentic-ai`. Never upload this bank to the public PMLE bucket.
+5. Deploy the Firebase-mode Hosting build. Verify existing PMLE progress, owner-only preview, non-owner denial, reset isolation, and the catalog. No user progress migration is required.
+
+A Hosting rollback may leave certification progress children; older account-deletion clients do not know about those children. Keep the new account-deletion flow available for preview users, or handle child cleanup explicitly during rollback. Private access rules must remain restrictive through rollback. Existing feedback-retention behavior is unchanged.

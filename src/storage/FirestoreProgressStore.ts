@@ -1,5 +1,8 @@
+import { progressPath, type CertificationId } from '../config/certifications';
 import {
   deleteDoc,
+  collection,
+  getDocs,
   doc,
   getDoc,
   runTransaction,
@@ -26,12 +29,12 @@ function requireUserId(userId?: string): string {
 }
 
 export class FirestoreProgressStore implements ProgressStore {
-  constructor(private readonly firestore: Firestore) {}
+  constructor(private readonly firestore: Firestore, private readonly certificationId: CertificationId = 'pmle') {}
 
   async load(userId?: string): Promise<UserProgress | null> {
     const uid = requireUserId(userId);
     try {
-      const snapshot = await getDoc(doc(this.firestore, 'userProgress', uid));
+      const snapshot = await getDoc(doc(this.firestore, progressPath(uid, this.certificationId)));
       if (!snapshot.exists()) return null;
 
       const result = progressDocumentSchema.safeParse(snapshot.data());
@@ -58,7 +61,7 @@ export class FirestoreProgressStore implements ProgressStore {
   ): Promise<void> {
     const uid = requireUserId(userId);
     await runTransaction(this.firestore, async (transaction) => {
-      const reference = doc(this.firestore, 'userProgress', uid);
+      const reference = doc(this.firestore, progressPath(uid, this.certificationId));
       const snapshot = await transaction.get(reference);
       const existing = snapshot.exists() ? progressDocumentSchema.safeParse(snapshot.data()) : null;
       if (existing && !existing.success) {
@@ -113,10 +116,18 @@ export class FirestoreProgressStore implements ProgressStore {
     }
   }
 
+  async resetAll(userId?: string): Promise<void> {
+    const uid = requireUserId(userId);
+    // Delete children before the legacy parent; deleting a document is not recursive.
+    const children = await getDocs(collection(this.firestore, 'userProgress', uid, 'certifications'));
+    for (const child of children.docs) await deleteDoc(child.ref);
+    await deleteDoc(doc(this.firestore, 'userProgress', uid));
+  }
+
   async reset(userId?: string): Promise<void> {
     const uid = requireUserId(userId);
     try {
-      await deleteDoc(doc(this.firestore, 'userProgress', uid));
+      await deleteDoc(doc(this.firestore, progressPath(uid, this.certificationId)));
     } catch {
       throw new ProgressStoreError('Cloud progress could not be reset. Check your connection and try again.');
     }

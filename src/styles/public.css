@@ -1,16 +1,16 @@
 :root {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #17342d;
-  background: #f5f3ed;
+  color: #20252c;
+  background: #f7f7f5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ink: #17342d;
-  --muted: #53635e;
-  --green: #246b54;
-  --green-dark: #174d3d;
-  --mint: #dcece4;
-  --cream: #fbfaf6;
-  --line: #d9ded8;
+  --ink: #20252c;
+  --muted: #59616c;
+  --green: #315bc2;
+  --green-dark: #24448f;
+  --mint: #e8edf7;
+  --cream: #ffffff;
+  --line: #dce0e5;
   --orange: #9b431f;
 }
 
@@ -31,7 +31,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid #e9a468; outline-off
   top: 0;
   z-index: 10;
   border-bottom: 1px solid var(--line);
-  background: rgba(251, 250, 246, .92);
+  background: rgba(255, 255, 255, .96);
   backdrop-filter: blur(12px);
 }
 
@@ -153,4 +153,36 @@ footer a { color: var(--green-dark); font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+/* Certification catalog: restrained typography and open, ruled rows. */
+.catalog { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+.catalog-intro { padding: 76px 0 64px; }
+.catalog-kicker { font-size: 11px; font-weight: 650; letter-spacing: .14em; color: var(--muted); margin: 0 0 25px; }
+.catalog-intro h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; font-weight: 550; letter-spacing: -.045em; margin: 0 0 24px; }
+.catalog-intro > p:last-child { font-size: 17px; line-height: 1.7; color: var(--muted); }
+.catalog-section-label { display: flex; justify-content: space-between; align-items: center; padding: 0 0 18px; border-bottom: 1px solid var(--ink); gap: 12px; }
+.catalog-section-label h2 { font-size: 14px; margin: 0; font-weight: 600; }
+.catalog-section-label > span { font: 11px ui-monospace, monospace; color: var(--muted); }
+.certification-entry { display: grid; grid-template-columns: 55px 1fr 210px; gap: 20px; padding: 36px 0 40px; border-bottom: 1px solid var(--line); }
+.cert-index { font: 12px ui-monospace, monospace; padding-top: 5px; color: var(--muted); }
+.cert-code { display: flex; align-items: center; gap: 14px; margin: 0 0 18px; font: 11px ui-monospace, monospace; letter-spacing: .06em; }
+.availability { color: #24448f; background: #e8edf7; padding: 5px 8px; border-radius: 3px; letter-spacing: 0; }
+.availability.soon { background: #eceef0; color: #59616c; }
+.cert-content h2 { font-size: clamp(23px, 3vw, 31px); line-height: 1.2; font-weight: 550; letter-spacing: -.025em; margin: 0 0 16px; }
+.cert-content > p:not(.cert-code) { max-width: 490px; color: var(--muted); font-size: 14px; line-height: 1.75; margin: 0; }
+.cert-links { display: flex; gap: 24px; align-items: center; margin-top: 26px; flex-wrap: wrap; }
+.cert-links .primary-button { border-radius: 4px; font-size: 13px; padding: 12px 18px; gap: 30px; box-shadow: none; }
+.cert-links > a:not(.primary-button) { font-size: 13px; color: var(--ink); text-underline-offset: 4px; }
+.cert-note { display: flex; flex-direction: column; align-self: center; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.cert-note a { color: var(--green); margin-top: 16px; text-underline-offset: 3px; }
+.upcoming { padding-bottom: 38px; }
+.catalog-footnote { display: flex; justify-content: space-between; gap: 24px; padding: 28px 0 48px; font-size: 12px; color: var(--muted); line-height: 1.8; }
+.brand-mark { border-radius: 4px; background: var(--ink); color: white; }
+@media (max-width: 650px) {
+ .catalog { padding: 0 22px; } .catalog-intro { padding: 48px 0 38px; }
+ .certification-entry { grid-template-columns: 25px 1fr; gap: 12px; }
+ .cert-note { grid-column: 2; margin-top: 6px; }
+ .catalog-footnote { flex-direction: column; gap: 0; } .desktop-break { display: none; }
+ .catalog-section-label > span { font-size: 10px; }
 }
