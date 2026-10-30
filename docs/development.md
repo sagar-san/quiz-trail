@@ -23,7 +23,7 @@ public AES decryption key from that repository at build time. Both development
 and production builds download the encrypted bank from its public Cloud Storage
 URL; the frontend never reads or builds the authored source bank.
 
-In `?debug=true` maintainer mode, the app reveals its preserved contribution and GitHub support UI. The Buy Me a Coffee link defaults to the project's support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`; a valid `VITE_VENMO_URL` is also displayed when configured. Ordinary learner visits hide all of these support links, and blank or invalid optional URLs keep the corresponding monetary controls hidden in debug mode.
+The Buy Me a Coffee footer link is public. In `?debug=true` maintainer mode, the app also reveals its larger contribution panel, Settings support controls, and GitHub links. The Buy Me a Coffee link defaults to the project's support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`; a valid `VITE_VENMO_URL` is also displayed when configured. Ordinary learner visits show only the footer tip link; blank or invalid optional URLs keep the corresponding additional monetary controls hidden in debug mode.
 
 ## Commands
 

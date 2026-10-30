@@ -274,7 +274,7 @@ describe('App', () => {
     expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
   });
 
-  it('shows preserved monetary contribution links only in debug mode', async () => {
+  it('shows additional contribution and GitHub support controls in debug mode', async () => {
     window.history.replaceState({}, '', '/practice/?debug=true');
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
     render(<App bankLoader={loader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);

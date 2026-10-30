@@ -2,6 +2,12 @@
 
 Last reviewed: 2026-10-30
 
+## Pending tip-link update
+
+- Restored the existing Buy Me a Coffee link in public-page and practice footers. Larger contribution panels, Settings support controls, and GitHub links stay in debug mode.
+- Typecheck, 76 unit/component tests, targeted ESLint, and desktop/mobile support-link checks passed. Authentication and private-bank access are unchanged; emulator tests were not rerun for this link-only change.
+- Committed for review; not deployed. The production release below remains live.
+
 ## Current production release
 
 - With explicit product-owner approval, deployed Firebase Hosting from frontend commit `4e95d81` to https://quiz-trail.web.app/. All requested homepage, navigation, FAQ, sign-in, and typography updates are live. No rules, question-bank data, or user-progress migration was changed in this release.
@@ -28,4 +34,4 @@ Last reviewed: 2026-10-30
 - The private repository contains 150 PAA source questions in `agentic-ai-questions/`. Its pre-existing human edit to `questions/PMLE-0011.json` remains outside these releases. Question-bank preflight was not rerun for this frontend-only release; the earlier publication passed preflight for both banks. Imported PAA content has not been independently fact-checked in this work.
 - Never publish PAA to the public Cloud Storage bucket or include its content in frontend assets. The private publisher enforces a 900,000-byte encoded budget. Existing feedback retention is unchanged.
 - Older Hosting rollbacks do not know about certification child documents during account deletion. Preserve the current account-deletion behavior and restrictive rules when planning rollback.
-- No pending release work. Future production changes require fresh product-owner approval. Verify local process state when resuming; do not assume previews or emulators remain running.
+- The tip-link update above awaits deployment. Future production changes require fresh product-owner approval. Verify local process state when resuming; do not assume previews or emulators remain running.

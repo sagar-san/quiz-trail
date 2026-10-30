@@ -128,12 +128,14 @@ test('practice entry is separate from public search pages', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
 });
 
-test('contribution and GitHub support UI is visible only in debug mode', async ({ page }) => {
-  await expect(page.getByRole('link', { name: /Buy Me a Coffee|GitHub/ })).toHaveCount(0);
+test('tip links are public while GitHub support UI stays in debug mode', async ({ page }) => {
+  await expect(page.locator('footer').getByRole('link', { name: 'Buy Me a Coffee' })).toHaveAttribute('href', 'https://buymeacoffee.com/okeanos');
+  await expect(page.getByRole('link', { name: /GitHub/ })).toHaveCount(0);
 
-  for (const path of ['/', '/faq/', '/sample-questions/']) {
+  for (const path of ['/', '/faq/', '/pmle/faq/', '/agentic-ai/faq/', '/sample-questions/']) {
     await page.goto(path);
-    await expect(page.getByRole('link', { name: /Buy Me a Coffee|GitHub/ })).toHaveCount(0);
+    await expect(page.locator('footer').getByRole('link', { name: 'Buy Me a Coffee' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /GitHub/ })).toHaveCount(0);
   }
 
   await page.goto('/?debug=true');
