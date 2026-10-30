@@ -165,7 +165,7 @@ footer a { color: var(--green-dark); font-weight: 700; }
 .catalog-intro { padding: 76px 0 64px; }
 .catalog-kicker { font-size: 11px; font-weight: 650; letter-spacing: .14em; color: var(--muted); margin: 0 0 25px; }
 .catalog-intro h1 { font-size: clamp(36px, 5.5vw, 64px); line-height: 1.08; font-weight: var(--heading-weight); letter-spacing: -.045em; margin: 0 0 24px; }
-.catalog-intro > p:last-child { font-size: 17px; line-height: 1.7; color: var(--muted); }
+.catalog-intro > p:not(.catalog-kicker):not(.catalog-auth-status) { font-size: 17px; line-height: 1.7; color: var(--muted); }
 .catalog-section-label { display: flex; justify-content: space-between; align-items: center; padding: 0 0 18px; border-bottom: 1px solid var(--ink); gap: 12px; }
 .catalog-section-label h2 { font-size: 14px; margin: 0; font-weight: 600; }
 .catalog-section-label > span { font: 11px ui-monospace, monospace; color: var(--muted); }
@@ -194,6 +194,14 @@ footer a { color: var(--green-dark); font-weight: 700; }
 
 /* Certification resources share the catalog's quiet typography. */
 .public-nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.catalog-auth-button { min-height: 40px; border: 0; padding: 0; background: transparent; color: var(--green-dark); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.catalog-auth-button:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 4px; }
+.catalog-auth-button:disabled { color: var(--muted); cursor: default; }
+.catalog-auth-button:focus-visible { outline: 3px solid #e9a468; outline-offset: 3px; }
+.catalog-user { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; }
+.catalog-intro .catalog-auth-status { color: var(--green-dark); font-size: 14px; line-height: 1.6; }
+[data-paa-practice][hidden] { display: none; }
+@media (max-width: 650px) { .catalog-user { max-width: 90px; } }
 .cert-resources { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 22px; font-size: 13px; line-height: 1.6; }
 .cert-resources a { color: var(--green-dark); text-underline-offset: 4px; }
 .cert-resources a span { color: var(--muted); }

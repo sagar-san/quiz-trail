@@ -2,12 +2,13 @@
 
 Last reviewed: 2026-10-30
 
-## Pending Hosting update: certification navigation, titles, and typography
+## Pending Hosting update: homepage sign-in and certification UI
 
+- Homepage Sign in now authenticates in place and stays at the catalog. The verified preview owner sees a direct PAA practice link; ordinary accounts do not. The PMLE-specific continue link retains its explicit destination. Local mode is labeled without offering Google sign-in.
 - Practice navigation now matches the homepage's plain text styling. Home replaces Certifications; certification-specific FAQ and summary links are in the footer and each homepage entry. FAQ/sample headers also use simple, clearly scoped links.
 - Added a public PAA FAQ at `/agentic-ai/faq/`. PMLE and PAA summaries have direct `view=summary` links, certification-specific headings, and browser history support. The PAA summary retains the existing owner-only gate. Existing URLs, authentication, and persisted keys are unchanged.
 - Included earlier pending corrections: the official “Professional Agentic Architect” title/PAA label, and sample typography matching the homepage.
-- Verification: typecheck, targeted ESLint, 74 unit/component tests, 24 desktop/mobile browser checks, four Firebase emulator browser flows, and Firebase-mode build passed. Emulator checks confirm denied guest/non-owner summary access and independent PAA/PMLE summary counts for the owner. Visually reviewed the catalog, practice header/footer, and PAA FAQ in the in-app browser. Dedicated Auth/rules suites were not rerun because those contracts are unchanged.
+- Verification: typecheck, targeted ESLint, 76 unit/component tests, 24 desktop/mobile browser checks, one Auth emulator test, 17 Firestore tests, five Firebase emulator browser flows, and Firebase-mode build passed. Browser checks cover homepage sign-in staying in place, session restoration, shared identity with practice, sign-out, PAA owner-only access, and independent summary counts. Visually reviewed the homepage in the in-app browser.
 - These updates are committed for review but not deployed. Hosting deployment still requires explicit product-owner approval; no new live rules, data, or bank publication is needed. The previous release below remains live.
 
 ## Live: certification catalog and Agentic AI preview

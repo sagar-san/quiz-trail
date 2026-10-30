@@ -17,8 +17,10 @@ test('publishes search and sharing metadata', async ({ page }) => {
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
   await expect(page.getByRole('heading', { name: 'GCP AI Certification practice' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Practice PMLE' })).toHaveAttribute('href', '/practice/');
-  await expect(page.getByRole('link', { name: /Already have saved progress/ })).toHaveAttribute('href', '/practice/?signIn=true');
-  await expect(page.locator('.public-nav a', { hasText: 'Sign in' })).toHaveAttribute('href', '/practice/?signIn=true');
+  await expect(page.getByRole('link', { name: 'Continue PMLE →' })).toHaveAttribute('href', '/practice/');
+  await expect(page.getByRole('button', { name: 'Local mode', exact: true })).toBeDisabled();
+  await expect(page.locator('.public-nav a[href*="practice"]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
 
   const landing = await page.request.get('/');
   const landingHtml = await landing.text();

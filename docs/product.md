@@ -14,7 +14,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten PMLE sample questions, and open PMLE practice at `/practice/`. The homepage's returning-learner links request Google sign-in on entry, while Practice PMLE opens guest practice.
+1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten PMLE sample questions, and open PMLE practice at `/practice/`. The homepage's Sign in button authenticates in place and leaves the learner at the certification catalog. The PMLE-specific returning-learner link still opens PMLE, while Practice PMLE opens guest practice when signed out.
 2. In cloud mode, guests can try ten questions in memory, while a concise banner offers Google sign-in for the complete question bank and saved progress. Signed-in learners receive the complete bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
@@ -102,3 +102,5 @@ The signed-in preview owner can open Professional Agentic Architect from practic
 The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; this wording correction does not change routes or persisted keys.
 
 The practice header uses plain text links matching the homepage: Home, the other certification for the preview owner, and account controls. Certification-specific FAQ and summary links live in the footer and in each homepage entry. PMLE summary opens at `/practice/?view=summary`; PAA summary opens at `/practice/?cert=agentic-ai&view=summary` and retains the private-preview restriction. Summary headings name the certification. Refresh and browser back/forward preserve the selected view.
+
+Homepage sign-in uses the existing Google/Firebase session. The signed-in preview owner sees a Practice PAA preview link in the PAA entry; other accounts do not. Sign out returns the catalog to its signed-out state. Default local development shows Local mode instead of a misleading sign-in link.

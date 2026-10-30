@@ -38,7 +38,7 @@ async function signInWithNewEmulatorAccount(
   await popup.waitForEvent('close');
 }
 
-test('homepage sign-in opens Google authentication and returns to clean practice URL', async ({ page }) => {
+test('PMLE-specific sign-in still opens PMLE practice', async ({ page }) => {
   await page.goto('/');
 
   await signInWithNewEmulatorAccount(
@@ -49,6 +49,31 @@ test('homepage sign-in opens Google authentication and returns to clean practice
   await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.getByText('Trail Tester')).toBeVisible();
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
+});
+
+test('homepage sign-in stays on the catalog and shares the session with practice', async ({ page }) => {
+  const bankRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('questions.bin') || request.url().includes('privateQuestionBanks')) bankRequests.push(request.url());
+  });
+  await page.goto('/');
+  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { name: 'GCP AI Certification practice' })).toBeVisible();
+  await expect(page.getByText('Signed in. Choose a certification below to continue.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
+  expect(bankRequests).toEqual([]);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Practice PMLE', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Open account menu for Trail Tester' })).toBeVisible();
+  await expect(page.getByText('Practicing as a guest')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
+  await page.getByRole('link', { name: 'Practice PMLE', exact: true }).click();
+  await expect(page.getByText('Practicing as a guest')).toBeVisible();
 });
 
 async function signInWithExistingEmulatorAccount(page: Page) {
@@ -189,8 +214,10 @@ test('private summary denies guests and other signed-in users', async ({ page })
 
 test('owner preview loads protected content and retains independent progress across certification switches', async ({ page }) => {
   await seedPrivatePreview();
-  await page.goto('/practice/?cert=agentic-ai');
+  await page.goto('/');
   await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click(), 'ssanghani@gmail.com');
+  await expect(page).toHaveURL(/\/$/);
+  await page.getByRole('link', { name: 'Practice PAA preview', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
   await page.getByRole('radio', { name: 'A First choice' }).check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
@@ -210,4 +237,8 @@ test('owner preview loads protected content and retains independent progress acr
   await page.goto('/practice/?view=summary');
   await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
   await expect(page.locator('.overall-grid > div').filter({ hasText: 'Attempted' }).locator('strong')).toHaveText('0');
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
 });
