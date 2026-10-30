@@ -221,7 +221,7 @@ test('primary screen has no serious accessibility violations or horizontal overf
 
 test('analytics summary is accessible and review queues return to practice', async ({ page }) => {
   await page.getByRole('button', { name: 'View full summary →' }).click();
-  await expect(page.getByRole('heading', { name: 'See where you stand.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
   await expect(page.locator('.overall-grid > div').filter({ hasText: 'Remaining' }).locator('strong')).toHaveText(/^\d+$/);
   await page.getByText('By topic', { exact: true }).click();
   await expect(page.locator('details.analytics-details').filter({ hasText: 'By topic' })).toHaveAttribute('open', '');
@@ -241,7 +241,7 @@ test('analytics summary is accessible and review queues return to practice', asy
 test('certification catalog is accessible and unreleased routes fail closed', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText('Coming soon', { exact: true })).toBeVisible();
-  await expect(page.locator('a[href*="cert=agentic-ai"]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'PAA summary (private preview)' })).toHaveAttribute('href', '/practice/?cert=agentic-ai&view=summary');
   await page.addScriptTag({ content: axe.source });
   const violations = await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => issue.impact === 'serious' || issue.impact === 'critical'));
   expect(violations).toEqual([]);
@@ -251,4 +251,43 @@ test('certification catalog is accessible and unreleased routes fail closed', as
   await page.goto('/practice/?cert=agentic-ai');
   await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.locator('.question-card')).toHaveCount(0);
+});
+
+
+test('certification resource links open the right FAQ and summary', async ({ page }) => {
+  const header = page.locator('.site-header');
+  await expect(header.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
+  await expect(header.getByRole('link', { name: /FAQ|summary|Certifications/ })).toHaveCount(0);
+  await expect(header.getByRole('link', { name: 'Home', exact: true })).toHaveCSS('border-top-width', '0px');
+  await page.locator('footer').getByRole('link', { name: 'PMLE summary', exact: true }).click();
+  await expect(page).toHaveURL(/view=summary/);
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('button', { name: 'Submit answer' })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+  await expect(page).toHaveTitle('PMLE Progress Summary | Quiz Trail');
+  await page.getByRole('button', { name: '← Back to PMLE practice' }).click();
+  await expect(page).toHaveURL(/\/practice\/$/);
+
+  await header.getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('navigation', { name: 'PMLE resources' }).getByRole('link', { name: 'PMLE summary' }).click();
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+  await page.goto('/');
+  await page.getByRole('navigation', { name: 'PAA resources' }).getByRole('link', { name: 'PAA FAQ' }).click();
+  await expect(page).toHaveURL(/\/agentic-ai\/faq\/$/);
+  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect practice, explained.' })).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/agentic-ai/faq/');
+  const html = await (await page.request.get('/agentic-ai/faq/')).text();
+  expect(html).toContain('FAQPage');
+  expect(html).toContain('Only the authorized preview owner');
+  await page.addScriptTag({ content: axe.source });
+  expect(await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => ['serious', 'critical'].includes(issue.impact ?? '')))).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
+  await page.locator('footer').getByRole('link', { name: 'PAA summary' }).click();
+  await expect(page).toHaveURL(/cert=agentic-ai&view=summary/);
+  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
+  await expect(page.locator('.analytics-summary, .question-card')).toHaveCount(0);
 });

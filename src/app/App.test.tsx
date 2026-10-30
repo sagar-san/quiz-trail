@@ -1,7 +1,7 @@
 import { certifications } from '../config/certifications';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthService';
 import type { UserProgress } from '../domain/types';
 import type { FeedbackStore } from '../storage/FeedbackStore';
@@ -9,6 +9,11 @@ import type { ProgressStore } from '../storage/ProgressStore';
 import type { QuizPreferences } from '../storage/QuizPreferences';
 import { questions } from '../test/fixtures';
 import { App } from './App';
+
+beforeEach(() => {
+  window.history.replaceState({}, '', '/practice/');
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+});
 
 const loader = async () => ({ questions, version: 'sha256:test' });
 const expandedQuestions = Array.from({ length: 12 }, (_, index) => ({
@@ -118,7 +123,7 @@ describe('App', () => {
     render(<App bankLoader={loader} progressStore={memoryStore()} />);
     expect(await screen.findByText('3 questions')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'View full summary →' }));
-    expect(screen.getByRole('heading', { name: 'See where you stand.' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'By exam section' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Review queue' })).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: /Unanswered/ }));
@@ -286,6 +291,7 @@ describe('App', () => {
 });
 
 it('never loads private content or progress for a guest or a different account', async () => {
+  window.history.replaceState({}, '', '/practice/?cert=agentic-ai&view=summary');
   const bankLoader = vi.fn(loader);
   const store = memoryStore();
   const auth = new TestAuthService(null);
@@ -293,14 +299,20 @@ it('never loads private content or progress for a guest or a different account',
   expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
   expect(await screen.findByText('This preview is not available to this account.')).toBeVisible();
+  expect(screen.queryByRole('heading', { name: 'PAA progress summary' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'PAA FAQ' })).toHaveAttribute('href', '/agentic-ai/faq/');
   expect(bankLoader).not.toHaveBeenCalled();
   expect(store.load).not.toHaveBeenCalled();
 });
 it('loads the preview only for the verified owner and hides it immediately on sign out', async () => {
+  window.history.replaceState({}, '', '/practice/?cert=agentic-ai');
   const auth = new TestAuthService({ uid: 'owner', displayName: 'Owner', email: 'ssanghani@gmail.com', emailVerified: true });
   const bankLoader = vi.fn(loader);
   render(<App certification={certifications['agentic-ai']} bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} />);
   expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
+  await userEvent.click(screen.getByRole('link', { name: 'PAA summary' }));
+  expect(screen.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
+  expect(window.location.search).toBe('?cert=agentic-ai&view=summary');
   await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Owner' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
   await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));

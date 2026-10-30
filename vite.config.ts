@@ -19,6 +19,7 @@ export default defineConfig({
       input: {
         landing: fileURLToPath(new URL('./index.html', import.meta.url)),
         faq: fileURLToPath(new URL('./faq/index.html', import.meta.url)),
+        paaFaq: fileURLToPath(new URL('./agentic-ai/faq/index.html', import.meta.url)),
         samples: fileURLToPath(new URL('./sample-questions/index.html', import.meta.url)),
         practice: fileURLToPath(new URL('./practice/index.html', import.meta.url)),
       },

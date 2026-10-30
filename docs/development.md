@@ -49,7 +49,7 @@ private-repository concerns.
 Duplicate-detector unit tests and a duplicate-only report can be run there with
 `npm test` and `npm run duplicates`.
 
-The local public landing page is `/`; the React practice application is `/practice/`. The FAQ and sample pages are `/faq/` and `/sample-questions/`.
+The local public landing page is `/`; the React practice application is `/practice/`. PMLE resources are `/faq/`, `/sample-questions/`, and `/practice/?view=summary`. PAA has a public FAQ at `/agentic-ai/faq/` and a private summary at `/practice/?cert=agentic-ai&view=summary`.
 
 Question-feedback download and local review are owned by the sibling private
 question-bank repository. Run its `npm run feedback:download` command before

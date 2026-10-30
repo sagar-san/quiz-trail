@@ -1,5 +1,5 @@
 import { certifications, canAccessCertification, type Certification } from '../config/certifications';
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
 import { AccountSettings } from '../components/AccountSettings';
@@ -29,6 +29,9 @@ export interface AppProps {
 }
 
 const GUEST_QUESTION_LIMIT = 10;
+type PracticeView = 'practice' | 'summary';
+const viewFromUrl = (): PracticeView => new URLSearchParams(window.location.search).get('view') === 'summary' ? 'summary' : 'practice';
+const isPlainClick = (event: ReactMouseEvent) => event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 
 export function App({
   certification = certifications.pmle,
@@ -48,7 +51,7 @@ export function App({
   const [accountError, setAccountError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'practice' | 'summary'>('practice');
+  const [activeView, setActiveView] = useState<PracticeView>(viewFromUrl);
   const [loading, setLoading] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -63,17 +66,51 @@ export function App({
     pendingWrites.current.add(tracked);
     return tracked;
   }
-  async function switchCertification(href: string) {
+  async function navigateAway(href: string) {
     try {
       await Promise.all([...pendingWrites.current]);
       window.location.assign(href);
     } catch {
-      setStorageError('A save failed. Review your progress before switching certifications.');
+      setStorageError('A save failed. Review your progress before leaving this page.');
     }
   }
   const accountMenu = useRef<HTMLDivElement>(null);
   const initialProgressScrollDone = useRef(false);
   const signInRequested = useRef(new URLSearchParams(window.location.search).get('signIn') === 'true');
+  const practiceHref = certification.id === 'pmle' ? '/practice/' : `/practice/?cert=${certification.id}`;
+  const summaryHref = `${practiceHref}${practiceHref.includes('?') ? '&' : '?'}view=summary`;
+  const leavePage = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    void navigateAway(event.currentTarget.href);
+  };
+  const showView = (view: PracticeView) => {
+    const url = new URL(window.location.href);
+    if (view === 'summary') url.searchParams.set('view', 'summary');
+    else url.searchParams.delete('view');
+    url.hash = '';
+    if (view !== activeView) window.history.pushState(null, '', `${url.pathname}${url.search}`);
+    setActiveView(view);
+    setSettingsOpen(false);
+    setAccountMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  useEffect(() => {
+    const restoreView = () => {
+      setActiveView(viewFromUrl());
+      setSettingsOpen(false);
+      setAccountMenuOpen(false);
+    };
+    window.addEventListener('popstate', restoreView);
+    return () => window.removeEventListener('popstate', restoreView);
+  }, []);
+
+  useEffect(() => {
+    document.title = activeView === 'summary'
+      ? `${certification.label} Progress Summary | Quiz Trail`
+      : certification.preview ? `${certification.title} Practice | Quiz Trail` : 'Practice Google Cloud PMLE Questions | Quiz Trail';
+  }, [activeView, certification]);
 
   useEffect(() => {
     if (!accountMenuOpen) return;
@@ -172,7 +209,7 @@ export function App({
   };
   const openReviewQueue = (filter: typeof state.filter) => {
     changeFilter(filter);
-    setActiveView('practice');
+    showView('practice');
   };
 
   const reset = async () => {
@@ -242,20 +279,18 @@ export function App({
   };
 
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
-  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>{certification.title} is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href="/">Back to certifications</a></main>;
+  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>{certification.title} is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href={certification.faqPath}>{certification.label} FAQ</a><a href="/">Back to home</a></main>;
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
   if (loading || !state.questions.length) return <main className="centered-state"><div className="loader" /><h1>Loading the question bank…</h1><p>Preparing Quiz Trail.</p></main>;
 
   return (
     <>
       <header className="site-header">
-        <a href="#quiz" className="brand" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView('practice'); }}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+        <a href="/" className="brand" aria-label="Quiz Trail home" onClick={leavePage}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
-          <a className="header-button header-link" href="/" onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); void switchCertification('/'); } }}>Certifications</a>
-          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={(event) => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); void switchCertification(event.currentTarget.href); } }}>{certification.id === 'pmle' ? 'PAA preview' : 'PMLE'}</a>}
-          <a className="header-button header-link" href="/faq/">FAQ</a>
-          <button className="header-button" type="button" onClick={() => { setSettingsOpen(false); setAccountMenuOpen(false); setActiveView((view) => view === 'summary' ? 'practice' : 'summary'); }}>{activeView === 'summary' && !settingsOpen ? 'Practice' : 'Summary'}</button>
-          {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setActiveView('practice'); setSettingsOpen(true); }}>Settings</button>}
+          <a className="header-button header-link" href="/" onClick={leavePage}>Home</a>
+          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={leavePage}>{certification.id === 'pmle' ? 'PAA preview' : 'PMLE'}</a>}
+          {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
             user ? <div className="account-menu" ref={accountMenu}>
               <button className="header-identity" type="button" title={user.email ?? user.displayName} aria-label={`Open account menu for ${user.displayName}`} aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen((open) => !open)}>
@@ -291,10 +326,11 @@ export function App({
       ) : <main id="quiz" className="app-shell">
         {activeView === 'summary' ? (
           <AnalyticsSummary
+            certification={certification}
             questions={state.questions}
             progress={state.progress}
             savedForLater={state.savedForLater}
-            onBack={() => setActiveView('practice')}
+            onBack={() => showView('practice')}
             onReview={openReviewQueue}
           />
         ) : <>
@@ -302,7 +338,7 @@ export function App({
           <h1>{certification.title} practice questions</h1>
           <p>{certification.preview ? 'Private preview · Questions are under review.' : 'Free practice questions with explanations and official references.'}</p>
         </section>
-        <ProgressSummary counts={counts} onOpenSummary={() => setActiveView('summary')} />
+        <ProgressSummary counts={counts} onOpenSummary={() => showView('summary')} />
         {(storageError || (debugMetadata && state.reconciliationNotice)) && (
           <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
         )}
@@ -369,10 +405,13 @@ export function App({
       <footer>
         <span>Quiz Trail</span>
         <div>
+          <nav className="certification-resources" aria-label={`${certification.label} resources`}>
+            <a href={certification.faqPath} onClick={leavePage}>{certification.label} FAQ</a>
+            <a href={summaryHref} aria-current={activeView === 'summary' && !settingsOpen ? 'page' : undefined} onClick={(event) => { if (isPlainClick(event)) { event.preventDefault(); showView('summary'); } }}>{certification.label} summary</a>
+            {certification.id === 'pmle' && <a href="/sample-questions/" onClick={leavePage}>PMLE sample questions</a>}
+          </nav>
           <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : isGuest ? 'Guest session' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
           <span>{dataMode === 'local' ? 'Progress stays on this device' : isGuest ? 'Progress is not saved' : 'Progress is linked to your signed-in account'}</span>
-          <a href="/faq/">FAQ</a>
-          <a href="/sample-questions/">Sample questions</a>
           {debugMetadata && <><a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a></>}
         </div>
       </footer>

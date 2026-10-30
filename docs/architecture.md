@@ -188,16 +188,19 @@ This avoids leaving progress behind after a successful identity deletion. Becaus
 
 ## Analytics and metadata visibility
 
+The `view=summary` query selects the summary within the existing certification-scoped practice app. Internal practice/summary navigation updates browser history without reloading the bank or losing guest-session answers; popstate restores the view. The same certification authorization gate protects both views.
+
 Analytics are derived entirely in the browser by joining CSV subject metadata to the latest outcomes and saved IDs. No analytics aggregate is persisted.
 
 Exam sections, objectives, topics, and difficulty support learner-facing summaries. Source, review status, outdated status, and terminology fields remain internal and are passed to the question UI only after an answer and only when `?debug=true` enables maintainer details. The same flag reveals preserved contribution and GitHub support UI in the practice app and static public pages; those links remain hidden during ordinary learner visits.
 
 ## Hosting and caching
 
-Vite emits four HTML entry points to `dist/`:
+Vite emits five HTML entry points to `dist/`:
 
 - `/` — static landing page;
-- `/faq/` — static FAQ with FAQ structured data;
+- `/faq/` — static PMLE FAQ with FAQ structured data;
+- `/agentic-ai/faq/` — static public PAA FAQ with FAQ structured data;
 - `/sample-questions/` — static sample-question snapshot;
 - `/practice/` — React/Firebase practice application.
 
@@ -215,7 +218,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 | Area | Location |
 |---|---|
-| Static public pages | `index.html`, `faq/`, `sample-questions/` |
+| Static public pages | `index.html`, `faq/`, `agentic-ai/faq/`, `sample-questions/` |
 | Application composition and flows | `practice/index.html`, `src/app/` |
 | Authentication adapters | `src/auth/` |
 | React UI components | `src/components/` |

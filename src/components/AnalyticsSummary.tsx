@@ -1,7 +1,9 @@
 import { MINIMUM_SAMPLE_SIZE, buildLearningAnalytics, type CategoryStat } from '../domain/analytics';
 import type { QuizFilter, QuizQuestion } from '../domain/types';
+import type { Certification } from '../config/certifications';
 
 interface AnalyticsSummaryProps {
+  certification: Certification;
   questions: QuizQuestion[];
   progress: Record<string, boolean>;
   savedForLater: string[];
@@ -45,7 +47,7 @@ function AnalyticsTable({ title, description, stats, showMissed = false, collaps
   return <section className="analytics-card"><div className="analytics-section-heading"><div><h2>{title}</h2><p>{description}</p></div></div>{table}</section>;
 }
 
-export function AnalyticsSummary({ questions, progress, savedForLater, onBack, onReview }: AnalyticsSummaryProps) {
+export function AnalyticsSummary({ certification, questions, progress, savedForLater, onBack, onReview }: AnalyticsSummaryProps) {
   const analytics = buildLearningAnalytics(questions, progress, savedForLater);
   const { overall, reviewQueue } = analytics;
   const queueItems: Array<{ label: string; count: number; filter: QuizFilter; note?: string }> = [
@@ -56,10 +58,10 @@ export function AnalyticsSummary({ questions, progress, savedForLater, onBack, o
 
   return (
     <div className="analytics-summary">
-      <button type="button" className="summary-back" onClick={onBack}>← Back to practice</button>
+      <button type="button" className="summary-back" onClick={onBack}>← Back to {certification.label} practice</button>
       <section className="analytics-hero" aria-labelledby="summary-title">
-        <p className="eyebrow">Learning summary</p>
-        <h1 id="summary-title">See where you stand.</h1>
+        <p className="eyebrow">{certification.title}</p>
+        <h1 id="summary-title">{certification.label} progress summary</h1>
         <p>Accuracy reflects your latest recorded answer for each question. Coverage shows how much of the bank you have explored.</p>
         <div className="overall-grid">
           <div><span>Attempted</span><strong>{overall.answered}</strong></div>

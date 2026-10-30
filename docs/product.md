@@ -14,7 +14,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can read the static public PMLE overview at `/`, browse the static FAQ and ten sample questions, and open the full practice application at `/practice/`. The homepage's returning-learner links request Google sign-in on entry, while Try it out opens guest practice.
+1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten PMLE sample questions, and open PMLE practice at `/practice/`. The homepage's returning-learner links request Google sign-in on entry, while Practice PMLE opens guest practice.
 2. In cloud mode, guests can try ten questions in memory, while a concise banner offers Google sign-in for the complete question bank and saved progress. Signed-in learners receive the complete bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
@@ -95,8 +95,10 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 ## Certification catalog
 
-The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and an Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. Public FAQ and samples remain explicitly PMLE-specific.
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. The existing FAQ and samples remain explicitly PMLE-specific. PAA has its own public FAQ at `/agentic-ai/faq/`.
 
 The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
 
 The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; this wording correction does not change routes or persisted keys.
+
+The practice header uses plain text links matching the homepage: Home, the other certification for the preview owner, and account controls. Certification-specific FAQ and summary links live in the footer and in each homepage entry. PMLE summary opens at `/practice/?view=summary`; PAA summary opens at `/practice/?cert=agentic-ai&view=summary` and retains the private-preview restriction. Summary headings name the certification. Refresh and browser back/forward preserve the selected view.

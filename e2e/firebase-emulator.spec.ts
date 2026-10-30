@@ -177,9 +177,9 @@ async function seedPrivatePreview() {
   expect(response.ok).toBe(true);
 }
 
-test('private preview denies guests and other signed-in users', async ({ page }) => {
+test('private summary denies guests and other signed-in users', async ({ page }) => {
   await seedPrivatePreview();
-  await page.goto('/practice/?cert=agentic-ai');
+  await page.goto('/practice/?cert=agentic-ai&view=summary');
   await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
   await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
@@ -202,4 +202,12 @@ test('owner preview loads protected content and retains independent progress acr
   await page.getByRole('button', { name: 'Saved', exact: true }).click();
   await expect(page.getByText('Synthetic private preview question', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Saved for later' })).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('/practice/?cert=agentic-ai&view=summary');
+  await expect(page.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
+  await expect(page.locator('.overall-grid > div').filter({ hasText: 'Attempted' }).locator('strong')).toHaveText('1');
+  await expect(page.locator('footer').getByRole('link', { name: 'PAA FAQ' })).toHaveAttribute('href', '/agentic-ai/faq/');
+  await expect(page.locator('footer').getByRole('link', { name: /PMLE/ })).toHaveCount(0);
+  await page.goto('/practice/?view=summary');
+  await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+  await expect(page.locator('.overall-grid > div').filter({ hasText: 'Attempted' }).locator('strong')).toHaveText('0');
 });

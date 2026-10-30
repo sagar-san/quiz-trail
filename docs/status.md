@@ -2,11 +2,13 @@
 
 Last reviewed: 2026-10-30
 
-## Pending Hosting update: official exam title and sample typography
+## Pending Hosting update: certification navigation, titles, and typography
 
-- Updated learner-facing titles, homepage metadata, and review-prompt context to the official “Professional Agentic Architect” name, with PAA as the short label. Internal `agentic-ai` routes and storage keys are unchanged.
-- Sample-page typography now uses the homepage’s shared heading weight, lighter question headings, muted kicker, and monospace question labels. Four targeted desktop/mobile browser checks and the Firebase-mode build passed; visually reviewed the local sample page.
-- These display corrections are not yet deployed; the previous release below remains live. Public typecheck, targeted lint, 74 unit tests, 22 desktop/mobile browser tests, and Firebase-mode build passed; private typecheck and 20 tests passed. Auth/rules tests were not rerun because access and persistence logic are unchanged.
+- Practice navigation now matches the homepage's plain text styling. Home replaces Certifications; certification-specific FAQ and summary links are in the footer and each homepage entry. FAQ/sample headers also use simple, clearly scoped links.
+- Added a public PAA FAQ at `/agentic-ai/faq/`. PMLE and PAA summaries have direct `view=summary` links, certification-specific headings, and browser history support. The PAA summary retains the existing owner-only gate. Existing URLs, authentication, and persisted keys are unchanged.
+- Included earlier pending corrections: the official “Professional Agentic Architect” title/PAA label, and sample typography matching the homepage.
+- Verification: typecheck, targeted ESLint, 74 unit/component tests, 24 desktop/mobile browser checks, four Firebase emulator browser flows, and Firebase-mode build passed. Emulator checks confirm denied guest/non-owner summary access and independent PAA/PMLE summary counts for the owner. Visually reviewed the catalog, practice header/footer, and PAA FAQ in the in-app browser. Dedicated Auth/rules suites were not rerun because those contracts are unchanged.
+- These updates are committed for review but not deployed. Hosting deployment still requires explicit product-owner approval; no new live rules, data, or bank publication is needed. The previous release below remains live.
 
 ## Live: certification catalog and Agentic AI preview
 
