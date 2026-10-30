@@ -90,7 +90,7 @@ test('general and exam FAQs are public, linked, and have valid structured data',
     expect(await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => ['serious', 'critical'].includes(issue.impact ?? '')))).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
   }
-  await page.getByRole('navigation', { name: 'FAQ topics' }).getByRole('link', { name: 'General FAQ', exact: true }).click();
+  await page.getByRole('navigation', { name: 'FAQ topics' }).getByRole('link', { name: 'FAQ', exact: true }).click();
   await expect(page).toHaveURL(/\/faq\/$/);
   await expect(page.getByRole('heading', { name: 'When is my progress saved?' })).toBeVisible();
   await page.getByRole('navigation', { name: 'FAQ topics' }).getByRole('link', { name: 'PMLE FAQ', exact: true }).click();
@@ -98,7 +98,7 @@ test('general and exam FAQs are public, linked, and have valid structured data',
   await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Practice PMLE' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
   await expect(page.locator('footer').getByRole('link', { name: 'PMLE FAQ', exact: true })).toHaveAttribute('href', '/pmle/faq/');
-  await expect(page.locator('footer').getByRole('link', { name: 'General FAQ', exact: true })).toHaveAttribute('href', '/faq/');
+  await expect(page.locator('footer').getByRole('link', { name: 'FAQ', exact: true })).toHaveAttribute('href', '/faq/');
 });
 
 test('sample page publishes ten canonical questions with explanations', async ({ page }) => {

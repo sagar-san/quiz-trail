@@ -406,7 +406,7 @@ export function App({
         <span>Quiz Trail</span>
         <div>
           <nav className="certification-resources" aria-label={`${certification.label} resources`}>
-            <a href="/faq/" onClick={leavePage}>General FAQ</a>
+            <a href="/faq/" onClick={leavePage}>FAQ</a>
             <a href={certification.faqPath} onClick={leavePage}>{certification.label} FAQ</a>
             <a href={summaryHref} aria-current={activeView === 'summary' && !settingsOpen ? 'page' : undefined} onClick={(event) => { if (isPlainClick(event)) { event.preventDefault(); showView('summary'); } }}>{certification.label} summary</a>
             {certification.id === 'pmle' && <a href="/sample-questions/" onClick={leavePage}>PMLE sample questions</a>}
