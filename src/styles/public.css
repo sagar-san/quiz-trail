@@ -209,3 +209,7 @@ footer a { color: var(--green-dark); font-weight: 700; }
 .faq-heading > p:last-child { font-size: 17px; line-height: 1.7; }
 .faq-heading .eyebrow { color: var(--muted); font-size: 11px; font-weight: 650; margin-bottom: 25px; }
 .faq-card h2, .faq-cta h2 { font-weight: var(--heading-weight); }
+
+.faq-topics { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 0 0 28px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.faq-topics a { color: var(--green-dark); font-size: 14px; text-underline-offset: 5px; }
+.faq-topics a[aria-current="page"] { color: var(--ink); font-weight: 650; text-decoration: none; }

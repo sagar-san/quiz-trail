@@ -22,7 +22,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 6. The Summary view reports coverage and current accuracy by exam section, objective, topic, and difficulty, and links to useful review queues.
 7. For signed-in cloud learners and local-mode development, submitting an answer saves that question's latest outcome and toggling Save for later saves that bookmark independently. Guest changes remain only in the current session.
 8. Settings provides data information and progress reset. Cloud users can also sign out or delete their account. Contribution, GitHub issue, repository, and star links remain available only in maintainer debug mode.
-9. A static public FAQ answers common PMLE practice, question-source, progress, and contribution questions at `/faq/`.
+9. A static general FAQ at `/faq/` covers accounts, saved progress, data, and feedback. Exam-specific FAQs at `/pmle/faq/` and `/agentic-ai/faq/` cover each bank, study guidance, and availability; all three pages link to one another.
 10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
 11. A manually curated `/llms.txt` summarizes the application, its public pages, access requirements, and authoritative certification source for AI agents.
 
@@ -95,7 +95,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 ## Certification catalog
 
-The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE URLs and existing progress remain compatible. The existing FAQ and samples remain explicitly PMLE-specific. PAA has its own public FAQ at `/agentic-ai/faq/`.
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE practice URLs and existing progress remain compatible. `/faq/` contains shared product questions; PMLE-specific questions live at `/pmle/faq/` and PAA questions at `/agentic-ai/faq/`. The sample questions remain PMLE-specific. The homepage and practice footers also link to the general FAQ.
 
 The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
 

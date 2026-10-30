@@ -24,6 +24,10 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {
+        "source": "/pmle/**",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
         "source": "/agentic-ai/**",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },

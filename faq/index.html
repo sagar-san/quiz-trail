@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Answers about Quiz Trail, Google Cloud PMLE practice questions, study strategy, progress saving, question sources, and contributing." />
+    <meta name="description" content="Answers about signing in, saving your progress, and using Quiz Trail across certifications." />
     <link rel="canonical" href="https://quiz-trail.web.app/faq/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles/public.css" />
@@ -11,76 +11,84 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://quiz-trail.web.app/faq/" />
     <meta property="og:site_name" content="Quiz Trail" />
-    <meta property="og:title" content="Google Cloud PMLE Practice FAQ | Quiz Trail" />
-    <meta property="og:description" content="Answers about Quiz Trail, Google Cloud PMLE practice questions, study strategy, progress saving, question sources, and contributing." />
+    <meta property="og:title" content="Quiz Trail FAQ | Accounts, Progress and Practice" />
+    <meta property="og:description" content="Answers about signing in, saving your progress, and using Quiz Trail across certifications." />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Google Cloud PMLE Practice FAQ | Quiz Trail" />
-    <meta name="twitter:description" content="Answers about Quiz Trail, Google Cloud PMLE practice questions, study strategy, progress saving, question sources, and contributing." />
-    <title>Google Cloud PMLE Practice FAQ | Quiz Trail</title>
+    <meta name="twitter:title" content="Quiz Trail FAQ | Accounts, Progress and Practice" />
+    <meta name="twitter:description" content="Answers about signing in, saving your progress, and using Quiz Trail across certifications." />
+    <title>Quiz Trail FAQ | Accounts, Progress and Practice</title>
     <script type="module" src="/src/publicDebug.ts"></script>
     <script type="application/ld+json" data-quiz-trail-schema="faq">
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "What is the Google Cloud Professional Machine Learning Engineer certification?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "The PMLE certification assesses your ability to design, build, productionize, and improve machine learning and AI solutions on Google Cloud, including data preparation, model development, serving, MLOps, monitoring, and responsible AI."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is Quiz Trail an official Google Cloud product?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Quiz Trail is an independent, open-source study aid and is not affiliated with or endorsed by Google. Use the official certification page and exam guide as the final source for current exam requirements."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How many PMLE practice questions are included?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Quiz Trail includes 400+ carefully curated single-choice and multiple-choice practice questions with explanations and references."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How should I use Quiz Trail to prepare?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Practice in short sessions, read the explanation after every answer, save questions that need another look, and use the <a href="/practice/?view=summary">PMLE summary</a> to focus on weak exam sections and objectives. Combine practice questions with hands-on Google Cloud experience and the official exam guide."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Are these the real certification exam questions?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Quiz Trail provides original and curated practice material for learning. It does not provide exam dumps or claim that its questions appear on the certification exam."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What data does Quiz Trail store, and can I delete it?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "You can practice as a guest without creating an account; guest answers and bookmarks remain only in the current session and are not saved. If you sign in, Quiz Trail stores the latest result for questions you answer and any bookmarks you choose. Google sign-in provides the basic account details needed to identify your Quiz Trail account; Quiz Trail does not manage your Google password. We do not sell your data or share it with advertisers or other third parties. Google and Firebase process the account and progress data needed to provide sign-in and cloud storage. You can reset your saved progress or permanently delete your Quiz Trail account from Settings. If you voluntarily report a question, that feedback is stored separately so it can be reviewed."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is Quiz Trail free?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Quiz Trail is free and open source."
-            }
-          }
-        ]
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Quiz Trail free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Quiz Trail is free and open source."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can try ten PMLE questions as a guest. Sign in with Google for the complete PMLE bank and saved progress across devices. Sign in on the homepage, then choose your certification. PAA practice is currently limited to the authorized preview account."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When is my progress saved?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When you are signed in, submitting an answer saves its latest result, and Save for later saves a bookmark. Guest answers and bookmarks last only for the current session and clear on reload or sign-in. Signing in loads your account’s saved progress; guest answers are not copied into it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use the same account for both certifications?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. PMLE and PAA share one Google sign-in, with separate answers, bookmarks, filters, and summaries. Switching certifications keeps each set of progress separate. Access to a private preview still requires authorization."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the progress summary show?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your summary shows coverage and latest-answer accuracy by exam section, objective, topic, and difficulty, plus queues for questions to revisit. It describes your practice activity, not a prediction of your exam result. Open the summary for the certification you are studying."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What data is stored, and can I delete it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Quiz Trail uses basic Google account details to identify your account and stores your latest answer results and bookmarks. Google and Firebase provide authentication and cloud storage; Quiz Trail does not manage your Google password or sell your data. In Settings, you can reset the selected certification’s progress or delete your Quiz Trail account and progress across all certifications. This does not delete your Google account. Voluntary question feedback is stored separately for review."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I report a problem with a question?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "After answering, open More to send feedback about that question. You need to be signed in. Reopening More shows your previous report, and submitting again replaces it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are these real certification exam questions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The bank contains original and curated practice material for learning. It does not provide exam dumps or claim that its questions appear on the certification exam."
+      }
+    }
+  ]
+}
     </script>
   </head>
   <body>
@@ -88,66 +96,67 @@
       <a class="brand" href="/" aria-label="Quiz Trail home"><span class="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
       <nav class="public-nav" aria-label="Main navigation">
         <a href="/">Home</a>
-        <a href="/practice/">PMLE practice</a>
       </nav>
     </header>
-
     <main class="faq-shell">
       <a class="breadcrumb" href="/">← Back to home</a>
       <header class="faq-heading">
-        <p class="eyebrow">PMLE FAQ</p>
-        <h1>Google Cloud PMLE practice questions, answered.</h1>
-        <p>How Quiz Trail works, what the question bank covers, and how to make your study time count.</p>
+        <p class="eyebrow">General FAQ</p>
+        <h1>Using Quiz Trail</h1>
+        <p>Answers about signing in, saving your progress, and using Quiz Trail across certifications.</p>
       </header>
-
+      <nav class="faq-topics" aria-label="FAQ topics">
+        <a href="/faq/" aria-current="page">General FAQ</a>
+        <a href="/pmle/faq/">PMLE FAQ</a>
+        <a href="/agentic-ai/faq/">PAA FAQ</a>
+      </nav>
       <div class="faq-list">
-        <section class="faq-card">
-          <h2>What is the Google Cloud Professional Machine Learning Engineer certification?</h2>
-          <p>The PMLE certification assesses your ability to design, build, productionize, and improve machine learning and AI solutions on Google Cloud, including data preparation, model development, serving, MLOps, monitoring, and responsible AI.</p>
-        </section>
-        <section class="faq-card">
-          <h2>Is Quiz Trail an official Google Cloud product?</h2>
-          <p>No. Quiz Trail is an independent, open-source study aid and is not affiliated with or endorsed by Google. Use the <a href="https://cloud.google.com/learn/certification/machine-learning-engineer" target="_blank" rel="noopener noreferrer">official certification page</a> and exam guide as the final source for current exam requirements.</p>
-        </section>
-        <section class="faq-card">
-          <h2>How many PMLE practice questions are included?</h2>
-          <p>Quiz Trail includes 400+ carefully curated single-choice and multiple-choice practice questions with explanations and references.</p>
-        </section>
-        <section class="faq-card">
-          <h2>How should I use Quiz Trail to prepare?</h2>
-          <p>Practice in short sessions, read the explanation after every answer, save questions that need another look, and use the <a href="/practice/?view=summary">PMLE summary</a> to focus on weak exam sections and objectives. Combine practice questions with hands-on Google Cloud experience and the official exam guide.</p>
-        </section>
-        <section class="faq-card">
-          <h2>Are these the real certification exam questions?</h2>
-          <p>No. Quiz Trail provides original and curated practice material for learning. It does not provide exam dumps or claim that its questions appear on the certification exam.</p>
-        </section>
-        <section class="faq-card">
-          <h2>What data does Quiz Trail store, and can I delete it?</h2>
-          <p>You can practice as a guest without creating an account; guest answers and bookmarks remain only in the current session and are not saved. If you sign in, Quiz Trail stores the latest result for questions you answer and any bookmarks you choose. Google sign-in provides the basic account details needed to identify your Quiz Trail account; Quiz Trail does not manage your Google password. We do not sell your data or share it with advertisers or other third parties. Google and Firebase process the account and progress data needed to provide sign-in and cloud storage. You can reset your saved progress or permanently delete your Quiz Trail account from Settings. If you voluntarily report a question, that feedback is stored separately so it can be reviewed.</p>
-        </section>
         <section class="faq-card">
           <h2>Is Quiz Trail free?</h2>
           <p>Yes. Quiz Trail is free and open source.<span data-debug-only hidden> Optional contributions through <a href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a> help cover cloud costs. Starring the project on <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub</a> is another way to support it.</span></p>
         </section>
-        <section class="faq-card" data-debug-only hidden>
-          <h2>How can I report an incorrect or outdated question?</h2>
-          <p>Open a <a href="https://github.com/Ameenota/quiz-trail/issues/new/choose" target="_blank" rel="noopener noreferrer">GitHub issue</a> with the question ID and a clear description of the problem. Do not include personal, account, or certification-exam confidential information.</p>
+        <section class="faq-card">
+          <h2>Do I need an account?</h2>
+          <p>You can try ten PMLE questions as a guest. Sign in with Google for the complete PMLE bank and saved progress across devices. Sign in on the <a href="/">homepage</a>, then choose your certification. PAA practice is currently limited to the authorized preview account.</p>
+        </section>
+        <section class="faq-card">
+          <h2>When is my progress saved?</h2>
+          <p>When you are signed in, submitting an answer saves its latest result, and Save for later saves a bookmark. Guest answers and bookmarks last only for the current session and clear on reload or sign-in. Signing in loads your account’s saved progress; guest answers are not copied into it.</p>
+        </section>
+        <section class="faq-card">
+          <h2>Can I use the same account for both certifications?</h2>
+          <p>Yes. PMLE and PAA share one Google sign-in, with separate answers, bookmarks, filters, and summaries. Switching certifications keeps each set of progress separate. Access to a private preview still requires authorization.</p>
+        </section>
+        <section class="faq-card">
+          <h2>What does the progress summary show?</h2>
+          <p>Your summary shows coverage and latest-answer accuracy by exam section, objective, topic, and difficulty, plus queues for questions to revisit. It describes your practice activity, not a prediction of your exam result. Open the summary for the certification you are studying.</p>
+        </section>
+        <section class="faq-card">
+          <h2>What data is stored, and can I delete it?</h2>
+          <p>Quiz Trail uses basic Google account details to identify your account and stores your latest answer results and bookmarks. Google and Firebase provide authentication and cloud storage; Quiz Trail does not manage your Google password or sell your data. In Settings, you can reset the selected certification’s progress or delete your Quiz Trail account and progress across all certifications. This does not delete your Google account. Voluntary question feedback is stored separately for review.</p>
+        </section>
+        <section class="faq-card">
+          <h2>How can I report a problem with a question?</h2>
+          <p>After answering, open More to send feedback about that question. You need to be signed in. Reopening More shows your previous report, and submitting again replaces it.<span data-debug-only hidden> You can also open a <a href="https://github.com/Ameenota/quiz-trail/issues/new/choose" target="_blank" rel="noopener noreferrer">GitHub issue</a> with the question ID and a description of the problem. Do not include personal or confidential exam information.</span></p>
+        </section>
+        <section class="faq-card">
+          <h2>Are these real certification exam questions?</h2>
+          <p>No. The bank contains original and curated practice material for learning. It does not provide exam dumps or claim that its questions appear on the certification exam.</p>
         </section>
       </div>
-
       <section class="faq-cta" aria-labelledby="faq-cta-heading">
-        <h2 id="faq-cta-heading">Ready to practice?</h2>
-        <p>Work through the question bank at your own pace and use your results to guide the next study session.</p>
-        <a class="primary-button" href="/practice/">Try it out</a>
+        <h2 id="faq-cta-heading">Choose your certification</h2>
+        <p>Exam-specific questions are covered in the PMLE and PAA FAQs above. Ready to practice? Start from the catalog.</p>
+        <a class="primary-button" href="/">Back to certifications</a>
       </section>
     </main>
-
     <footer>
       <span>Quiz Trail</span>
       <div>
         <a href="/">Home</a>
-        <a href="/practice/?view=summary">PMLE summary</a>
-        <a href="/sample-questions/">PMLE sample questions</a>
+        <a href="/faq/" aria-current="page">General FAQ</a>
+        <a href="/pmle/faq/">PMLE FAQ</a>
+        <a href="/agentic-ai/faq/">PAA FAQ</a>
         <a data-debug-only hidden href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         <a data-debug-only hidden href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
       </div>

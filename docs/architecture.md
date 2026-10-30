@@ -196,10 +196,11 @@ Exam sections, objectives, topics, and difficulty support learner-facing summari
 
 ## Hosting and caching
 
-Vite emits five HTML entry points to `dist/`:
+Vite emits six HTML entry points to `dist/`:
 
 - `/` — static landing page;
-- `/faq/` — static PMLE FAQ with FAQ structured data;
+- `/faq/` — static general FAQ with FAQ structured data;
+- `/pmle/faq/` — static PMLE FAQ with FAQ structured data;
 - `/agentic-ai/faq/` — static public PAA FAQ with FAQ structured data;
 - `/sample-questions/` — static sample-question snapshot;
 - `/practice/` — React/Firebase practice application.
@@ -218,7 +219,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 | Area | Location |
 |---|---|
-| Static public pages | `index.html`, `faq/`, `agentic-ai/faq/`, `sample-questions/` |
+| Static public pages | `index.html`, `faq/`, `pmle/faq/`, `agentic-ai/faq/`, `sample-questions/` |
 | Application composition and flows | `practice/index.html`, `src/app/` |
 | Authentication adapters | `src/auth/` |
 | React UI components | `src/components/` |

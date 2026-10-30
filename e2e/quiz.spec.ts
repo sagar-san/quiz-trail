@@ -40,6 +40,7 @@ test('publishes search and sharing metadata', async ({ page }) => {
   expect(sitemap.ok()).toBe(true);
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/</loc>');
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/faq/</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/pmle/faq/</loc>');
   expect(await sitemap.text()).toContain('<loc>https://quiz-trail.web.app/sample-questions/</loc>');
 
   const llms = await page.request.get('/llms.txt');
@@ -66,20 +67,38 @@ test('initial load scrolls to just above progress', async ({ page }) => {
   expect(progressStart!.y).toBeLessThanOrEqual(header!.height + 46);
 });
 
-test('FAQ is public, crawlable, and returns to practice', async ({ page }) => {
-  await page.goto('/faq/');
+test('general and exam FAQs are public, linked, and have valid structured data', async ({ page }) => {
+  const faqs = [
+    { path: '/faq/', title: 'Quiz Trail FAQ | Accounts, Progress and Practice', heading: 'Using Quiz Trail' },
+    { path: '/pmle/faq/', title: 'Google Cloud PMLE Practice FAQ | Quiz Trail', heading: 'Google Cloud PMLE practice questions, answered.' },
+    { path: '/agentic-ai/faq/', title: 'Professional Agentic Architect Practice FAQ | Quiz Trail', heading: 'Professional Agentic Architect practice, explained.' },
+  ];
+  for (const faq of faqs) {
+    await page.goto(faq.path);
+    await expect(page).toHaveTitle(faq.title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://quiz-trail.web.app${faq.path}`);
+    await expect(page.getByRole('heading', { name: faq.heading, exact: true })).toBeVisible();
+    const schemaText = await page.locator('script[data-quiz-trail-schema="faq"]').textContent();
+    const schema = JSON.parse(schemaText!);
+    expect(schema['@type']).toBe('FAQPage');
+    expect(schemaText).not.toMatch(/Buy Me a Coffee|GitHub/);
+    expect(schema.mainEntity.map((item: { name: string }) => item.name)).toEqual(await page.locator('.faq-card h2').allTextContents());
+    const response = await page.request.get(faq.path);
+    expect(response.ok()).toBe(true);
+    expect(await response.text()).toContain(`<h1>${faq.heading}</h1>`);
+    await page.addScriptTag({ content: axe.source });
+    expect(await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => ['serious', 'critical'].includes(issue.impact ?? '')))).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
+  }
+  await page.getByRole('navigation', { name: 'FAQ topics' }).getByRole('link', { name: 'General FAQ', exact: true }).click();
   await expect(page).toHaveURL(/\/faq\/$/);
-  await expect(page).toHaveTitle('Google Cloud PMLE Practice FAQ | Quiz Trail');
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/faq/');
-  await expect(page.getByRole('heading', { name: 'Google Cloud PMLE practice questions, answered.' })).toBeVisible();
-  const faqSchema = page.locator('script[data-quiz-trail-schema="faq"]');
-  await expect(faqSchema).toHaveCount(1);
-  const faqSchemaText = await faqSchema.evaluate((script) => script.textContent);
-  expect(faqSchemaText).toContain('FAQPage');
-  expect(faqSchemaText).not.toMatch(/Buy Me a Coffee|GitHub/);
-  await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Try it out' }).click();
+  await expect(page.getByRole('heading', { name: 'When is my progress saved?' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'FAQ topics' }).getByRole('link', { name: 'PMLE FAQ', exact: true }).click();
+  await expect(page).toHaveURL(/\/pmle\/faq\/$/);
+  await page.getByLabel('Ready to practice?').getByRole('link', { name: 'Practice PMLE' }).click();
   await expect(page).toHaveURL(/\/practice\/$/);
-  await expect(page.getByText(/\d+ questions/)).toBeVisible();
+  await expect(page.locator('footer').getByRole('link', { name: 'PMLE FAQ', exact: true })).toHaveAttribute('href', '/pmle/faq/');
+  await expect(page.locator('footer').getByRole('link', { name: 'General FAQ', exact: true })).toHaveAttribute('href', '/faq/');
 });
 
 test('sample page publishes ten canonical questions with explanations', async ({ page }) => {

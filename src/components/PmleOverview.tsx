@@ -30,7 +30,7 @@ export function PmleOverview() {
       </div>
       <nav className="pmle-secondary-links" aria-label="PMLE resources">
         <a href={CERTIFICATION_URL} target="_blank" rel="noopener noreferrer">Official certification <span aria-hidden="true">↗</span></a>
-        <a href="/faq/">Practice FAQ</a>
+        <a href="/pmle/faq/">Practice FAQ</a>
       </nav>
     </section>
   );

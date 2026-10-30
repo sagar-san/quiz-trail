@@ -9,7 +9,8 @@ Quiz Trail provides 400+ carefully curated single-choice and multiple-choice pra
 - [Quiz Trail certification catalog](https://quiz-trail.web.app/): Choose a certification. PMLE is available and Professional Agentic Architect is coming soon.
 - [Interactive PMLE practice](https://quiz-trail.web.app/practice/): Try ten questions without an account; sign in for the complete question bank and saved progress across devices.
 - [10 free PMLE sample questions](https://quiz-trail.web.app/sample-questions/): Preview representative questions, answers, explanations, and official references without signing in.
-- [PMLE FAQ](https://quiz-trail.web.app/faq/): Read about the question bank, study approach, progress saving, and ways to contribute.
+- [General FAQ](https://quiz-trail.web.app/faq/): Sign-in, saved progress, account data, and question feedback.
+- [PMLE FAQ](https://quiz-trail.web.app/pmle/faq/): PMLE question-bank coverage, study approach, and official exam resources.
 - [PAA FAQ](https://quiz-trail.web.app/agentic-ai/faq/): Public information about Professional Agentic Architect practice and the private preview.
 - [Quiz Trail source code](https://github.com/Ameenota/quiz-trail): Review the open-source project or report an issue.
 - [Official Google Cloud certification page](https://cloud.google.com/learn/certification/machine-learning-engineer): Check current certification details and requirements from Google Cloud.
