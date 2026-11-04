@@ -2,28 +2,28 @@
 
 Last reviewed: 2026-11-03
 
-## Sign-in required and public samples — not deployed
+## Production release — deployed 2026-11-03
 
 - Removed the ten-question interactive guest trial and its banner. Cloud practice and summaries show a Google sign-in gate before any bank, progress, or preference reads. Existing signed-in and local-development flows remain supported.
 - Kept ten PMLE samples and added ten static PAA samples at `/agentic-ai/sample-questions/`, linked from the catalog, FAQ, and practice gate/footer. Both pages work without JavaScript or an account. Full PAA practice and summary remain restricted to the preview owner.
 - Updated public copy, sitemap, shared certification paths, and the explicit sample-publication exception. The canonical bank was not modified. Public PAA references were checked and four links refined to support their explanations more directly.
 - Verification: typecheck, lint, 94 unit/component tests, one Auth emulator test, 26 Firestore rules/storage tests, seven-entry Firebase-mode build, four desktop/mobile no-JavaScript sample checks, two desktop/mobile LAN accessibility/layout checks, and all seven Firebase browser flows passed. No serious/critical accessibility issues were found in the new gate or PAA samples; screenshots inspected.
 - Firebase browser checks used an isolated Auth emulator on 9199 and Firestore namespace `quiz-trail-signin-test`. Full Chromium and explicit opener focus resolved a headless-shell popup stall; the checked-in browser configuration/helpers now use that setup.
-- Deployment remains paused at the user's request. No production Hosting, rules, index, configuration, or bank writes were performed. Production credentials and frontend configuration still need verification before release.
+- Deployed frontend commit `19548f0` to https://quiz-trail.web.app/ with explicit owner approval. Verified project `quiz-trail` / `724933345983`, built with production web configuration retrieved from the existing Hosting Firebase configuration endpoint, deployed the discussion composite index and waited for READY, deployed additive rules, initialized previously absent `config/comments.enabled=true`, then deployed Hosting. No question-bank publication or progress migration occurred.
 
-## Prior changes awaiting release
+## Included changes and live verification
 
-- Monospace identity refresh: shared neutral theme tokens and locally bundled IBM Plex fonts, 17px reading text, restrained controls, correct/incorrect feedback precedence, and plain copy icon. Previously verified with 24 desktop/mobile flows and four theme/accessibility checks.
-- Shared question discussion replaces private feedback after answering. Includes posting/editing/deleting, Like/Dislike, ten-item ranked pages, and resumable account-deletion cleanup. Additive rules and indexes are ready but not deployed; legacy private feedback remains private.
-- Release order in `release-runbook.md`: deploy indexes and wait for readiness, deploy additive rules and initialize `config/comments.enabled`, then deploy the frontend built with verified production configuration and smoke-test. Missing comments config intentionally disables writes.
-- Local user's emulator contains seeded PMLE comments and personal test state. Do not run the Firebase browser suite against it: the suite clears accounts/data. Use a separate Auth emulator and separate Firestore project for integration checks; Auth popup endpoints ignore the API key and use their emulator's default project.
+- Monospace identity refresh: shared neutral theme tokens and locally bundled IBM Plex fonts, 17px reading text, restrained controls, correct/incorrect feedback precedence, and plain copy icon. Included in this release.
+- Shared question discussion replaces private feedback after answering. Includes posting/editing/deleting, Like/Dislike, ten-item ranked pages, and resumable account-deletion cleanup. Its additive rules and index are deployed and comments are enabled. Legacy private feedback remains private.
+- Live checks confirmed all seven HTML pages return 200, built assets load, the signed-out practice/summary gate makes no bank requests, both public sample pages work without JavaScript, and desktop/mobile layouts have no serious/critical accessibility violations. PMLE bank CORS/cache headers are correct; unauthenticated access to the private PAA bank returns 403.
+- Live signed-in writes were not exercised: no authenticated browser session was available, and native-browser access was unavailable while the Mac was locked. The seven emulator flows passed before release, covering sign-in, restored progress, comments/reactions, account deletion, and owner/non-owner PAA access. A live signed-in answer/reload and discussion check remains recommended.
+- Production web configuration is in ignored `.env.production.local`; no credentials or API keys are tracked. Existing Google default credentials authorized the deployment; there was no repository-scoped Firebase login session.
+
+## Local verification cautions
+
+- The user's local emulator contains seeded PMLE comments and personal test state. Do not run the Firebase browser suite against it: the suite clears accounts/data. Use a separate Auth emulator and separate Firestore project for integration checks; Auth popup endpoints ignore the API key and use their emulator's default project.
 - The LAN preview configuration `.tmp/lan.vite.ts` is ignored. It proxies Auth, Firestore streaming and `/v1/projects`, plus the encrypted PMLE bank. The earlier missing-theme error cleared after restarting Vite; latest signed-out gate and PAA samples pass at the direct-IP HTTPS URL.
-
-## Existing production release
-
-- The last recorded Hosting release is frontend commit `5e5d55d` at https://quiz-trail.web.app/, with homepage/navigation/FAQ/sign-in/tip-link changes. It still has the private feedback interface until the discussion release is approved.
-- Previously deployed Firestore rules from `e035664` and private-bank publication from private commit `4892a87` protect PAA with the verified Google preview-owner predicate. Those live rules do not yet include this checkout's additive comments rules. Production access was not rechecked during this implementation.
-- PMLE retains legacy URLs, permanent IDs, storage paths and browser keys. PAA uses certification-scoped progress. Reset is scoped; account deletion is account-wide.
+- PMLE retains legacy URLs, permanent IDs, storage paths and browser keys. PAA uses certification-scoped progress. Reset is scoped; account deletion is account-wide. The earlier private-bank publication is unchanged.
 
 ## Preserved bank state and cautions
 
