@@ -87,7 +87,6 @@ function DiscussionSession({ store, user, scope, cloud, busy, onSignIn, trackWri
   if (!store) return null;
   return <section className="question-discussion" aria-label="Question discussion">
       <h3>Discussion</h3>
-      <p>Comments are visible to other signed-in learners. Names are display labels, not verified identities.</p>
       {loading && <p role="status">Loading comments…</p>}
       {loadError && <p role="alert">Comments could not be loaded. <button type="button" onClick={() => void load(pageIndex, cursors)}>Try again</button></p>}
       {page?.deletionPending && <p role="alert">Account deletion was started. New comments and reactions are paused. Open Settings and retry Delete account to finish cleanup.</p>}
@@ -149,5 +148,6 @@ function DiscussionSession({ store, user, scope, cloud, busy, onSignIn, trackWri
         </nav>
         {!page.hasNext && page.items.length > 0 && <p className="discussion-note">End of comments.</p>}
       </>}
+      <p className="discussion-disclosure">Comments are visible to other signed-in learners. Names are display labels, not verified identities.</p>
   </section>;
 }

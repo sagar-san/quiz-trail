@@ -196,3 +196,4 @@ footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; 
 .discussion-controls .comment-reaction[aria-pressed="true"] { color: #1d4ed8; background: #eff6ff; }
 .discussion-controls .comment-reaction[aria-pressed="true"] svg { fill: #dbeafe; }
 .comment-reaction .thumb-down { transform: rotate(180deg); }
+.discussion-disclosure { margin: 1rem 0 0; color: #64748b; font-size: .75rem; line-height: 1.5; }
