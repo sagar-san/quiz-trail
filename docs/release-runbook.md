@@ -29,7 +29,7 @@ npm ci
 npm run dev -- --host localhost --port 5173
 ```
 
-Open <http://localhost:5173> for the static landing page or <http://localhost:5173/practice/> for the practice application. Use this hostname because it is an approved origin for the question-bank bucket.
+Open <http://localhost:5173> for the static landing page or <http://localhost:5173/practice/> for the practice application. For another device on the same network, run with `--host 0.0.0.0` and open the printed LAN address. The development server handles fetching and decrypting the public PMLE bank; shared discussions still require a signed-in Firebase session.
 
 ## Run with Firebase emulators
 

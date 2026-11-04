@@ -19,9 +19,11 @@ Copy `.env.example` to an ignored environment file when Firebase or contribution
 
 Clone the private `quiz-trail-question-bank` repository beside this application
 repository at `../quiz-trail-question-bank/`. Vite imports the intentionally
-public AES decryption key from that repository at build time. Both development
-and production builds download the encrypted bank from its public Cloud Storage
-URL; the frontend never reads or builds the authored source bank.
+public AES decryption key from that repository at build time. Production downloads the encrypted bank directly from its public Cloud Storage
+URL. The development server fetches and decrypts that same public PMLE asset
+through `/__dev/question-bank.csv`, allowing HTTP LAN previews without bucket
+CORS or browser secure-context failures. This endpoint is absent from production
+builds and never serves the private PAA bank or authored source files.
 
 The Buy Me a Coffee footer link is public. In `?debug=true` maintainer mode, the app also reveals its larger contribution panel, Settings support controls, and GitHub links. The Buy Me a Coffee link defaults to the project's support page and can be overridden with a valid HTTP(S) `VITE_BUY_ME_A_COFFEE_URL`; a valid `VITE_VENMO_URL` is also displayed when configured. Ordinary learner visits show only the footer tip link; blank or invalid optional URLs keep the corresponding additional monetary controls hidden in debug mode.
 

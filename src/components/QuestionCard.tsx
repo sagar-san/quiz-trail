@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { QuestionNavigation, type QuestionNavigationProps } from './QuestionNavigation';
 import type { ChoiceKey, QuizQuestion } from '../domain/types';
 
 interface QuestionCardProps {
@@ -11,6 +12,7 @@ interface QuestionCardProps {
   onSubmit: (correct: boolean) => Promise<void>;
   onToggleSaved: () => void;
   discussion?: ReactNode;
+  navigation?: QuestionNavigationProps;
 }
 
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
@@ -98,6 +100,7 @@ export function QuestionCard({
   onSubmit,
   onToggleSaved,
   discussion,
+  navigation,
 }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -128,9 +131,12 @@ export function QuestionCard({
 
   return (
     <article className="question-card" aria-labelledby={`question-${question.questionId}`}>
-      <div className="question-meta">
-        <span>{progressLabel}</span>
-        <span>{question.questionId}</span>
+      <div className="question-header">
+        <div className="question-meta">
+          <span>{progressLabel}</span>
+          <span>{question.questionId}</span>
+        </div>
+        {navigation && <QuestionNavigation {...navigation} compact />}
       </div>
       <div className="question-heading-row">
         <div>
@@ -229,6 +235,7 @@ export function QuestionCard({
           </details>
         </div>
       )}
+      {navigation && <QuestionNavigation {...navigation} />}
       {submitted && discussion}
     </article>
   );

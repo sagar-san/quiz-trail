@@ -6,7 +6,6 @@ import { AccountSettings } from '../components/AccountSettings';
 import { AnalyticsSummary } from '../components/AnalyticsSummary';
 import { ProgressSummary } from '../components/ProgressSummary';
 import { QuestionCard } from '../components/QuestionCard';
-import { QuestionNavigation } from '../components/QuestionNavigation';
 import { QuizFilters } from '../components/QuizFilters';
 import { TipJar } from '../components/TipJar';
 import { loadQuestionBank, type LoadedQuestionBank } from '../data/csv/loadQuestionBank';
@@ -378,15 +377,15 @@ export function App({
                   .then(() => setStorageError(null))
                   .catch((error) => setStorageError(error instanceof Error ? error.message : 'Your bookmark could not be saved.'));
               }}
+              navigation={{
+                hasPrevious: currentIndex > 0,
+                hasNext: currentIndex >= 0 && currentIndex < displayQuestions.length - 1,
+                onPrevious: () => dispatch({ type: 'questionChanged', questionId: displayQuestions[currentIndex - 1].questionId }),
+                onNext: () => dispatch({ type: 'questionChanged', questionId: displayQuestions[currentIndex + 1].questionId }),
+              }}
               discussion={<QuestionDiscussion store={commentStore} user={user}
                 scope={{ certificationId: certification.id, questionId: current.questionId }}
                 cloud={auth.mode === 'firebase'} busy={authBusy} onSignIn={() => void signIn()} trackWrite={trackWrite} />}
-            />
-            <QuestionNavigation
-              hasPrevious={currentIndex > 0}
-              hasNext={currentIndex >= 0 && currentIndex < displayQuestions.length - 1}
-              onPrevious={() => dispatch({ type: 'questionChanged', questionId: displayQuestions[currentIndex - 1].questionId })}
-              onNext={() => dispatch({ type: 'questionChanged', questionId: displayQuestions[currentIndex + 1].questionId })}
             />
           </>
         ) : (

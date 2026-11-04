@@ -36,7 +36,9 @@ export async function hashQuestionBank(bytes: Uint8Array): Promise<string> {
 
 export const defaultQuestionBankUrl = `https://storage.googleapis.com/quiz-trail-question-banks/questions.bin?key=${__QUESTION_BANK_KEY_VERSION__}`;
 
-export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<LoadedQuestionBank> {
+const localQuestionBankUrl = '/__dev/question-bank.csv';
+
+export async function loadQuestionBank(url = import.meta.env.DEV ? localQuestionBankUrl : defaultQuestionBankUrl): Promise<LoadedQuestionBank> {
   let response: Response;
   try {
     response = await fetch(url);
@@ -45,6 +47,10 @@ export async function loadQuestionBank(url = defaultQuestionBankUrl): Promise<Lo
   }
   if (!response.ok) throw new QuestionBankError(`The question bank could not be loaded (HTTP ${response.status}).`);
   const downloadedBytes = new Uint8Array(await response.arrayBuffer());
+  if (import.meta.env.DEV && url === localQuestionBankUrl) {
+    const csv = new TextDecoder('utf-8', { fatal: true }).decode(downloadedBytes);
+    return { questions: shuffleQuestions(parseQuestionBank(csv)), version: await hashQuestionBank(downloadedBytes) };
+  }
   return decodeQuestionBank(downloadedBytes);
 }
 

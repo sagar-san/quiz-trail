@@ -87,7 +87,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .feedback-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; margin-top: 14px; }.feedback-actions a { display: inline-block; }.ai-prompt-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin: -10px 0; padding: 0; border: 0; background: transparent; color: var(--action); font: 500 14px/1.4 var(--font-mono); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }.feedback .ai-review-error { margin-top: 8px; color: var(--error); font-size: 12px; }
 .feedback-correct { background: var(--success-background); border-color: var(--success); }.feedback-incorrect { background: var(--error-background); border-color: var(--error); }
 .content-details { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }.content-details summary { display: inline-flex; align-items: center; gap: 7px; color: var(--action); cursor: pointer; list-style: none; font-size: 13px; font-weight: 500; }.content-details summary::-webkit-details-marker { display: none; }.content-details summary span { transition: transform .15s ease; }.content-details[open] summary span { transform: rotate(180deg); }.content-details dl { margin: 12px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }.content-details dl div { min-width: 0; }.content-details dt { color: var(--muted); font-size: 12px; font-weight: 500; }.content-details dd { margin: 2px 0 0; font-size: 13px; line-height: 1.45; }
-.question-navigation { display: flex; justify-content: space-between; margin: 16px 0 32px; }
+.question-navigation { display: flex; justify-content: space-between; gap: 12px; margin: 24px 0 0; }
+.question-header { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+.question-header .question-meta { flex: 1; }
+.question-navigation-compact { flex: none; gap: 8px; margin: 0 0 0 auto; }
+.question-navigation-compact button { width: 46px; padding: 0; font-size: 20px; }
+.question-navigation button:hover:not(:disabled) { border-color: var(--action); background: var(--selected); }
 .danger-button { color: var(--error); }.error-message { color: var(--error); margin: 8px 0 0; font-size: 13px; }
 .tip-jar { margin-top: 28px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }.tip-jar p { margin: 3px 0; color: var(--muted); }.tip-jar a { color: var(--action); margin-left: 16px; font-weight: 500; }
 .notice { margin-bottom: 20px; padding: 14px 16px; background: var(--page); border: 1px solid var(--line); border-radius: var(--radius-control); }
