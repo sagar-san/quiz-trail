@@ -1,6 +1,15 @@
 # Current status
 
-Last reviewed: 2026-11-03
+Last reviewed: 2026-11-04
+
+## Navigation release — deployed 2026-11-04
+
+- Deployed Hosting commit `672f288` with explicit owner approval. Previous/Next now sit below the answer and before Discussion; accessible arrow shortcuts also appear beside question metadata.
+- Local HTTP LAN previews fetch the public PMLE bank through development-server decryption. The endpoint is absent from the production build; private PAA loading remains unchanged.
+- Verification: typecheck, lint (excluding pre-existing ignored `.tmp` scripts), all 94 unit/component tests, all 32 desktop/mobile browser checks, and Firebase-mode production build passed. Verified project `quiz-trail` / `724933345983` through existing Google default credentials.
+- Hosting deployment succeeded. Live home, practice, FAQ, both sample pages, and the new practice JavaScript asset returned HTTP 200. Practice HTML references the expected new JS/CSS assets; public bank production-origin CORS and one-hour cache remain correct. Signed-in production interactions were not repeated for this layout-only release.
+- No rules, indexes, question-bank publication, or production data changes were made.
+
 
 ## Production release — deployed 2026-11-03
 
