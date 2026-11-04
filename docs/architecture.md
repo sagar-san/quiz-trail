@@ -2,7 +2,7 @@
 
 ## System overview
 
-Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample page are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads and decrypts the complete question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
+Quiz Trail is a Vite multi-page site. The landing page, FAQ, and ten-question sample pages are static HTML for fast, JavaScript-independent discovery. The full practice experience at `/practice/` is a client-rendered React and TypeScript application. The browser loads and decrypts the complete question bank, keeps quiz behavior in a reducer-driven domain model, and accesses identity and persistence through narrow adapters.
 
 ```text
 private authored bank
@@ -31,8 +31,8 @@ Firebase Hosting serves the production build. Firebase Authentication supplies G
 | Mode | Identity | Progress store | Intended use |
 |---|---|---|---|
 | `local` | Automatic `local-browser` identity | Browser `localStorage` | Default local development |
-| `firebase-emulator` | Guest or Firebase Auth emulator user | None for guests; Firestore emulator when signed in | Firebase integration development and tests |
-| `firebase` | Guest or Google user | None for guests; production Firestore when signed in | Production build |
+| `firebase-emulator` | Firebase Auth emulator user | Firestore emulator when signed in | Firebase integration development and tests |
+| `firebase` | Google user | Production Firestore when signed in | Production build |
 
 Firebase modules are dynamically imported only for Firebase modes. Default local development therefore requires no Firebase configuration and does not initialize a cloud connection.
 
@@ -50,12 +50,12 @@ The primary boundaries are:
 
 ## Startup and load flow
 
-1. The application resolves the current identity through `AuthService`; a null Firebase identity represents a guest session.
-2. It loads `questions.bin` from the public Cloud Storage bucket as bytes regardless of sign-in state.
-3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version from the plaintext bytes, and shuffles the questions once.
-4. The reducer receives the complete bank for signed-in and local learners, or the first ten questions from the shuffled bank for guests. Signed-in and local learners receive their stored filter preference; guests start in Unanswered without reading or writing preferences.
-5. When a user identity exists, the selected `ProgressStore` loads saved progress.
-6. Saved question IDs are reconciled against the current bank before entering reducer state. Guests skip persistence entirely.
+1. The application resolves the current identity through `AuthService`. A null cloud identity shows a sign-in gate for practice and summary, with a link to public samples.
+2. Only after identity and certification authorization succeed does it load the bank: PMLE from public Cloud Storage, PAA from protected Firestore.
+3. The browser decrypts the asset in memory, decodes UTF-8, validates every row, derives a bank version, and shuffles the questions once.
+4. The reducer receives the complete authorized bank and stored filter preference.
+5. `ProgressStore` loads saved progress for the authenticated (or local-development synthetic) user.
+6. Saved question IDs are reconciled against the current bank before entering reducer state. Signing out cancels the active load and returns to the gate; it does not load an anonymous bank.
 
 The entire bank is rejected when loading or validation fails; the application does not silently run with a partial dataset.
 
@@ -155,7 +155,7 @@ It owns the encryption key and format used to build the asset. The frontend
 retains the matching decryptor and runtime parser. Duplicate matches are
 reported for editorial review and are never automatically removed.
 
-The static `/sample-questions/` page deliberately contains a manually copied SEO snapshot of ten selected questions. It is not loaded by the practice application and does not participate in progress identity or grading. Its `data-question-id` attributes identify the corresponding canonical questions for maintenance.
+The static `/sample-questions/` and `/agentic-ai/sample-questions/` pages each contain a manually copied public snapshot of ten selected questions. Neither is loaded by the practice application or participates in progress identity or grading. Their `data-question-id` attributes identify the corresponding canonical questions for maintenance.
 
 Permanent question IDs decouple saved progress from source order and page-load shuffling. When a bank changes, reconciliation:
 
@@ -169,7 +169,7 @@ The full source contract and safe-edit rules live in [`question-bank.md`](questi
 
 ## Authentication and account deletion
 
-Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes allow a null identity to continue with a ten-question guest session, persist authenticated Firebase sessions locally, and use Google popup authentication. The homepage’s `src/catalog.ts` enhances the static catalog with the existing AuthService: Google sign-in stays on the catalog, restored sessions update its controls, and no question bank or progress is loaded. Local mode uses LocalAuthService without initializing Firebase. Certification-specific sign-in links retain the one-time query parameter that the practice application removes before opening the popup, so refreshes do not repeat the request. Moving from guest to authenticated state resets the temporary quiz state, loads the complete bank, and then loads that account's saved progress; guest activity is not migrated.
+Local mode supplies an immediate synthetic user and no-op account operations. Firebase modes show a sign-in gate for null identity, persist authenticated Firebase sessions locally, and use Google popup authentication. The homepage’s `src/catalog.ts` enhances the static catalog with the existing AuthService: Google sign-in stays on the catalog, restored sessions update its controls, and no question bank or progress is loaded. Local mode uses LocalAuthService without initializing Firebase. Certification-specific sign-in links retain the one-time query parameter that the practice application removes before opening the popup, so refreshes do not repeat the request. After sign-in, the application loads the complete authorized bank and that account's saved progress.
 
 Cloud account deletion is deliberately ordered:
 
@@ -183,7 +183,7 @@ This avoids leaving comment content, reactions or progress behind after a succes
 
 ## Analytics and metadata visibility
 
-The `view=summary` query selects the summary within the existing certification-scoped practice app. Internal practice/summary navigation updates browser history without reloading the bank or losing guest-session answers; popstate restores the view. The same certification authorization gate protects both views.
+The `view=summary` query selects the summary within the existing certification-scoped practice app. Internal practice/summary navigation updates browser history without reloading the bank or losing in-progress selections; popstate restores the view. The same certification authorization gate protects both views.
 
 Analytics are derived entirely in the browser by joining CSV subject metadata to the latest outcomes and saved IDs. No analytics aggregate is persisted.
 
@@ -191,13 +191,14 @@ Exam sections, objectives, topics, and difficulty support learner-facing summari
 
 ## Hosting and caching
 
-Vite emits six HTML entry points to `dist/`:
+Vite emits seven HTML entry points to `dist/`:
 
 - `/` — static landing page;
 - `/faq/` — static general FAQ with FAQ structured data;
 - `/pmle/faq/` — static PMLE FAQ with FAQ structured data;
 - `/agentic-ai/faq/` — static public PAA FAQ with FAQ structured data;
-- `/sample-questions/` — static sample-question snapshot;
+- `/sample-questions/` — static PMLE sample snapshot;
+- `/agentic-ai/sample-questions/` — static PAA sample snapshot;
 - `/practice/` — React/Firebase practice application.
 
 Firebase Hosting serves those files directly. There is no catch-all rewrite, so unknown paths return a normal 404 instead of the landing page.
@@ -214,7 +215,7 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 | Area | Location |
 |---|---|
-| Static public pages | `index.html`, `faq/`, `pmle/faq/`, `agentic-ai/faq/`, `sample-questions/` |
+| Static public pages | `index.html`, `faq/`, `pmle/faq/`, `agentic-ai/faq/`, `sample-questions/`, `agentic-ai/sample-questions/` |
 | Application composition and flows | `practice/index.html`, `src/app/` |
 | Authentication adapters | `src/auth/` |
 | React UI components | `src/components/` |
@@ -248,6 +249,6 @@ See [`release-runbook.md`](release-runbook.md) before starting Firebase services
 
 PMLE retains `userProgress/{uid}`, `quizTrail.progress.v1`, and `quizTrail.filter.v1` without migration. Agentic AI uses `userProgress/{uid}/certifications/agentic-ai` and browser keys suffixed `.agentic-ai`. The existing progress schema and targeted transactional updates are unchanged. Reset affects only the selected certification. Account deletion removes all child progress documents before the legacy parent and Auth identity; feedback retention is unchanged.
 
-PMLE keeps its public encrypted asset. Agentic AI must never be published into that bucket or bundled with frontend assets. Its encrypted base64 payload is read from `privateQuestionBanks/agentic-ai`, using a server read without persistent offline caching. Rules require the verified Google identity `ssanghani@gmail.com`; guests, other users, unverified identities, non-Google providers, collection listing, and client writes are denied. The client check only controls presentation; rules enforce access. The private publisher refuses assets over 900,000 encoded bytes; larger banks will require a separate delivery design. Existing encryption remains a format compatibility measure, not the authorization boundary.
+PMLE keeps its public encrypted asset. The full Agentic AI bank must never be published into that bucket or bundled with frontend assets. The ten explicitly approved static PAA samples are the only public exception (see `question-bank.md`). Its encrypted base64 payload is read from `privateQuestionBanks/agentic-ai`, using a server read without persistent offline caching. Rules require the verified Google identity `ssanghani@gmail.com`; guests, other users, unverified identities, non-Google providers, collection listing, and client writes are denied. The client check only controls presentation; rules enforce access. The private publisher refuses assets over 900,000 encoded bytes; larger banks will require a separate delivery design. Existing encryption remains a format compatibility measure, not the authorization boundary.
 
 Feedback keeps globally unique PMLE/PAA IDs and its current path; PAA feedback requires preview authorization. New certification IDs require explicit registry, loader, and rule entries rather than automatically exposing arbitrary paths.

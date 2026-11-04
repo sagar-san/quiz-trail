@@ -23,7 +23,7 @@ test.beforeEach(async () => {
 
 async function signInWithNewEmulatorAccount(
   page: Page,
-  trigger: () => Promise<void> = () => page.getByRole('button', { name: 'Sign in to save progress' }).click(),
+  trigger: () => Promise<void> = () => page.getByRole('button', { name: 'Continue with Google' }).click(),
   email = 'trail-tester@example.com',
 ) {
   const popupPromise = page.waitForEvent('popup');
@@ -36,6 +36,7 @@ async function signInWithNewEmulatorAccount(
   await popup.locator('#display-name-input').fill('Trail Tester');
   await popup.locator('#sign-in').click();
   await popup.waitForEvent('close');
+  await page.bringToFront();
 }
 
 test('PMLE-specific sign-in still opens PMLE practice', async ({ page }) => {
@@ -68,36 +69,29 @@ test('homepage sign-in stays on the catalog and shares the session with practice
   await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Practice PMLE', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Open account menu for Trail Tester' })).toBeVisible();
-  await expect(page.getByText('Practicing as a guest')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toHaveCount(0);
   await page.getByRole('link', { name: 'Home', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
   await page.getByRole('link', { name: 'Practice PMLE', exact: true }).click();
-  await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toBeVisible();
 });
 
 async function signInWithExistingEmulatorAccount(page: Page) {
   const popupPromise = page.waitForEvent('popup');
-  await page.getByRole('button', { name: 'Sign in to save progress' }).click();
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
   const popup = await popupPromise;
   await popup.getByText('trail-tester@example.com', { exact: true }).click();
   await popup.waitForEvent('close');
+  await page.bringToFront();
 }
 
 test('signs in, saves to Firestore, signs out, and restores after signing back in', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/practice/');
-  await expect(page.getByText('Practicing as a guest')).toBeVisible();
-  await expect(page.getByText('10 questions', { exact: true })).toBeVisible();
-  expect(await page.locator('.guest-banner').evaluate((banner) => banner.nextElementSibling?.classList.contains('filter-wrap'))).toBe(true);
-  await expect(page.getByRole('button', { name: 'Sign in to save progress' })).toBeVisible();
-  await page.locator('.question-card input').first().check();
-  await page.getByRole('button', { name: 'Submit answer' }).click();
-  await expect(page.locator('.feedback')).toBeVisible();
-  await expect(page.getByText('✓ Saved!')).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByText('Practicing as a guest')).toBeVisible();
-  await expect(page.locator('.stat-grid')).toContainText('Attempted0');
+  await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toBeVisible();
+  await expect(page.locator('.question-card')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View sample questions' })).toHaveAttribute('href', '/sample-questions/');
   await signInWithNewEmulatorAccount(page);
   await expect(page.getByText('Trail Tester')).toBeVisible();
   await expect(page.getByText(/\d+ questions/)).toBeVisible();
@@ -141,7 +135,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByRole('heading', { name: 'Account & data' })).toBeVisible();
   await expect(page.getByText('trail-tester@example.com')).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toBeVisible();
   await signInWithExistingEmulatorAccount(page);
 
   await expect(page.getByText('Trail Tester')).toBeVisible();
@@ -156,7 +150,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   const popup = await reauthenticationPopup;
   await popup.getByText('trail-tester@example.com', { exact: true }).click();
   await popup.waitForEvent('close');
-  await expect(page.getByText('Practicing as a guest')).toBeVisible();
+  await page.bringToFront();
+  await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toBeVisible();
 });
 
 async function seedPrivatePreview() {

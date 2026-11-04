@@ -18,7 +18,7 @@ async function startCatalogAuth() {
     const button = document.querySelector<HTMLButtonElement>('[data-catalog-auth]')!;
     const status = document.querySelector<HTMLElement>('[data-catalog-auth-status]')!;
     button.textContent = 'Sign-in unavailable';
-    status.textContent = 'Sign-in could not load. Refresh to try again, or choose PMLE to practice as a guest.';
+    status.textContent = 'Sign-in could not load. Refresh to try again. You can still browse the public sample questions.';
     status.hidden = false;
   }
 }

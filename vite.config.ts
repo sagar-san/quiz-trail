@@ -21,6 +21,7 @@ export default defineConfig({
         faq: fileURLToPath(new URL('./faq/index.html', import.meta.url)),
         pmleFaq: fileURLToPath(new URL('./pmle/faq/index.html', import.meta.url)),
         paaFaq: fileURLToPath(new URL('./agentic-ai/faq/index.html', import.meta.url)),
+        paaSamples: fileURLToPath(new URL('./agentic-ai/sample-questions/index.html', import.meta.url)),
         samples: fileURLToPath(new URL('./sample-questions/index.html', import.meta.url)),
         practice: fileURLToPath(new URL('./practice/index.html', import.meta.url)),
       },
@@ -29,7 +30,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    exclude: ['e2e/**', 'tests/firebase.auth.test.ts', 'tests/firestore.*.test.ts', 'node_modules/**', 'dist/**'],
+    exclude: ['.tmp/**', 'e2e/**', 'tests/firebase.auth.test.ts', 'tests/firestore.*.test.ts', 'node_modules/**', 'dist/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

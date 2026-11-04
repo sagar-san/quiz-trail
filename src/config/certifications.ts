@@ -1,8 +1,8 @@
 import type { AuthUser } from '../auth/AuthService';
 
 export const certifications = {
-  pmle: { id: 'pmle', title: 'Professional Machine Learning Engineer', label: 'PMLE', prefix: 'PMLE-', preview: false, faqPath: '/pmle/faq/' },
-  'agentic-ai': { id: 'agentic-ai', title: 'Professional Agentic Architect', label: 'PAA', prefix: 'PAA-', preview: true, faqPath: '/agentic-ai/faq/' },
+  pmle: { id: 'pmle', title: 'Professional Machine Learning Engineer', label: 'PMLE', prefix: 'PMLE-', preview: false, faqPath: '/pmle/faq/', samplePath: '/sample-questions/' },
+  'agentic-ai': { id: 'agentic-ai', title: 'Professional Agentic Architect', label: 'PAA', prefix: 'PAA-', preview: true, faqPath: '/agentic-ai/faq/', samplePath: '/agentic-ai/sample-questions/' },
 } as const;
 export type CertificationId = keyof typeof certifications;
 export type Certification = typeof certifications[CertificationId];

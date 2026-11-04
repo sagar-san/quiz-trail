@@ -80,7 +80,8 @@ Do not update every document after every task. Do not change a date without a su
 ## Important invariants
 
 - The external private per-question JSON bank is the application's only authored
-  question source; never commit plaintext bank content to this public repository.
+  question source; never commit plaintext bank content to this public repository
+  except the explicitly approved static sample subsets in `docs/question-bank.md`.
 - Question IDs are permanent progress keys. Use a new ID when a change materially alters what a question tests or changes its correct answer.
 - Progress saves only when Save Progress is selected; the active filter is a separate immediately stored preference.
 - Do not change persistence or authentication contracts without reading `docs/architecture.md` and reviewing the relevant decision in `docs/decisions.md`.

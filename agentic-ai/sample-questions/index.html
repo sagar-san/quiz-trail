@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Try 10 free Google Cloud Professional Agentic Architect sample questions with answers, explanations, and official references." />
+    <link rel="canonical" href="https://quiz-trail.web.app/agentic-ai/sample-questions/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles/public.css" />
+    <meta name="theme-color" content="#F7F8FA" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://quiz-trail.web.app/agentic-ai/sample-questions/" />
+    <meta property="og:site_name" content="Quiz Trail" />
+    <meta property="og:title" content="10 Google Cloud PAA Sample Questions | Quiz Trail" />
+    <meta property="og:description" content="Try 10 free Google Cloud Professional Agentic Architect sample questions with answers, explanations, and official references." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="10 Google Cloud PAA Sample Questions | Quiz Trail" />
+    <meta name="twitter:description" content="Try 10 free Google Cloud Professional Agentic Architect sample questions with answers, explanations, and official references." />
+    <title>10 Google Cloud PAA Sample Questions | Quiz Trail</title>
+    <script type="module" src="/src/publicDebug.ts"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Quiz Trail home"><span class="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+      <nav class="public-nav" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/sample-questions/">PMLE samples</a>
+      </nav>
+    </header>
+
+    <main class="samples-shell">
+      <a class="breadcrumb" href="/">← Back to home</a>
+      <header class="samples-heading">
+        <p class="eyebrow">Free PAA practice</p>
+        <h1>10 Google Cloud PAA sample questions</h1>
+        <p>Explore agent design, retrieval, tool use, evaluation, and deployment. These independent practice examples are public; full interactive PAA practice is coming soon. Open each answer when you are ready to check your reasoning.</p>
+      </header>
+
+      <div class="sample-list">
+        <article class="sample-card" data-question-id="PAA-0006">
+          <div class="sample-meta"><span>Question 1 of 10</span><span>Medium · Building agents using low-code tools</span></div>
+          <h2>A retail agent correctly routes large refunds to a supervisor page, but a direct request to its refund API can still issue them. Where should the mandatory approval check also be enforced?</h2>
+          <ol class="sample-options" type="A">
+            <li>In a document ACL that hides the refund policy from customers.</li>
+            <li>In the refund service, using transaction-bound authenticated approval.</li>
+            <li>In a model-based response evaluator after each conversation completes.</li>
+            <li>In an additional low-code route that repeats the supervisor prompt.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>Correct answer: B. Conversation routing is not the security boundary for a callable API. The service must reject an unapproved action. Another route cannot protect direct calls; hiding policy is unrelated; retrospective evaluation detects rather than prevents unauthorized refunds.</p>
+              <a href="https://adk.dev/safety/" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0012">
+          <div class="sample-meta"><span>Question 2 of 10</span><span>Medium · Building agents using low-code tools</span></div>
+          <h2>A migration retains document text but drops source URIs and page references. Answers remain broadly accurate, but compliance reviewers cannot locate the supporting passage. Which remediation is most appropriate?</h2>
+          <ol class="sample-options" type="A">
+            <li>Increase the retrieved context until the entire document fits.</li>
+            <li>Carry source identifiers and passage locations through the ingestion pipeline.</li>
+            <li>Ask the generator to infer likely page numbers from section headings.</li>
+            <li>Replace source citations with an overall confidence score.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>Correct answer: B. Citations require traceable evidence identifiers. Inferred page numbers can be fabricated, full-document context does not restore lost identifiers, and confidence is not provenance. Re-ingest affected records where necessary.</p>
+              <a href="https://docs.cloud.google.com/gemini/enterprise/docs/parse-chunk-documents" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0039">
+          <div class="sample-meta"><span>Question 3 of 10</span><span>Hard · Developing custom agents</span></div>
+          <h2>A support agent handles routine classification and occasional difficult investigations. A smaller model meets classification targets but fails investigation tests; a stronger model meets both at higher measured cost. Which design should be evaluated first?</h2>
+          <ol class="sample-options" type="A">
+            <li>Use the stronger model for every request without measuring the additional cost.</li>
+            <li>Select models randomly so usage is distributed evenly.</li>
+            <li>Route classification to the smaller model and investigations to the stronger one.</li>
+            <li>Use the smaller model for every request and increase retries on failed investigations.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: C</strong></p>
+              <p>Correct answer: C. Task-based routing uses the observed quality boundary. Repeated weak attempts may compound failure and cost; always using the stronger model can work but ignores the demonstrated cheaper path; random routing is unrelated to task requirements. Evaluate routing errors and end-to-end quality.</p>
+              <a href="https://developers.googleblog.com/en/cost-per-task-using-cheap-classifiers-to-route-across-gemini-models-and-thinking-levels/" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0045">
+          <div class="sample-meta"><span>Question 4 of 10</span><span>Medium · Developing custom agents</span></div>
+          <h2>An ADK agent repeatedly confuses two Python tools with similar names. Their descriptions omit when to use each and their arguments lack useful types. What should the developer improve first?</h2>
+          <ol class="sample-options" type="A">
+            <li>The number of runtime replicas serving the agent.</li>
+            <li>Clarify tool contracts and test selection on representative requests.</li>
+            <li>The retention period for old conversation transcripts.</li>
+            <li>The user-facing response length limit.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>Correct answer: B. The model needs a discriminating tool contract. Clear purpose and argument schemas directly address selection ambiguity. Scaling, response limits, and transcript retention do not clarify what the tools do.</p>
+              <a href="https://adk.dev/tools-custom/function-tools/" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0054">
+          <div class="sample-meta"><span>Question 5 of 10</span><span>Hard · Developing custom agents</span></div>
+          <h2>A team uses an embedding model that supports RETRIEVAL_QUERY and RETRIEVAL_DOCUMENT. It is indexing policy passages for user search. Which configuration matches this asymmetric retrieval use case?</h2>
+          <ol class="sample-options" type="A">
+            <li>Embed corpus passages as RETRIEVAL_DOCUMENT and search inputs as RETRIEVAL_QUERY.</li>
+            <li>Embed the corpus as RETRIEVAL_QUERY and search inputs as RETRIEVAL_DOCUMENT.</li>
+            <li>Embed both passages and search inputs as CLASSIFICATION.</li>
+            <li>Embed both sides as SEMANTIC_SIMILARITY because their wording must be identical.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>Correct answer: A. Document and query task types optimize the two roles in retrieval. Classification serves another objective; reversing roles is inappropriate; semantic-similarity mode is not the recommended retrieval setting. Task-type interfaces vary by embedding model, as the stem specifies.</p>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/task-types" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0057">
+          <div class="sample-meta"><span>Question 6 of 10</span><span>Hard · Developing custom agents</span></div>
+          <h2>The correct troubleshooting passage consistently appears among the first-stage top 50 candidates but below the five passages sent to the model. Which change most directly targets this bottleneck?</h2>
+          <ol class="sample-options" type="A">
+            <li>Rerank the existing candidate set and measure final-context relevance.</li>
+            <li>Increase output-token capacity while continuing to supply only the existing top five passages.</li>
+            <li>Change the corpus parser despite verified correct extraction of the relevant passage.</li>
+            <li>Lower generation temperature while preserving the current candidate ordering and context.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>Correct answer: A. The relevant evidence is already among candidates but excluded from final context. Reranking targets selection precision. Output limits and sampling do not expose omitted evidence; reparsing does not address the demonstrated ranking defect.</p>
+              <a href="https://docs.cloud.google.com/generative-ai-app-builder/docs/ranking" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0069">
+          <div class="sample-meta"><span>Question 7 of 10</span><span>Medium · Developing custom agents</span></div>
+          <h2>A compliance workflow first extracts entities, then checks those entities against policy, then summarizes violations. Each stage consumes the preceding stage&#x27;s output. Which orchestration best represents this dependency?</h2>
+          <ol class="sample-options" type="A">
+            <li>A sequential workflow with validated outputs passed between stages.</li>
+            <li>Parallel execution of all stages against the original input only.</li>
+            <li>Random ordering of stages followed by selecting the longest response.</li>
+            <li>An unconstrained discussion among agents with no completion conditions.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>Correct answer: A. The data dependencies require order. Parallel execution against unchanged inputs misses intermediate results; open-ended discussion lacks the specified control flow; output length is not evidence that checks were performed.</p>
+              <a href="https://adk.dev/agents/workflow-agents/" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0072">
+          <div class="sample-meta"><span>Question 8 of 10</span><span>Medium · Developing custom agents</span></div>
+          <h2>A procurement agent delegates negotiation to a separately deployed supplier agent that manages its own reasoning and task lifecycle. It also calls a currency-conversion function. Which protocol pairing best fits?</h2>
+          <ol class="sample-options" type="A">
+            <li>A shared vector index as the execution protocol for both operations.</li>
+            <li>A2A for the function and raw prompt sharing as the only agent interface.</li>
+            <li>MCP for every interaction because remote agents cannot manage tasks.</li>
+            <li>A2A for supplier-agent collaboration and MCP for standardized function access.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: D</strong></p>
+              <p>Correct answer: D. A2A is designed for agent collaboration, while MCP exposes tools and resources. The alternatives confuse service roles or substitute storage for execution. Authentication, authorization, and task contracts remain necessary with either protocol.</p>
+              <a href="https://adk.dev/a2a/" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0087">
+          <div class="sample-meta"><span>Question 9 of 10</span><span>Medium · Evaluating and deploying agentic workflows</span></div>
+          <h2>A team repeatedly edits a prompt against the same 40 cases until all pass, then reports that score as unseen performance. What should change?</h2>
+          <ol class="sample-options" type="A">
+            <li>Ask a second model to paraphrase the same answers and call them unseen.</li>
+            <li>Evaluate the frozen candidate on independently held-out cases.</li>
+            <li>Rename the 40 cases before the final scoring run.</li>
+            <li>Increase the number of runs on the development cases without new coverage.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: B</strong></p>
+              <p>Correct answer: B. Repeated optimization can overfit the test set. Held-out cases provide more independent evidence. Renaming or shallow paraphrases do not reliably remove leakage, and repeated runs measure variation on known cases rather than generalization.</p>
+              <a href="https://ai.google.dev/responsible/docs/evaluation" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+
+        <article class="sample-card" data-question-id="PAA-0102">
+          <div class="sample-meta"><span>Question 10 of 10</span><span>Medium · Evaluating and deploying agentic workflows</span></div>
+          <h2>A new Cloud Run agent revision passes offline evaluation. The team wants limited production exposure with a rapid return to the prior revision if task success falls. Which rollout best fits?</h2>
+          <ol class="sample-options" type="A">
+            <li>Shift traffic gradually with measured gates and a retained rollback revision.</li>
+            <li>Run only unit tests and assume production task success is unchanged.</li>
+            <li>Send all traffic immediately and delete the previous revision.</li>
+            <li>Change model, prompt, tools, and data simultaneously without version tracking.</li>
+          </ol>
+          <details class="sample-answer">
+            <summary>Show answer and explanation</summary>
+            <div>
+              <p><strong>Answer: A</strong></p>
+              <p>Correct answer: A. Gradual traffic allocation and a retained known-good revision support controlled rollout and rollback. Offline evidence does not cover every production condition; removing rollback or changing many untracked components increases recovery and diagnosis difficulty.</p>
+              <a href="https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration" target="_blank" rel="noopener noreferrer">Read the official reference <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </article>
+      </div>
+
+      <section class="faq-cta" aria-labelledby="samples-cta-heading">
+        <h2 id="samples-cta-heading">Explore agentic AI</h2>
+        <p>Full interactive PAA practice is in private preview. Browse the PAA FAQ or try the public PMLE samples while we prepare it.</p>
+        <a class="primary-button" href="/agentic-ai/faq/">Read the PAA FAQ</a>
+      </section>
+    </main>
+
+    <footer>
+      <span>Quiz Trail</span>
+      <div>
+        <a href="/faq/">FAQ</a>
+        <a href="/">Home</a>
+        <a href="/sample-questions/">PMLE sample questions</a>
+        <a href="/agentic-ai/faq/">PAA FAQ</a>
+        <a data-debug-only hidden href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="https://buymeacoffee.com/okeanos" target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -29,7 +29,6 @@ export interface AppProps {
   dataMode?: DataMode;
 }
 
-const GUEST_QUESTION_LIMIT = 10;
 type PracticeView = 'practice' | 'summary';
 const viewFromUrl = (): PracticeView => new URLSearchParams(window.location.search).get('view') === 'summary' ? 'summary' : 'practice';
 const isPlainClick = (event: ReactMouseEvent) => event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
@@ -60,7 +59,6 @@ export function App({
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
   const allowed = canAccessCertification(certification, user);
-  const isGuest = auth.mode === 'firebase' && authResolved && !user;
   const pendingWrites = useRef(new Set<Promise<void>>());
   function trackWrite(write: Promise<void>): Promise<void> {
     const tracked = write.finally(() => pendingWrites.current.delete(tracked));
@@ -130,10 +128,10 @@ export function App({
   }, [accountMenuOpen]);
 
   useEffect(() => {
-    if (initialProgressScrollDone.current || loading || !state.questions.length || settingsOpen || activeView !== 'practice') return;
+    if (!user || initialProgressScrollDone.current || loading || !state.questions.length || settingsOpen || activeView !== 'practice') return;
     initialProgressScrollDone.current = true;
     const frame = window.requestAnimationFrame(() => {
-      const target = document.getElementById(isGuest ? 'guest-start' : 'progress-start');
+      const target = document.getElementById('progress-start');
       if (!target || typeof window.scrollTo !== 'function') return;
       const headerHeight = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
       const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 42;
@@ -143,7 +141,7 @@ export function App({
       document.documentElement.style.scrollBehavior = priorScrollBehavior;
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [activeView, isGuest, loading, settingsOpen, state.questions.length]);
+  }, [activeView, user, loading, settingsOpen, state.questions.length]);
 
   useEffect(() => auth.subscribe((nextUser) => {
     setUser(nextUser);
@@ -152,9 +150,9 @@ export function App({
   }), [auth]);
 
   useEffect(() => {
-    if (!authResolved || !allowed) return;
-    let active = true;
     const userId = user?.uid;
+    if (!authResolved || !allowed || !userId) return;
+    let active = true;
     async function start() {
       setLoading(true);
       setFatalError(null);
@@ -163,9 +161,8 @@ export function App({
       try {
         const bank = await bankLoader();
         if (!active) return;
-        const sessionQuestions = userId ? bank.questions : bank.questions.slice(0, GUEST_QUESTION_LIMIT);
-        dispatch({ type: 'bankLoaded', questions: sessionQuestions, questionBankVersion: bank.version });
-        dispatch({ type: 'filterChanged', filter: userId ? preferenceStore.loadFilter() : 'unanswered' });
+        dispatch({ type: 'bankLoaded', questions: bank.questions, questionBankVersion: bank.version });
+        dispatch({ type: 'filterChanged', filter: preferenceStore.loadFilter() });
         if (userId) {
           try {
             const saved = await store.load(userId);
@@ -205,7 +202,7 @@ export function App({
         : `Question ${queuePosition} of ${displayQuestions.length}`;
   const debugMetadata = new URLSearchParams(window.location.search).get('debug') === 'true';
   const changeFilter = (filter: typeof state.filter) => {
-    if (!isGuest) preferenceStore.saveFilter(filter);
+    preferenceStore.saveFilter(filter);
     dispatch({ type: 'filterChanged', filter });
   };
   const openReviewQueue = (filter: typeof state.filter) => {
@@ -282,7 +279,20 @@ export function App({
   };
 
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
-  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>{certification.title} is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href={certification.faqPath}>{certification.label} FAQ</a><a href="/">Back to home</a></main>;
+  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>{certification.title} is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href={certification.samplePath}>View sample questions</a><a href={certification.faqPath}>{certification.label} FAQ</a><a href="/">Back to home</a></main>;
+  if (!user) return (
+    <main className="centered-state auth-state sign-in-state">
+      <a href="/" className="brand" aria-label="Quiz Trail home"><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
+      <p className="eyebrow">{certification.title}</p>
+      <h1>{activeView === 'summary' ? 'Sign in to view your summary' : 'Sign in to practice'}</h1>
+      <p>Use your Google account to access the full question bank, save your progress, and join discussions.</p>
+      {authError && <p className="error-message" role="alert">{authError}</p>}
+      <button type="button" className="primary-button" disabled={authBusy} onClick={() => void signIn()}>
+        {authBusy ? 'Opening Google…' : 'Continue with Google'}
+      </button>
+      <a className="sign-in-samples" href={certification.samplePath}>View sample questions</a>
+    </main>
+  );
   if (fatalError) return <main className="centered-state error-state"><p className="eyebrow">Question bank error</p><h1>Quiz Trail can’t start</h1><p>{fatalError}</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></main>;
   if (loading || !state.questions.length) return <main className="centered-state"><div className="loader" /><h1>Loading the question bank…</h1><p>Preparing Quiz Trail.</p></main>;
 
@@ -345,18 +355,6 @@ export function App({
         {(storageError || (debugMetadata && state.reconciliationNotice)) && (
           <div className="notice" role="status">{storageError ?? state.reconciliationNotice}</div>
         )}
-        {isGuest && (
-          <aside className="guest-banner" id="guest-start" aria-labelledby="guest-title">
-            <div>
-              <strong id="guest-title">Practicing as a guest</strong>
-              <span>Try 10 questions as a guest. Sign in to save your progress and access all 400+ questions.</span>
-              {authError && <span className="error-message" role="alert">{authError}</span>}
-            </div>
-            <button className="primary-button" type="button" disabled={authBusy} onClick={() => void signIn()}>
-              {authBusy ? 'Opening Google…' : 'Sign in to save progress'}
-            </button>
-          </aside>
-        )}
         <QuizFilters active={state.filter} onChange={changeFilter} />
         {current ? (
           <>
@@ -368,7 +366,6 @@ export function App({
               saved={state.savedForLater.includes(current.questionId)}
               priorOutcome={state.progress[current.questionId]}
               showInternalMetadata={debugMetadata}
-              sessionOnly={isGuest}
               onSubmit={async (correct) => {
                 dispatch({ type: 'answerSubmitted', questionId: current.questionId, correct });
                 if (user) await trackWrite(store.saveAnswer(current.questionId, correct, state.questionBankVersion, user.uid));
@@ -409,10 +406,10 @@ export function App({
             <a href="/faq/" onClick={leavePage}>FAQ</a>
             <a href={certification.faqPath} onClick={leavePage}>{certification.label} FAQ</a>
             <a href={summaryHref} aria-current={activeView === 'summary' && !settingsOpen ? 'page' : undefined} onClick={(event) => { if (isPlainClick(event)) { event.preventDefault(); showView('summary'); } }}>{certification.label} summary</a>
-            {certification.id === 'pmle' && <a href="/sample-questions/" onClick={leavePage}>PMLE sample questions</a>}
+            <a href={certification.samplePath} onClick={leavePage}>{certification.label} sample questions</a>
           </nav>
-          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : isGuest ? 'Guest session' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
-          <span>{dataMode === 'local' ? 'Progress stays on this device' : isGuest ? 'Progress is not saved' : 'Progress is linked to your signed-in account'}</span>
+          <span className="mode-badge">{dataMode === 'local' ? 'Local mode' : dataMode === 'firebase-emulator' ? 'Emulator mode' : 'Cloud mode'}</span>
+          <span>{dataMode === 'local' ? 'Progress stays on this device' : 'Progress is linked to your signed-in account'}</span>
           {debugMetadata && <a href="https://github.com/Ameenota/quiz-trail" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>}
           {/^https?:\/\//i.test(buyMeACoffeeUrl) && <a href={buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">Buy Me a Coffee <span aria-hidden="true">↗</span></a>}
         </div>

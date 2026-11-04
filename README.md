@@ -6,7 +6,7 @@ Quiz Trail is a focused PMLE practice app for working through a growing question
 
 ## What you can do
 
-- Try ten questions without an account, then sign in with Google for the complete bank and saved progress across devices.
+- Sign in with Google for interactive practice and saved progress across devices. Browse ten public sample questions for each certification without an account.
 - Practice single- and multiple-choice questions with immediate feedback.
 - Review unanswered, incorrect, or saved-for-later questions.
 - Explicitly save progress when you are ready.

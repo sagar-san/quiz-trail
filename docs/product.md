@@ -14,8 +14,8 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten PMLE sample questions, and open PMLE practice at `/practice/`. The homepage's Sign in button authenticates in place and leaves the learner at the certification catalog. The PMLE-specific returning-learner link still opens PMLE, while Practice PMLE opens guest practice when signed out.
-2. In cloud mode, guests can try ten questions in memory, while a concise banner offers Google sign-in for the complete question bank and saved progress. Signed-in learners receive the complete bank.
+1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten static sample questions for each certification, and open PMLE practice at `/practice/`. The homepage's Sign in button authenticates in place and leaves the learner at the certification catalog. The PMLE-specific returning-learner link still opens PMLE, while Practice PMLE opens a Google sign-in gate when signed out.
+2. In cloud mode, practice and summaries require Google sign-in before loading questions, progress, or filter preferences. Signed-in learners receive the complete authorized bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
 5. The learner can review All, Unanswered, Incorrect, and Saved queues. The progress panel shows overall coverage and the percentage of attempted questions answered correctly.
@@ -23,7 +23,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 7. For signed-in cloud learners and local-mode development, submitting an answer saves that question's latest outcome and toggling Save for later saves that bookmark independently. Guest changes remain only in the current session.
 8. Settings provides data information and progress reset. Cloud users can also sign out or delete their account. A Buy Me a Coffee link is available in public page and practice footers. The larger support panel and Settings support controls remain in maintainer debug mode, along with GitHub issue, repository, and star links.
 9. A static general FAQ at `/faq/` covers accounts, saved progress, data, and feedback. Exam-specific FAQs at `/pmle/faq/` and `/agentic-ai/faq/` cover each bank, study guidance, and availability; all three pages link to one another.
-10. A static public sample page presents a deliberately copied snapshot of ten curated questions, with answer explanations and references, at `/sample-questions/`.
+10. Public static pages present ten curated questions each, with answer explanations and references, at `/sample-questions/` (PMLE) and `/agentic-ai/sample-questions/` (PAA).
 11. A manually curated `/llms.txt` summarizes the application, its public pages, access requirements, and authoritative certification source for AI agents.
 
 ## Behavioral rules
@@ -43,8 +43,8 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Answer outcomes and saved-for-later bookmarks are keyed by permanent question ID.
 - For local and signed-in cloud learners, submitting an answer attempts to save only that question. A small status reports saving, success, or failure without blocking navigation.
 - For local and signed-in cloud learners, toggling Save for later persists only that question's bookmark state.
-- Guest sessions are limited to ten questions. Their answers, bookmarks, and filter changes remain in memory and clear on reload or sign-in; guest UI never reports them as saved.
-- The active question filter is a separate browser preference and is stored immediately outside guest sessions.
+- Signed-out visitors cannot start interactive practice; the sign-in gate links to public samples. Signing out returns practice and summaries to the gate.
+- The active question filter is a separate browser preference and is stored immediately during practice.
 - Local mode saves in the current browser. Firebase modes save only to the signed-in account.
 - Reset all progress is destructive, requires confirmation, and lives in Settings.
 
@@ -56,13 +56,13 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Editorial source, review-status, and terminology metadata is hidden from ordinary learners. Maintainers can inspect it after answering by loading the page with `?debug=true`.
 - The post-answer AI review prompt directs third-party agents to solve independently before auditing the question bank's answer and explanation as untrusted claims.
 - After answering, signed-in cloud learners automatically see Discussion to read and post shared plain-text comments (1–2,000 trimmed characters). Authors can edit or delete their comments. Each learner can Like or Dislike a comment, switch sides, or remove their reaction, including on their own comments. Comments use only the first word of the Google display name, or “Learner” when unavailable; names are display labels, not verified identities.
-- Discussion loads automatically after answering, ten comments per page. It sorts by likes minus dislikes descending, then oldest first, then comment ID. Previous/Next refetch current rankings, so changing scores can cause repeated or skipped items between pages. Dislikes never hide comments. Guests see a sign-in invitation; local mode makes no discussion requests.
+- Discussion loads automatically after answering, ten comments per page. It sorts by likes minus dislikes descending, then oldest first, then comment ID. Previous/Next refetch current rankings, so changing scores can cause repeated or skipped items between pages. Dislikes never hide comments. Signed-out visitors cannot reach question discussion; local mode makes no discussion requests.
 - Post-answer metadata is collapsed behind a Question details disclosure.
 
 ## Accounts and data
 
 - Production authentication uses Google through Firebase Authentication; Quiz Trail does not manage passwords.
-- Authentication is optional for practice. An anonymous cloud visitor receives no synthetic account and no progress writes.
+- Authentication is required for cloud practice and summaries. Public samples and FAQs need no account; local development retains its synthetic user.
 - Cloud progress is scoped to the signed-in Firebase user and can resume across devices.
 - Quiz Trail uses basic Google account details only to identify the learner's account. It does not sell learner data or share it with advertisers or unrelated third parties; Google and Firebase process the data required to provide authentication and cloud storage.
 - Account deletion requires typed `DELETE` confirmation and Google reauthentication. It blocks new comment writes for that account, removes authored comment text and attribution, removes the user's reactions with matching count adjustments, deletes progress across certifications, and finally deletes the Firebase Authentication identity. Interrupted cleanup keeps the identity and can be resumed through Delete account in Settings.
@@ -71,7 +71,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Question content
 
-The canonical source bank is maintained in a separate private question-bank repository. That repository validates, encrypts, and independently publishes the practice application's runtime `questions.bin` asset to Cloud Storage. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample page is an intentional public SEO snapshot of ten selected questions and is maintained manually.
+The canonical source bank is maintained in a separate private question-bank repository. That repository validates, encrypts, and independently publishes the practice application's runtime `questions.bin` asset to Cloud Storage. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample pages are intentional public snapshots of ten selected questions per certification and are maintained manually.
 
 Question IDs are permanent progress keys. Wording, explanation, and reference corrections may retain an ID when saved outcomes should remain attached. A change to what a question tests or to its correct answer requires a new ID so learners receive it as unanswered.
 
@@ -81,7 +81,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 - The question bank remains versioned outside the public application repository and is published as an encrypted Cloud Storage asset, not live Firestore content. Bank updates do not require a frontend deployment.
 - The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
-- Signed-in answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots; guest activity is session-only.
+- Signed-in answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.
 - The public Buy Me a Coffee footer link is optional and non-blocking. Additional contribution controls and GitHub support links remain in `?debug=true` maintainer mode; configured monetary links require HTTP(S) URLs.
@@ -102,9 +102,9 @@ Neutral page and white panel surfaces use thin dividers, 6px control corners, 8p
 
 ## Certification catalog
 
-The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE practice URLs and existing progress remain compatible. `/faq/` contains shared product questions; PMLE-specific questions live at `/pmle/faq/` and PAA questions at `/agentic-ai/faq/`. The sample questions remain PMLE-specific. The homepage and practice footers also link to the general FAQ.
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE practice URLs and existing progress remain compatible. `/faq/` contains shared product questions; PMLE-specific questions live at `/pmle/faq/` and PAA questions at `/agentic-ai/faq/`. Both certifications have public static sample pages. The homepage and practice footers also link to the general FAQ.
 
-The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; it is not a public guest bank. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
+The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; the full bank remains restricted even though ten static samples are public. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
 
 The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; this wording correction does not change routes or persisted keys.
 

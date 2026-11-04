@@ -14,7 +14,7 @@ existing CSV contract, and builds the AES-GCM-encrypted `questions.bin` runtime
 asset. Publishing that asset to the approved public Cloud Storage bucket is
 independent of frontend builds and deployments.
 
-The static SEO page at `sample-questions/index.html` is a deliberate exception: it contains a manually copied snapshot of ten questions and is not consumed by the practice application. Each sample retains its permanent ID in a `data-question-id` attribute. When one of those canonical questions changes, review the static snapshot separately and update it when the public sample should reflect the change.
+The static pages at `sample-questions/index.html` (PMLE) and `agentic-ai/sample-questions/index.html` (PAA) are explicitly approved exceptions: each contains a manually copied snapshot of ten questions and is not consumed by the practice application. The approved public PAA subset is PAA-0006, PAA-0012, PAA-0039, PAA-0045, PAA-0054, PAA-0057, PAA-0069, PAA-0072, PAA-0087, and PAA-0102. Only learner-facing fields are copied; public reference links may be refined to more directly support an explanation. No full PAA asset or editorial metadata may be exposed. Each sample retains its permanent ID in a `data-question-id` attribute. When one of those canonical questions changes, review the static snapshot separately and update it when the public sample should reflect the change.
 
 The app consumes subject metadata for learner analytics and post-answer
 context. JSON stores `exam_objectives`, `topics`, and `correct_answer` as arrays;

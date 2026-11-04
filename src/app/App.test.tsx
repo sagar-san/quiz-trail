@@ -130,42 +130,46 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Submit answer' })).toBeVisible();
   });
 
-  it('allows guest practice without saving and loads account progress after sign-in', async () => {
+  it('requires sign-in before loading questions, preferences, or progress', async () => {
     const auth = new TestAuthService(null);
     const store = memoryStore();
-    const guestPreferences: QuizPreferences = {
-      loadFilter: vi.fn<QuizPreferences['loadFilter']>(() => 'saved'),
+    const bankLoader = vi.fn(expandedLoader);
+    const preferences: QuizPreferences = {
+      loadFilter: vi.fn<QuizPreferences['loadFilter']>(() => 'unanswered'),
       saveFilter: vi.fn(),
     };
-    const { container } = render(<App bankLoader={expandedLoader} progressStore={store} preferences={guestPreferences} authService={auth} dataMode="firebase-emulator" />);
-
-    expect(await screen.findByText('Practicing as a guest')).toBeVisible();
-    expect(screen.getByText(/Try 10 questions as a guest/)).toBeVisible();
-    expect(screen.getByText('10 questions')).toBeVisible();
-    expect(container.querySelector('.guest-banner')?.nextElementSibling).toBe(container.querySelector('.filter-wrap'));
+    render(<App bankLoader={bankLoader} progressStore={store} preferences={preferences} authService={auth} dataMode="firebase-emulator" />);
+    expect(await screen.findByRole('heading', { name: 'Sign in to practice' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View sample questions' })).toHaveAttribute('href', '/sample-questions/');
+    expect(screen.queryByRole('button', { name: 'Submit answer' })).not.toBeInTheDocument();
+    expect(bankLoader).not.toHaveBeenCalled();
     expect(store.load).not.toHaveBeenCalled();
-    expect(guestPreferences.loadFilter).not.toHaveBeenCalled();
-    expect(screen.queryByText('Report a problem with this question')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText(/BigQuery/));
-    await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
-    expect(screen.getByText('BigQuery is the analytics warehouse.')).toBeVisible();
-    expect(screen.queryByText('✓ Saved!')).not.toBeInTheDocument();
-    expect(store.saveAnswer).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button', { name: 'Mark for this session' }));
-    expect(screen.getByRole('button', { name: 'Marked this session' })).toBeVisible();
-    expect(store.saveBookmark).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button', { name: 'All' }));
-    expect(guestPreferences.saveFilter).not.toHaveBeenCalled();
+    expect(preferences.loadFilter).not.toHaveBeenCalled();
+    expect(preferences.saveFilter).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Sign in to save progress' }));
-
-    expect(await screen.findByText('Alice')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Open account menu for Alice' }).querySelector('img')).toHaveAttribute('src', 'https://example.com/alice.jpg');
-    expect(screen.getByText('Emulator mode')).toBeVisible();
-    expect(auth.signIn).toHaveBeenCalledOnce();
-    await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
+    await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
     expect(await screen.findByText('12 questions')).toBeVisible();
-    expect(screen.getByText('0% explored')).toBeVisible();
+    expect(auth.signIn).toHaveBeenCalledOnce();
+    expect(bankLoader).toHaveBeenCalledOnce();
+    await waitFor(() => expect(store.load).toHaveBeenCalledWith('user-a'));
+    expect(preferences.loadFilter).toHaveBeenCalledOnce();
+  });
+
+  it('requires sign-in for a summary deep link and returns to the gate on sign-out', async () => {
+    window.history.replaceState({}, '', '/practice/?view=summary');
+    const auth = new TestAuthService(null);
+    const bankLoader = vi.fn(expandedLoader);
+    render(<App bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
+    expect(await screen.findByRole('heading', { name: 'Sign in to view your summary' })).toBeVisible();
+    expect(bankLoader).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
+    expect(await screen.findByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Alice' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByRole('heading', { name: 'Sign in to view your summary' })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: 'PMLE progress summary' })).not.toBeInTheDocument();
+    expect(bankLoader).toHaveBeenCalledOnce();
   });
 
   it('opens sign-in once for a homepage sign-in request and removes the request from the URL', async () => {
@@ -179,7 +183,7 @@ describe('App', () => {
     expect(window.location.search).toBe('');
   });
 
-  it('keeps guest practice available when a homepage sign-in request fails', async () => {
+  it('keeps the sign-in gate and retry available when sign-in fails', async () => {
     window.history.replaceState({}, '', '/practice/?signIn=true');
     const auth = new TestAuthService(null);
     auth.signIn.mockRejectedValueOnce(new Error('Google sign-in was canceled.'));
@@ -187,8 +191,9 @@ describe('App', () => {
     render(<App bankLoader={expandedLoader} progressStore={memoryStore()} authService={auth} dataMode="firebase-emulator" />);
 
     expect(await screen.findByText('Google sign-in was canceled.')).toBeVisible();
-    expect(screen.getByText('Practicing as a guest')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Sign in to save progress' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Sign in to practice' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Submit answer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
     expect(window.location.pathname).toBe('/practice/');
     expect(window.location.search).toBe('');
   });

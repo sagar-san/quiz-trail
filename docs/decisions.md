@@ -121,7 +121,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D015 — Allow guest practice but persist only authenticated cloud progress
 
-- **Status:** Accepted
+- **Status:** Superseded by D019
 - **Decision:** Load ten questions from the shuffled practice bank for anonymous
   cloud visitors and let them answer, bookmark, filter, and inspect session
   analytics in memory. Load the complete bank after sign-in.
@@ -156,3 +156,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Replace the private feedback form with shared signed-in comments, one Like/Dislike per learner, and net-score ranking. Enforce aggregate/vote consistency in both directions with Firestore rules and atomic transactions. Use simple bounded cursor pages; rankings can change between requests.
 - **Why:** Learners can share corrections and useful explanations within the existing browser/Firebase architecture without adding a server or live ranking service.
 - **Consequences:** Existing private reports stay private. Comments use tombstones so other users' reactions need no cascading deletion. Account deletion blocks new comment writes, resumes bounded comment/vote cleanup, and stops on failure before deleting the identity. PAA stays restricted. No replies, moderation dashboard, automated hiding, or stable pagination snapshot is introduced.
+
+## D019 — Require sign-in for practice and offer static samples for both certifications
+
+- **Status:** Accepted
+- **Decision:** Remove interactive guest practice and its banner. Require Google sign-in before loading cloud practice or summaries. Keep ten public PMLE samples and publish ten explicitly approved PAA examples as a static page, even while full PAA practice remains in private preview.
+- **Why:** Account creation is simple; public sample pages provide the desired no-account introduction.
+- **Consequences:** Signed-out practice makes no bank, progress, or preference reads. Existing Google sessions and local-development identity continue working. The full PAA bank retains server-enforced preview authorization. The static sample exception does not authorize publishing any other private questions.

@@ -158,6 +158,7 @@ curl -sS -I https://quiz-trail.web.app/
 curl -sS -I https://quiz-trail.web.app/practice/
 curl -sS -I https://quiz-trail.web.app/faq/
 curl -sS -I https://quiz-trail.web.app/sample-questions/
+curl -sS -I https://quiz-trail.web.app/agentic-ai/sample-questions/
 curl -sS -I -H 'Origin: https://quiz-trail.web.app' https://storage.googleapis.com/quiz-trail-question-banks/questions.bin
 curl -sS https://quiz-trail.web.app/
 ```

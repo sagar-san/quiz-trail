@@ -2,31 +2,22 @@
 
 Last reviewed: 2026-11-03
 
-## Monospace identity refresh — verified, not deployed
+## Sign-in required and public samples — not deployed
 
-- Public pages, practice, summary, settings, and discussion now share the neutral palette and typography tokens, with locally bundled IBM Plex fonts. The ruled homepage layout remains intact; panels have no shadows and the copy action has a plain icon.
-- Correct/incorrect feedback overrides selected answers, including multiple-choice selections. A deterministic browser regression covers both outcomes and the signed-in discussion, summary, and settings with in-memory fixtures.
-- Verification: 93 unit/component tests, typecheck/build, ESLint, all 24 existing desktop/mobile browser flows, and four theme/accessibility checks passed. Public pages also fit at 320px. Desktop/mobile screenshots inspected; no serious/critical accessibility violations in checked screens.
-- Browser verification used an isolated local preview on port 5186 and relayed the encrypted bank request through the test runner because that origin is not in the bucket's CORS list. The existing cloud preview and emulator data were preserved; no production or database deployment was performed. Auth/rules emulator suites were not rerun for this styling-only change.
+- Removed the ten-question interactive guest trial and its banner. Cloud practice and summaries show a Google sign-in gate before any bank, progress, or preference reads. Existing signed-in and local-development flows remain supported.
+- Kept ten PMLE samples and added ten static PAA samples at `/agentic-ai/sample-questions/`, linked from the catalog, FAQ, and practice gate/footer. Both pages work without JavaScript or an account. Full PAA practice and summary remain restricted to the preview owner.
+- Updated public copy, sitemap, shared certification paths, and the explicit sample-publication exception. The canonical bank was not modified. Public PAA references were checked and four links refined to support their explanations more directly.
+- Verification: typecheck, lint, 94 unit/component tests, one Auth emulator test, 26 Firestore rules/storage tests, seven-entry Firebase-mode build, four desktop/mobile no-JavaScript sample checks, two desktop/mobile LAN accessibility/layout checks, and all seven Firebase browser flows passed. No serious/critical accessibility issues were found in the new gate or PAA samples; screenshots inspected.
+- Firebase browser checks used an isolated Auth emulator on 9199 and Firestore namespace `quiz-trail-signin-test`. Full Chromium and explicit opener focus resolved a headless-shell popup stall; the checked-in browser configuration/helpers now use that setup.
+- Deployment remains paused at the user's request. No production Hosting, rules, index, configuration, or bank writes were performed. Production credentials and frontend configuration still need verification before release.
 
-## Shared discussion implementation — awaiting production approval
+## Prior changes awaiting release
 
-- Shared comments replace the private feedback form after answering. Cloud learners can post, edit/delete their own comments, Like/Dislike, and navigate ten-item cursor pages ranked by net score, creation time and ID. Guests get a sign-in invitation; local mode makes no comment requests.
-- Additive Firestore rules enforce paired reaction/count changes, PAA preview access, author-only edits and tombstones, and the write-disable switch. Legacy feedback documents, privacy rules and private reviewer tooling remain unchanged.
-- Account deletion marks cleanup, removes comment text/attribution and own votes in bounded batches, then deletes progress and identity. Failure stops before identity deletion; Settings → Delete account resumes. Other tabs cannot add comment data after the marker.
-- Verification passed: typecheck, ESLint, 84 unit/component tests, one Auth emulator test, 26 Firestore rules/storage tests, 24 desktop/mobile browser checks, seven Firebase browser flows, and the six-entry Firebase-mode build. Final discussion styling was rechecked with the two desktop/mobile flows; mobile screenshot inspected. Security tests include all reaction transitions, concurrent users, forged writes, nanosecond/tied pagination, disabled writes, multi-batch cleanup, interrupted cleanup, and preview restrictions.
-- Build compilation passed, but production web configuration and live index readiness have not been verified in this checkout. Browser flows used explicit emulator-only placeholder configuration. Rebuild with verified production configuration before deploying.
-- No production deployment, config initialization, rules/index update or data migration was performed. After approval follow `release-runbook.md`: deploy indexes and wait until ready, deploy additive rules and initialize `config/comments.enabled`, deploy the frontend, then smoke-test. A missing comments config intentionally disables new writes.
-
-## Follow-up testing changes
-
-- Public comment labels and the composer use only the first word of the Google/Firebase display name, with “Learner” fallback. Newly saved author names contain only that word; older names are shortened when rendered. No live stored data was migrated.
-
-- Reaction controls use compact thumb icons and separate counts, with an accessible Like/Dislike label and selected state; the visible net-score label is removed (ranking is unchanged).
-- Comments now appear automatically after answering; the Open/Hide discussion buttons are removed. Comment requests time out after 15 seconds with retry guidance instead of leaving controls stuck. Failed posts retain their original submission ID and text.
-- The temporary direct-IP preview uses `.tmp/lan.vite.ts` (ignored) with local HTTPS on port 5174. Its proxy must forward `/v1/projects` as well as the Firestore streaming and Auth paths. The missing transaction route caused the reported stuck post; it is fixed in that test configuration. Direct-IP posting, reactions and pagination were browser-checked.
-- Local emulator only: seeded 12 random sample comments per PMLE question (4,908 documents), under deterministic `demo-` IDs. User comments were preserved. These fixtures are not in production or tracked source. Avoid rerunning the Firebase browser suite on the user's active test emulator because its setup clears test accounts/data.
-- Follow-up verification: typecheck, lint, 84 unit/component tests and Firebase-mode build; direct-IP browser verification supplements the original release checks above. Rules and database adapter behavior were unchanged.
+- Monospace identity refresh: shared neutral theme tokens and locally bundled IBM Plex fonts, 17px reading text, restrained controls, correct/incorrect feedback precedence, and plain copy icon. Previously verified with 24 desktop/mobile flows and four theme/accessibility checks.
+- Shared question discussion replaces private feedback after answering. Includes posting/editing/deleting, Like/Dislike, ten-item ranked pages, and resumable account-deletion cleanup. Additive rules and indexes are ready but not deployed; legacy private feedback remains private.
+- Release order in `release-runbook.md`: deploy indexes and wait for readiness, deploy additive rules and initialize `config/comments.enabled`, then deploy the frontend built with verified production configuration and smoke-test. Missing comments config intentionally disables writes.
+- Local user's emulator contains seeded PMLE comments and personal test state. Do not run the Firebase browser suite against it: the suite clears accounts/data. Use a separate Auth emulator and separate Firestore project for integration checks; Auth popup endpoints ignore the API key and use their emulator's default project.
+- The LAN preview configuration `.tmp/lan.vite.ts` is ignored. It proxies Auth, Firestore streaming and `/v1/projects`, plus the encrypted PMLE bank. The earlier missing-theme error cleared after restarting Vite; latest signed-out gate and PAA samples pass at the direct-IP HTTPS URL.
 
 ## Existing production release
 
@@ -36,7 +27,7 @@ Last reviewed: 2026-11-03
 
 ## Preserved bank state and cautions
 
-- The sibling bank's pre-existing change to `questions/PMLE-0011.json` remains untouched. No bank source/tooling changes were needed, so question-bank preflight was not rerun. PAA content was not independently fact-checked.
-- Never publish PAA to the public bucket or frontend assets. Existing private-feedback retention is unchanged; old reports are never converted to shared comments.
+- The sibling bank's pre-existing change to `questions/PMLE-0011.json` remains untouched. No bank source/tooling changes were needed, so question-bank preflight was not rerun. The ten newly public PAA samples were checked against linked official references; the rest of the PAA bank was not re-reviewed.
+- Never publish the full PAA bank to the public bucket or frontend assets. Only the ten static samples listed in `question-bank.md` are approved for public use. Existing private-feedback retention is unchanged; old reports are never converted to shared comments.
 - A Hosting rollback must account for older clients lacking comment cleanup during account deletion. Preserve the updated deletion path or handle cleanup explicitly; never delete comment data as a rollback shortcut.
 - Verify local processes when resuming; do not assume test servers or emulators remain running.
