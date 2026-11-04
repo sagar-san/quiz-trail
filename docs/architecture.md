@@ -119,7 +119,7 @@ Firestore rules restrict reads and writes to the authenticated owner, allow only
 
 `CommentStore` is separate from quiz state and progress. `FirestoreCommentStore` is dynamically imported in cloud modes only. `QuestionDiscussion` owns automatic post-answer loading, cursor history, drafts and mutation state; it is mounted outside the grading status region and keyed by user, certification and question. App tracks its mutations before leaving, signing out or deleting an account.
 
-- `questionComments/{id}` stores certification/question scope, author UID and public-safe display label, plain text, creation/edit timestamps, integer like/dislike counts, net score, and a deletion flag.
+- `questionComments/{id}` stores certification/question scope, author UID and a first-name display label (first word of the Firebase display name, with “Learner” fallback), plain text, creation/edit timestamps, integer like/dislike counts, net score, and a deletion flag.
 - `commentReactions/{uid}/votes/{commentId}` stores that learner's `like`/`dislike` value and server update timestamp. Only that learner can read/list it.
 - `commentAccounts/{uid}` contains `{deleting: true}` once account deletion starts. The marker blocks new comments, edits and reactions across tabs. Removal remains available; retrying Delete account resumes cleanup. The marker remains after successful identity deletion and contains no profile or comment text.
 - `config/comments` contains `{enabled: true}` to permit new comments, edits and reactions. Missing/false config disables them; removals and cleanup remain available.

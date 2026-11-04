@@ -109,7 +109,7 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   const questionId = await page.locator('.question-meta').evaluate((element) => (
     element.lastElementChild?.textContent ?? ''
   ));
-  await page.getByLabel('Post as Trail Tester').fill('The explanation needs a clearer reference.');
+  await page.getByLabel('Post as Trail').fill('The explanation needs a clearer reference.');
   await page.getByRole('button', { name: 'Post comment', exact: true }).click();
   await expect(page.locator('.comment-text')).toHaveText('The explanation needs a clearer reference.');
   await page.getByRole('button', { name: 'Like (0)', exact: true }).click();

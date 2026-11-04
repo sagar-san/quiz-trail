@@ -106,7 +106,7 @@ function DiscussionSession({ store, user, scope, cloud, busy, onSignIn, trackWri
         {!loading && page.items.length === 0 && <p>No comments on this page yet.</p>}
         <ol className="discussion-list">
           {page.items.map((comment) => <li key={comment.id}>
-            <div className="discussion-byline"><strong>{comment.authorName}</strong> <time dateTime={new Date(comment.createdAt).toISOString()}>{new Date(comment.createdAt).toLocaleDateString()}</time> {comment.edited && <span>Edited</span>}</div>
+            <div className="discussion-byline"><strong>{publicCommentName(comment.authorName)}</strong> <time dateTime={new Date(comment.createdAt).toISOString()}>{new Date(comment.createdAt).toLocaleDateString()}</time> {comment.edited && <span>Edited</span>}</div>
             {editing === comment.id ? <form onSubmit={(event) => {
               event.preventDefault(); void mutate(comment.id, async () => {
                 await withDeadline(store.editComment(user.uid, comment.id, editText));

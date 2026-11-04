@@ -25,5 +25,7 @@ export function commentText(text: string): string {
   return trimmed;
 }
 export function publicCommentName(name?: string): string {
-  return name?.trim() && !name.includes('@') ? name.trim().slice(0, 80) : 'Learner';
+  // Firebase exposes a display name, not a separate Google given-name field.
+  // Keep only its first word; never publish an email fallback.
+  return name?.trim() && !name.includes('@') ? name.trim().split(/\s+/)[0].slice(0, 80) : 'Learner';
 }
