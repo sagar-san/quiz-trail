@@ -121,12 +121,16 @@ function DiscussionSession({ store, user, scope, cloud, busy, onSignIn, trackWri
               <div className="discussion-controls"><button disabled={writesDisabled || !editText.trim()}>Save comment</button><button type="button" disabled={locked} onClick={() => setEditing(null)}>Cancel</button></div>
             </form> : <p className="comment-text">{comment.text}</p>}
             <div className="discussion-controls">
-              {(['like', 'dislike'] as const).map((value) => <button key={value} type="button" aria-pressed={comment.reaction === value}
+              {(['like', 'dislike'] as const).map((value) => <button key={value} type="button" className="comment-reaction" aria-pressed={comment.reaction === value}
+                aria-label={value === 'like' ? `Like (${comment.likeCount})` : `Dislike (${comment.dislikeCount})`}
+                title={comment.reaction === value ? 'Remove reaction' : value === 'like' ? 'Like' : 'Dislike'}
                 disabled={locked || loading || (comment.reaction !== value && writesDisabled)}
                 onClick={() => void react(comment, comment.reaction === value ? null : value)}>
-                {value === 'like' ? `Like (${comment.likeCount})` : `Dislike (${comment.dislikeCount})`}
+                <svg className={value === 'dislike' ? 'thumb-down' : undefined} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M7 10v11H3V10h4Z M7 10l5-7a2 2 0 0 1 2 2v5h5a2 2 0 0 1 2 2l-1 7a2 2 0 0 1-2 2H7" />
+                </svg>
+                <span aria-hidden="true">{value === 'like' ? comment.likeCount : comment.dislikeCount}</span>
               </button>)}
-              <span>Score: {comment.score}</span>
               {comment.authorUid === user.uid && <>
                 <button type="button" disabled={writesDisabled} onClick={() => { setEditing(comment.id); setEditText(comment.text); }}>Edit</button>
                 <button type="button" disabled={locked} onClick={() => {

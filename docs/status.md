@@ -13,6 +13,7 @@ Last reviewed: 2026-11-03
 
 ## Follow-up testing changes
 
+- Reaction controls use compact thumb icons and separate counts, with an accessible Like/Dislike label and selected state; the visible net-score label is removed (ranking is unchanged).
 - Comments now appear automatically after answering; the Open/Hide discussion buttons are removed. Comment requests time out after 15 seconds with retry guidance instead of leaving controls stuck. Failed posts retain their original submission ID and text.
 - The temporary direct-IP preview uses `.tmp/lan.vite.ts` (ignored) with local HTTPS on port 5174. Its proxy must forward `/v1/projects` as well as the Firestore streaming and Auth paths. The missing transaction route caused the reported stuck post; it is fixed in that test configuration. Direct-IP posting, reactions and pagination were browser-checked.
 - Local emulator only: seeded 12 random sample comments per PMLE question (4,908 documents), under deterministic `demo-` IDs. User comments were preserved. These fixtures are not in production or tracked source. Avoid rerunning the Firebase browser suite on the user's active test emulator because its setup clears test accounts/data.
