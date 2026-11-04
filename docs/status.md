@@ -2,6 +2,13 @@
 
 Last reviewed: 2026-11-03
 
+## Monospace identity refresh — verified, not deployed
+
+- Public pages, practice, summary, settings, and discussion now share the neutral palette and typography tokens, with locally bundled IBM Plex fonts. The ruled homepage layout remains intact; panels have no shadows and the copy action has a plain icon.
+- Correct/incorrect feedback overrides selected answers, including multiple-choice selections. A deterministic browser regression covers both outcomes and the signed-in discussion, summary, and settings with in-memory fixtures.
+- Verification: 93 unit/component tests, typecheck/build, ESLint, all 24 existing desktop/mobile browser flows, and four theme/accessibility checks passed. Public pages also fit at 320px. Desktop/mobile screenshots inspected; no serious/critical accessibility violations in checked screens.
+- Browser verification used an isolated local preview on port 5186 and relayed the encrypted bank request through the test runner because that origin is not in the bucket's CORS list. The existing cloud preview and emulator data were preserved; no production or database deployment was performed. Auth/rules emulator suites were not rerun for this styling-only change.
+
 ## Shared discussion implementation — awaiting production approval
 
 - Shared comments replace the private feedback form after answering. Cloud learners can post, edit/delete their own comments, Like/Dislike, and navigate ten-item cursor pages ranked by net score, creation time and ID. Guests get a sign-in invitation; local mode makes no comment requests.

@@ -94,6 +94,12 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 - Production deployment, billing changes, App Check enforcement, OAuth consent changes, domain verification, and other console-sensitive actions require explicit product-owner approval.
 - Reliability, correct cross-user isolation, safe question-bank evolution, accessibility, and mobile usability take priority over growth features.
 
+## Visual identity
+
+Public pages, practice, summary, settings, and discussion share `src/styles/theme.css`. Locally bundled IBM Plex Mono uses weight 400 for headings and 500 for controls, with monospace navigation, question IDs, and statistics. IBM Plex Sans 400 carries questions, answers, explanations, and comments at 17px/1.65. The homepage keeps its ruled rows with a 44px desktop / 30px mobile heading.
+
+Neutral page and white panel surfaces use thin dividers, 6px control corners, 8px panel corners, and no panel shadows; account menus retain subtle elevation. Blue action/selection tokens are separate from green success and red error feedback. Submitted answer feedback takes precedence over selection and includes text labels. Copy AI prompt uses a plain copy icon.
+
 ## Certification catalog
 
 The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE practice URLs and existing progress remain compatible. `/faq/` contains shared product questions; PMLE-specific questions live at `/pmle/faq/` and PAA questions at `/agentic-ai/faq/`. The sample questions remain PMLE-specific. The homepage and practice footers also link to the general FAQ.
