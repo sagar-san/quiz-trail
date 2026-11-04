@@ -16,7 +16,8 @@ import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore'
 import type { ProgressStore } from '../storage/ProgressStore';
 import { LocalStorageQuizPreferences, type QuizPreferences } from '../storage/QuizPreferences';
 import { reconcileProgress } from '../storage/reconcileProgress';
-import type { FeedbackStore } from '../storage/FeedbackStore';
+import type { CommentStore } from '../storage/CommentStore';
+import { QuestionDiscussion } from '../components/QuestionDiscussion';
 
 export interface AppProps {
   certification?: Certification;
@@ -24,7 +25,7 @@ export interface AppProps {
   progressStore?: ProgressStore;
   preferences?: QuizPreferences;
   authService?: AuthService;
-  feedbackStore?: FeedbackStore;
+  commentStore?: CommentStore;
   dataMode?: DataMode;
 }
 
@@ -39,7 +40,7 @@ export function App({
   progressStore,
   preferences,
   authService,
-  feedbackStore,
+  commentStore,
   dataMode = 'local',
 }: AppProps) {
   const buyMeACoffeeUrl = import.meta.env.VITE_BUY_ME_A_COFFEE_URL || 'https://buymeacoffee.com/okeanos';
@@ -250,6 +251,7 @@ export function App({
     setAuthBusy(true);
     setAuthError(null);
     try {
+      await Promise.all([...pendingWrites.current]);
       await auth.signOut();
       setSettingsOpen(false);
     } catch {
@@ -267,12 +269,13 @@ export function App({
     try {
       await Promise.all([...pendingWrites.current]);
       await auth.reauthenticate();
+      if (commentStore) await commentStore.deleteUserCommentData(user.uid);
       await (store.resetAll ? store.resetAll(user.uid) : store.reset(user.uid));
       progressDeleted = true;
       await auth.deleteAccount();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Your account could not be deleted. Please try again.';
-      setAccountError(progressDeleted ? `Your progress was deleted, but your account remains. ${message}` : message);
+      setAccountError(progressDeleted ? `Your progress was deleted, but your account remains. ${message}` : `${message} If comment cleanup started, retry Delete account in Settings to finish; your identity has been kept.`);
     } finally {
       setAuthBusy(false);
     }
@@ -359,7 +362,7 @@ export function App({
           <>
             <QuestionCard
               certificationTitle={certification.title}
-              key={current.questionId}
+              key={`${certification.id}:${user?.uid}:${current.questionId}`}
               question={current}
               progressLabel={progressLabel}
               saved={state.savedForLater.includes(current.questionId)}
@@ -378,12 +381,9 @@ export function App({
                   .then(() => setStorageError(null))
                   .catch((error) => setStorageError(error instanceof Error ? error.message : 'Your bookmark could not be saved.'));
               }}
-              onSubmitFeedback={feedbackStore && user ? async (feedbackText) => {
-                await feedbackStore.submitFeedback(current.questionId, feedbackText, user.uid);
-              } : undefined}
-              onLoadFeedback={feedbackStore && user ? async () => (
-                feedbackStore.loadFeedback(current.questionId, user.uid)
-              ) : undefined}
+              discussion={<QuestionDiscussion store={commentStore} user={user}
+                scope={{ certificationId: certification.id, questionId: current.questionId }}
+                cloud={auth.mode === 'firebase'} busy={authBusy} onSignIn={() => void signIn()} trackWrite={trackWrite} />}
             />
             <QuestionNavigation
               hasPrevious={currentIndex > 0}

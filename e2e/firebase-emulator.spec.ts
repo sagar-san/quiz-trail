@@ -8,7 +8,7 @@ test.beforeEach(async () => {
     fetch('http://127.0.0.1:8080/emulator/v1/projects/quiz-trail/databases/(default)/documents', { method: 'DELETE' }),
   ]);
   const feedbackConfigResponse = await fetch(
-    'http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/config/feedback',
+    'http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/config/comments',
     {
       method: 'PATCH',
       headers: {
@@ -84,38 +84,6 @@ async function signInWithExistingEmulatorAccount(page: Page) {
   await popup.waitForEvent('close');
 }
 
-async function seedFeedback(questionId: string, text: string) {
-  const accountsResponse = await fetch(
-    'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/quiz-trail/accounts:batchGet?maxResults=-1',
-    { headers: { Authorization: 'Bearer owner' } },
-  );
-  const accounts = await accountsResponse.json() as {
-    users?: Array<{ email?: string; localId?: string }>;
-  };
-  const userId = accounts.users?.find((account) => (
-    account.email === 'trail-tester@example.com'
-  ))?.localId;
-  expect(userId).toBeTruthy();
-
-  const response = await fetch(
-    `http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/questionFeedback/${encodeURIComponent(questionId)}/submissions/${encodeURIComponent(userId!)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: 'Bearer owner',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fields: {
-          text: { stringValue: text },
-          submittedAt: { timestampValue: new Date().toISOString() },
-        },
-      }),
-    },
-  );
-  expect(response.ok).toBe(true);
-}
-
 test('signs in, saves to Firestore, signs out, and restores after signing back in', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/practice/');
@@ -141,14 +109,18 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   const questionId = await page.locator('.question-meta').evaluate((element) => (
     element.lastElementChild?.textContent ?? ''
   ));
-  const feedbackText = 'The explanation needs a clearer reference.';
-  await seedFeedback(questionId, feedbackText);
-  await page.locator('.more-options-details > summary').click();
-  const feedbackInput = page.getByPlaceholder(/Describe what seems incorrect/);
-  await expect(feedbackInput).toHaveValue(feedbackText);
-  await feedbackInput.fill('The updated feedback has more detail.');
-  await page.getByRole('button', { name: 'Update feedback' }).click();
-  await expect(page.getByText('Feedback saved successfully.')).toBeVisible();
+  await page.getByRole('button', { name: 'Open discussion' }).click();
+  await page.getByLabel('Post as Trail Tester').fill('The explanation needs a clearer reference.');
+  await page.getByRole('button', { name: 'Post comment', exact: true }).click();
+  await expect(page.locator('.comment-text')).toHaveText('The explanation needs a clearer reference.');
+  await page.getByRole('button', { name: 'Like (0)', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Like (1)', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Dislike (0)', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Dislike (1)', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByLabel('Edit comment', { exact: true }).fill('An updated shared comment.');
+  await page.getByRole('button', { name: 'Save comment', exact: true }).click();
+  await expect(page.locator('.comment-text')).toHaveText('An updated shared comment.');
 
   await page.getByRole('button', { name: 'All', exact: true }).click();
   await expect(page.locator('.question-meta')).toContainText(questionId);
@@ -163,10 +135,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.locator('.question-meta')).toContainText(questionId);
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await page.locator('.more-options-details > summary').click();
-  await expect(page.getByPlaceholder(/Describe what seems incorrect/)).toHaveValue(
-    'The updated feedback has more detail.',
-  );
+  await page.getByRole('button', { name: 'Open discussion' }).click();
+  await expect(page.locator('.comment-text')).toHaveText('An updated shared comment.');
 
   await page.getByRole('button', { name: /Open account menu/ }).click();
   await page.getByRole('menuitem', { name: 'Settings' }).click();
@@ -242,3 +212,42 @@ test('owner preview loads protected content and retains independent progress acr
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
 });
+
+for (const mobile of [false, true]) {
+  test(`discussion pagination and keyboard controls (${mobile ? 'mobile' : 'desktop'})`, async ({ page }) => {
+    if (mobile) await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/practice/');
+    await signInWithNewEmulatorAccount(page);
+    await expect(page.getByRole('button', { name: 'Open account menu for Trail Tester' })).toBeVisible();
+    await page.locator('.question-card input').first().check();
+    await page.getByRole('button', { name: 'Submit answer' }).click();
+    const questionId = await page.locator('.question-meta span').last().textContent();
+    for (let i = 0; i < 12; i++) {
+      const response = await fetch(`http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/questionComments/seed-${String(i).padStart(2, '0')}`, {
+        method: 'PATCH', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: {
+          certificationId: { stringValue: 'pmle' }, questionId: { stringValue: questionId },
+          authorUid: { stringValue: 'seed-author' }, authorName: { stringValue: 'Another learner' },
+          text: { stringValue: `Comment ${i + 1}` }, createdAt: { timestampValue: '2026-01-01T00:00:00.000000001Z' },
+          updatedAt: { timestampValue: '2026-01-01T00:00:00.000000001Z' }, deleted: { booleanValue: false },
+          likeCount: { integerValue: '0' }, dislikeCount: { integerValue: '0' }, score: { integerValue: '0' },
+        } }),
+      });
+      expect(response.ok).toBe(true);
+    }
+    await page.getByRole('button', { name: 'Open discussion' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.comment-text')).toHaveCount(10);
+    await page.getByRole('button', { name: 'Next comments' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.comment-text')).toHaveCount(2);
+    await expect(page.locator('.comment-text').first()).toHaveText('Comment 11');
+    await expect(page.getByRole('button', { name: 'Next comments' })).toBeDisabled();
+    await page.getByRole('button', { name: 'Previous comments' }).click();
+    await expect(page.locator('.comment-text')).toHaveCount(10);
+    await page.getByRole('button', { name: 'Like (0)', exact: true }).first().click();
+    await expect(page.getByRole('button', { name: 'Like (1)', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: `test-results/discussion-${mobile ? 'mobile' : 'desktop'}.png`, fullPage: true });
+  });
+}

@@ -193,3 +193,13 @@ Firestore rule and data changes need case-specific recovery; a Hosting rollback 
 5. Deploy the Firebase-mode Hosting build. Verify existing PMLE progress, owner-only preview, non-owner denial, reset isolation, and the catalog. No user progress migration is required.
 
 A Hosting rollback may leave certification progress children; older account-deletion clients do not know about those children. Keep the new account-deletion flow available for preview users, or handle child cleanup explicitly during rollback. Private access rules must remain restrictive through rollback. Existing feedback-retention behavior is unchanged.
+
+## Shared discussion release (explicit approval required)
+
+1. Run typecheck, lint, unit/component tests, Auth/rules emulator tests, desktop/mobile browser tests and Firebase browser flows. Build with `VITE_DATA_MODE=firebase` and verify the release environment has the real Firebase web configuration; emulator placeholder values are never production configuration.
+2. With approval, deploy `firestore:indexes` first and wait for the `questionComments` composite index to report ready in production. Emulator success does not establish index readiness. Cleanup uses single-field author UID and own-vote queries.
+3. Deploy the tested additive rules and initialize `config/comments` with `{enabled: true}` using approved administrative access. Keep legacy feedback config and rules unchanged.
+4. Deploy the Firebase-mode frontend. Smoke-test signed-in posting, edit/delete, Like/Dislike switching/removal, multiple pages, guest denial and PAA restrictions.
+5. If writes must pause, set `config/comments.enabled` to false with approval. Removals and account cleanup remain available. An interrupted deletion resumes through Settings → Delete account; do not delete the Auth identity manually before cleanup succeeds.
+
+A frontend rollback can restore the old feedback form without deleting comment data. Older clients do not clean up comments during account deletion: keep the updated deletion flow available or explicitly handle that cleanup. Never delete comments, votes, indexes or legacy feedback as a rollback shortcut.

@@ -115,32 +115,26 @@ Each targeted answer or bookmark update runs in a transaction that reads the lat
 
 Firestore rules restrict reads and writes to the authenticated owner, allow only the expected fields, validate schema and collection sizes, require monotonically increasing revisions, and require a server timestamp. Question text and account profile data are not stored in the progress document.
 
-### Question feedback
+### Shared question discussion
 
-After answering, any signed-in cloud learner can open More and submit feedback about the current question. Feedback is unavailable in local mode.
+`CommentStore` is separate from quiz state and progress. `FirestoreCommentStore` is dynamically imported in cloud modes only. `QuestionDiscussion` owns lazy loading, cursor history, drafts and mutation state; it is mounted outside the grading status region and keyed by user, certification and question. App tracks its mutations before leaving, signing out or deleting an account.
 
-Bad question feedback is stored at:
+- `questionComments/{id}` stores certification/question scope, author UID and public-safe display label, plain text, creation/edit timestamps, integer like/dislike counts, net score, and a deletion flag.
+- `commentReactions/{uid}/votes/{commentId}` stores that learner's `like`/`dislike` value and server update timestamp. Only that learner can read/list it.
+- `commentAccounts/{uid}` contains `{deleting: true}` once account deletion starts. The marker blocks new comments, edits and reactions across tabs. Removal remains available; retrying Delete account resumes cleanup. The marker remains after successful identity deletion and contains no profile or comment text.
+- `config/comments` contains `{enabled: true}` to permit new comments, edits and reactions. Missing/false config disables them; removals and cleanup remain available.
 
-```text
-questionFeedback/{questionId}/submissions/{uid}
-```
+Page queries filter certification, question and `deleted == false`, order by score descending, creation ascending and document ID ascending, and fetch 11 documents to display ten. An opaque cursor holds the last displayed Firestore snapshot, preserving nanosecond timestamp precision. Previous navigation refetches stored cursors. Rankings may change between requests; stable snapshots and cross-page deduplication are intentionally absent.
 
-Each document contains:
+Reaction transactions read the comment and own vote, derive the delta for the requested desired state, then atomically update both. Count transforms are checked in both directions by rules against the previous and resulting vote; independent increments, vote-only writes and forged scores are denied. Transforms also allow concurrent transactions to reach Firestore's version-conflict retry instead of failing validation against stale literal totals. Repeating the same desired reaction is a no-op. Submission retries reuse their original ID and text.
 
-- `text`: the learner's feedback, from 1 to 1000 characters;
-- `submittedAt`: a Firestore server timestamp.
+Only authors edit text or tombstone comments. Tombstones clear text, author name and UID while preserving scope, timestamps and counters; they cannot be restored or receive new reactions. Existing votes may be removed. PMLE requires authentication and PAA retains the verified Google preview-owner predicate. Question prefix validation does not prove a question exists. Cleanup queries can read the user's authored comments despite revoked certification access; while deletion is marked, direct reads of comments with that user's votes also allow those votes to be removed. This does not permit listing the restricted discussion.
 
-The authenticated user's UID is the submission document ID, so each learner has at most one feedback document per question. Opening More lazily reads that direct document once for the displayed question and populates the existing feedback form; navigating between questions does not fetch feedback. Submitting again replaces the document. Learners can read only their own direct document and cannot list feedback. The private question-bank repository owns the `gcloud` Application Default Credentials-based REST downloader and local feedback-review dashboard; no reviewer access exists in the learner UI.
+Cleanup marks the account first, queries authored comments in bounded batches of 20 and tombstones them, then removes the user's votes in bounded batches of 20 with matching aggregate updates. Each successful mutation removes that item from subsequent cleanup queries. Failures stop before progress/identity deletion and are resumable. Other learners' votes on tombstones are retained.
 
-### Kill-switch config
+### Legacy private feedback
 
-A config document at:
-
-```text
-config/feedback
-```
-
-contains an `enabled` boolean flag. Firestore security rules read this document to dynamically block incoming feedback writes if spamming occurs.
+`questionFeedback/{questionId}/submissions/{uid}` and `config/feedback` retain their existing schema, privacy rules and write switch for older clients. The new frontend no longer reads or writes private feedback. No reports are migrated to comments. The sibling private repository's reviewer tooling and existing retention are unchanged.
 
 ## Question-bank identity and reconciliation
 
@@ -181,10 +175,11 @@ Cloud account deletion is deliberately ordered:
 
 1. Require typed confirmation in the UI.
 2. Reauthenticate the current user with Google.
-3. Enumerate and delete `userProgress/{uid}/certifications/*`, then delete the legacy `userProgress/{uid}` document.
-4. Delete the Firebase Authentication identity.
+3. Mark comment-account deletion, tombstone authored comments, and remove own reactions with paired count updates. Stop on failure; retry resumes remaining work.
+4. Enumerate and delete `userProgress/{uid}/certifications/*`, then delete the legacy `userProgress/{uid}` document.
+5. Delete the Firebase Authentication identity.
 
-This avoids leaving progress behind after a successful identity deletion. Because the operations are not an atomic cross-service transaction, the UI reports when progress deletion succeeded but identity deletion failed.
+This avoids leaving comment content, reactions or progress behind after a successful identity deletion. Because the operations are not an atomic cross-service transaction, the UI reports when progress deletion succeeded but identity deletion failed.
 
 ## Analytics and metadata visibility
 

@@ -70,6 +70,98 @@ service cloud.firestore {
       allow delete: if ownsProgress(userId);
     }
 
+    function signedIn() { return request.auth != null; }
+    function discussionAccess(data) {
+      return signedIn() && (data.certificationId == 'pmle'
+        || (data.certificationId == 'agentic-ai' && previewOwner()));
+    }
+    function commentWrites() {
+      return get(/databases/$(database)/documents/config/comments).data.enabled == true
+        && !existsAfter(/databases/$(database)/documents/commentAccounts/$(request.auth.uid));
+    }
+    function validText(text) {
+      return text is string && text.size() >= 1 && text.size() <= 2000
+        && text.matches('^\\S([\\s\\S]*\\S)?$');
+    }
+    function counts(data) {
+      return data.likeCount is int && data.dislikeCount is int && data.score is int
+        && data.likeCount >= 0 && data.dislikeCount >= 0
+        && data.score == data.likeCount - data.dislikeCount;
+    }
+    function validComment(data) {
+      return data.keys().hasOnly(['certificationId', 'questionId', 'authorUid', 'authorName',
+          'text', 'createdAt', 'updatedAt', 'likeCount', 'dislikeCount', 'score', 'deleted'])
+        && data.questionId is string && data.questionId.size() <= 128
+        && ((data.certificationId == 'pmle' && data.questionId.matches('PMLE-[0-9]+'))
+          || (data.certificationId == 'agentic-ai' && data.questionId.matches('PAA-[0-9]+')))
+        && data.authorUid == request.auth.uid
+        && data.authorName is string && data.authorName.size() > 0 && data.authorName.size() <= 80
+        && validText(data.text) && data.createdAt == request.time && data.updatedAt == request.time
+        && data.deleted == false && counts(data)
+        && data.likeCount == 0 && data.dislikeCount == 0;
+    }
+    function voteBefore(id) {
+      let path = /databases/$(database)/documents/commentReactions/$(request.auth.uid)/votes/$(id);
+      return exists(path) ? get(path).data.value : '';
+    }
+    function voteAfter(id) {
+      let path = /databases/$(database)/documents/commentReactions/$(request.auth.uid)/votes/$(id);
+      return existsAfter(path) ? getAfter(path).data.value : '';
+    }
+    function delta(value, before, after) {
+      return (after == value ? 1 : 0) - (before == value ? 1 : 0);
+    }
+    function validReactionChange(id, before, after) {
+      let oldVote = voteBefore(id);
+      let newVote = voteAfter(id);
+      return oldVote != newVote
+        && (newVote == '' || newVote == 'like' || newVote == 'dislike')
+        && (newVote == '' || (!before.deleted && discussionAccess(before) && commentWrites()))
+        && after.diff(before).affectedKeys().hasOnly(['likeCount', 'dislikeCount', 'score'])
+        && counts(after)
+        && after.likeCount == before.likeCount + delta('like', oldVote, newVote)
+        && after.dislikeCount == before.dislikeCount + delta('dislike', oldVote, newVote);
+    }
+    match /config/comments { allow get: if signedIn(); }
+    match /commentAccounts/{uid} {
+      allow get: if ownsProgress(uid);
+      allow create, update: if ownsProgress(uid)
+        && request.resource.data.keys().hasOnly(['deleting']) && request.resource.data.deleting == true;
+    }
+    match /questionComments/{id} {
+      // Transactions must be able to test an unused submission ID before creation.
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/questionComments/$(id))
+        || discussionAccess(resource.data) || resource.data.authorUid == request.auth.uid
+        || (exists(/databases/$(database)/documents/commentAccounts/$(request.auth.uid))
+          && exists(/databases/$(database)/documents/commentReactions/$(request.auth.uid)/votes/$(id))));
+      allow list: if discussionAccess(resource.data) || (signedIn() && resource.data.authorUid == request.auth.uid);
+      allow create: if signedIn() && discussionAccess(request.resource.data) && commentWrites()
+        && validComment(request.resource.data)
+        && !existsAfter(/databases/$(database)/documents/commentReactions/$(request.auth.uid)/votes/$(id));
+      allow update: if signedIn() && (
+        (resource.data.authorUid == request.auth.uid && !resource.data.deleted && (
+          (discussionAccess(resource.data) && commentWrites()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'updatedAt'])
+            && validText(request.resource.data.text) && request.resource.data.updatedAt == request.time)
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'authorUid', 'authorName', 'deleted', 'updatedAt'])
+            && request.resource.data.text == '' && request.resource.data.authorName == ''
+            && request.resource.data.authorUid == null && request.resource.data.deleted == true
+            && request.resource.data.updatedAt == request.time)))
+        || validReactionChange(id, resource.data, request.resource.data));
+    }
+    match /commentReactions/{uid}/votes/{id} {
+      allow read: if ownsProgress(uid);
+      function pairedChange() {
+        let path = /databases/$(database)/documents/questionComments/$(id);
+        return exists(path) && validReactionChange(id, get(path).data, getAfter(path).data);
+      }
+      allow create, update: if ownsProgress(uid)
+        && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
+        && request.resource.data.value in ['like', 'dislike']
+        && request.resource.data.updatedAt == request.time && pairedChange();
+      allow delete: if ownsProgress(uid) && pairedChange();
+    }
+
     function hasValidFeedbackShape(data) {
       return data.keys().hasOnly(['text', 'submittedAt'])
         && data.keys().hasAll(['text', 'submittedAt'])

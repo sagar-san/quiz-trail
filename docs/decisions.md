@@ -60,14 +60,14 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D009 — Delete progress before deleting a cloud identity
 
-- **Status:** Accepted
+- **Status:** Accepted; extended by D018 to clean up comments and reactions first
 - **Decision:** Account deletion requires confirmation and recent Google authentication, then deletes the user's progress document before the Firebase Authentication identity.
 - **Why:** Deleting identity first could leave user-owned progress data without a normal authenticated path to remove it.
 - **Consequences:** Cross-service deletion is not atomic, so the application must report the partial outcome if progress is deleted but identity deletion fails.
 
 ## D010 — Store one feedback document per learner and question
 
-- **Status:** Accepted
+- **Status:** Superseded for new frontend submissions by D018; retained for legacy private reports
 - **Decision:** Cloud question feedback is stored at `questionFeedback/{questionId}/submissions/{uid}`. A later submission replaces that learner's earlier feedback for the same question. Feedback is not stored in local mode, and review happens through the private question-bank repository's local downloader and editor rather than the learner UI.
 - **Why:** Direct document access is efficient for a learner's own feedback, per-question and cross-question review remain queryable, and feedback from different learners does not accumulate toward a single Firestore document-size limit.
 - **Consequences:** Learners cannot list other submissions, existing array-based feedback is not migrated, and the private review command requires trusted Application Default Credentials. Downloads are nondestructive by default; optional remote deletion requires an exact per-report confirmation after the local file is verified.
@@ -149,3 +149,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Deliver the small preview bank from a protected Firestore document readable only by the owner's verified Google account. Never publish the preview to PMLE's public bucket. Public visitors see “Coming soon.”
 - **Why:** Public encryption keys cannot enforce private access; hiding navigation is insufficient.
 - **Consequences:** Publication requires approved Firestore rules and a separate approved private-document write. The private publisher checks a 900,000-byte encoded budget. A larger or public release requires revisiting delivery and access deliberately.
+
+## D018 — Share question discussion with client transactions and cursor pagination
+
+- **Status:** Accepted
+- **Decision:** Replace the private feedback form with shared signed-in comments, one Like/Dislike per learner, and net-score ranking. Enforce aggregate/vote consistency in both directions with Firestore rules and atomic transactions. Use simple bounded cursor pages; rankings can change between requests.
+- **Why:** Learners can share corrections and useful explanations within the existing browser/Firebase architecture without adding a server or live ranking service.
+- **Consequences:** Existing private reports stay private. Comments use tombstones so other users' reactions need no cascading deletion. Account deletion blocks new comment writes, resumes bounded comment/vote cleanup, and stops on failure before deleting the identity. PAA stays restricted. No replies, moderation dashboard, automated hiding, or stable pagination snapshot is introduced.

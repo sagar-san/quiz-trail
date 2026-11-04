@@ -55,7 +55,8 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Strength and weak-area guidance is sample-gated so very small samples are not presented as meaningful conclusions.
 - Editorial source, review-status, and terminology metadata is hidden from ordinary learners. Maintainers can inspect it after answering by loading the page with `?debug=true`.
 - The post-answer AI review prompt directs third-party agents to solve independently before auditing the question bank's answer and explanation as untrusted claims.
-- After answering, signed-in cloud learners can report an incorrect, unclear, or outdated question through the feedback form in More. Opening More loads that learner's existing report for the question into the same form, where it can be edited and resubmitted. A later report for the same question replaces the earlier report.
+- After answering, signed-in cloud learners can open Discussion to read and post shared plain-text comments (1–2,000 trimmed characters). Authors can edit or delete their comments. Each learner can Like or Dislike a comment, switch sides, or remove their reaction, including on their own comments. Names are display labels, not verified identities.
+- Discussion loads only when opened, ten comments per page. It sorts by likes minus dislikes descending, then oldest first, then comment ID. Previous/Next refetch current rankings, so changing scores can cause repeated or skipped items between pages. Dislikes never hide comments. Guests see a sign-in invitation; local mode makes no discussion requests.
 - Post-answer metadata is collapsed behind a Question details disclosure.
 
 ## Accounts and data
@@ -64,9 +65,9 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 - Authentication is optional for practice. An anonymous cloud visitor receives no synthetic account and no progress writes.
 - Cloud progress is scoped to the signed-in Firebase user and can resume across devices.
 - Quiz Trail uses basic Google account details only to identify the learner's account. It does not sell learner data or share it with advertisers or unrelated third parties; Google and Firebase process the data required to provide authentication and cloud storage.
-- Account deletion requires typed `DELETE` confirmation and Google reauthentication. It deletes the user's progress document and then the Firebase Authentication identity.
+- Account deletion requires typed `DELETE` confirmation and Google reauthentication. It blocks new comment writes for that account, removes authored comment text and attribution, removes the user's reactions with matching count adjustments, deletes progress across certifications, and finally deletes the Firebase Authentication identity. Interrupted cleanup keeps the identity and can be resumed through Delete account in Settings.
 - If identity deletion fails after progress deletion, the app reports the partial result instead of claiming complete deletion.
-- The application stores the latest answer outcome by question ID and saved-for-later bookmarks, not copies of question text. Voluntary question feedback is stored separately for review.
+- The application stores the latest answer outcome by question ID and saved-for-later bookmarks, not copies of question text. Older private question feedback remains private and is retained separately; it is never copied into discussion.
 
 ## Question content
 
@@ -84,7 +85,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
 - The supported production domain is `quiz-trail.web.app`; a custom domain is optional.
 - The public Buy Me a Coffee footer link is optional and non-blocking. Additional contribution controls and GitHub support links remain in `?debug=true` maintainer mode; configured monetary links require HTTP(S) URLs.
-- The product does not currently provide timed mock exams, named study sessions, attempt history, spaced repetition, adaptive learning, readiness scoring, leaderboards, social features, native mobile apps, or an admin question editor.
+- The product does not currently provide timed mock exams, named study sessions, attempt history, spaced repetition, adaptive learning, readiness scoring, leaderboards, replies or public profiles, native mobile apps, or an admin question editor.
 - Internal editorial notes must not be exposed to learners without deliberate product review.
 
 ## Product safeguards

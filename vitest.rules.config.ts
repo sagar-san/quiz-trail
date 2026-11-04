@@ -7,6 +7,7 @@ export default defineConfig({
       'tests/firestore.rules.test.ts',
       'tests/firestore.progress.test.ts',
       'tests/firestore.feedback.test.ts',
+      'tests/firestore.comments.test.ts',
     ],
     fileParallelism: false,
   },

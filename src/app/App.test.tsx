@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthService, AuthStateListener, AuthUser } from '../auth/AuthService';
 import type { UserProgress } from '../domain/types';
-import type { FeedbackStore } from '../storage/FeedbackStore';
+import type { CommentStore } from '../storage/CommentStore';
 import type { ProgressStore } from '../storage/ProgressStore';
 import type { QuizPreferences } from '../storage/QuizPreferences';
 import { questions } from '../test/fixtures';
@@ -193,42 +193,23 @@ describe('App', () => {
     expect(window.location.search).toBe('');
   });
 
-  it('submits cloud feedback with the question ID and authenticated user ID', async () => {
+  it('loads and posts shared comments with the signed-in identity and question scope', async () => {
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice' });
-    const feedbackStore: FeedbackStore = {
-      loadFeedback: vi.fn().mockResolvedValue(null),
-      submitFeedback: vi.fn().mockResolvedValue(undefined),
+    const commentStore: CommentStore = {
+      listPage: vi.fn().mockResolvedValue({ items: [], hasNext: false, writesEnabled: true, deletionPending: false }),
+      createComment: vi.fn().mockResolvedValue(undefined), editComment: vi.fn(), deleteComment: vi.fn(),
+      setReaction: vi.fn(), deleteUserCommentData: vi.fn(),
     };
-    render(
-      <App
-        bankLoader={loader}
-        progressStore={memoryStore()}
-        authService={auth}
-        feedbackStore={feedbackStore}
-        dataMode="firebase-emulator"
-      />,
-    );
-
+    render(<App bankLoader={loader} progressStore={memoryStore()} authService={auth} commentStore={commentStore} dataMode="firebase-emulator" />);
     expect(await screen.findByText('3 questions')).toBeVisible();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
-    expect(feedbackStore.loadFeedback).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByText('More'));
-    await waitFor(() => expect(feedbackStore.loadFeedback).toHaveBeenCalledWith(
-      questions[0].questionId,
-      'user-a',
-    ));
-    await userEvent.type(
-      screen.getByPlaceholderText(/Describe what seems incorrect/),
-      'The explanation needs clarification.',
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Submit feedback' }));
-
-    await waitFor(() => expect(feedbackStore.submitFeedback).toHaveBeenCalledWith(
-      questions[0].questionId,
-      'The explanation needs clarification.',
-      'user-a',
-    ));
+    expect(commentStore.listPage).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Open discussion' }));
+    await userEvent.type(await screen.findByLabelText('Post as Alice'), 'A shared comment');
+    await userEvent.click(screen.getByRole('button', { name: 'Post comment' }));
+    await waitFor(() => expect(commentStore.createComment).toHaveBeenCalledWith('user-a',
+      { certificationId: 'pmle', questionId: questions[0].questionId }, 'A shared comment', 'Alice', expect.any(String)));
   });
 
   it('signs out without an unsaved-progress prompt after submitted answers save independently', async () => {
@@ -247,14 +228,18 @@ describe('App', () => {
     expect(auth.signOut).toHaveBeenCalledOnce();
   });
 
-  it('shows account settings and deletes progress before the authenticated account', async () => {
+  it.each([false, true])('cleans comments before progress and identity, and stops on cleanup failure (%s)', async (failCleanup) => {
     const auth = new TestAuthService({ uid: 'user-a', displayName: 'Alice', email: 'alice@example.com' });
     const store = memoryStore();
     const order: string[] = [];
     auth.reauthenticate.mockImplementation(async () => { order.push('reauthenticate'); });
     store.reset.mockImplementation(async () => { order.push('reset'); });
     auth.deleteAccount.mockImplementation(async () => { order.push('delete'); });
-    render(<App bankLoader={loader} progressStore={store} authService={auth} dataMode="firebase-emulator" />);
+    const comments: CommentStore = {
+      listPage: vi.fn(), createComment: vi.fn(), editComment: vi.fn(), deleteComment: vi.fn(), setReaction: vi.fn(),
+      deleteUserCommentData: vi.fn(async () => { order.push('comments'); if (failCleanup) throw new Error('Cleanup interrupted.'); }),
+    };
+    render(<App bankLoader={loader} progressStore={store} authService={auth} commentStore={comments} dataMode="firebase-emulator" />);
 
     await userEvent.click(await screen.findByRole('button', { name: 'Open account menu for Alice' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
@@ -269,9 +254,15 @@ describe('App', () => {
     await userEvent.type(screen.getByLabelText(/Type DELETE/), 'DELETE');
     await userEvent.click(deleteButton);
 
+    if (failCleanup) {
+      expect(await screen.findByRole('alert')).toHaveTextContent('retry Delete account');
+      expect(store.reset).not.toHaveBeenCalled();
+      expect(auth.deleteAccount).not.toHaveBeenCalled();
+      return;
+    }
     await waitFor(() => expect(auth.deleteAccount).toHaveBeenCalledOnce());
     expect(store.reset).toHaveBeenCalledWith('user-a');
-    expect(order).toEqual(['reauthenticate', 'reset', 'delete']);
+    expect(order).toEqual(['reauthenticate', 'comments', 'reset', 'delete']);
   });
 
   it('shows additional contribution and GitHub support controls in debug mode', async () => {

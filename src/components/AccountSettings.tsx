@@ -64,7 +64,7 @@ export function AccountSettings({
 
       {mode === 'firebase' && <section className="settings-card danger-zone" aria-labelledby="delete-heading">
         <h2 id="delete-heading">Delete account</h2>
-        <p>Permanently delete your Firebase account and all saved Quiz Trail progress. This cannot be undone.</p>
+        <p>Permanently delete your Firebase account, saved progress, comment text and author names, and your reactions. Older private feedback reports remain private and are retained separately. This cannot be undone.</p>
         {!confirmingDelete ? (
           <button className="secondary-button danger-button" type="button" disabled={busy} onClick={() => setConfirmingDelete(true)}>Delete account</button>
         ) : (

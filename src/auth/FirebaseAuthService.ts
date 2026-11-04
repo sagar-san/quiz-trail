@@ -24,7 +24,7 @@ const authMessages: Record<string, string> = {
 function toAuthUser(user: User): AuthUser {
   return {
     uid: user.uid,
-    displayName: user.displayName || user.email || 'Signed-in learner',
+    displayName: user.displayName || 'Learner',
     email: user.email || undefined,
     emailVerified: user.emailVerified,
     photoUrl: user.photoURL || undefined,

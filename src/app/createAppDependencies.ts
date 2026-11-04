@@ -29,12 +29,12 @@ export async function createAppDependencies(
     { FirebaseAuthService },
     { initializeFirebaseServices },
     { FirestoreProgressStore },
-    { FirestoreFeedbackStore },
+    { FirestoreCommentStore },
   ] = await Promise.all([
     import('../auth/FirebaseAuthService'),
     import('../firebase/firebase'),
     import('../storage/FirestoreProgressStore'),
-    import('../storage/FirestoreFeedbackStore'),
+    import('../storage/FirestoreCommentStore'),
   ]);
   const { auth, firestore } = initializeFirebaseServices(environment);
   return {
@@ -45,7 +45,7 @@ export async function createAppDependencies(
       const { loadPrivateQuestionBank } = await import('../data/csv/loadPrivateQuestionBank');
       return loadPrivateQuestionBank(firestore);
     },
-    feedbackStore: new FirestoreFeedbackStore(firestore),
+    commentStore: new FirestoreCommentStore(firestore),
     dataMode,
   };
 }

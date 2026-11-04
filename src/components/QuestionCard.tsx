@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { ChoiceKey, QuizQuestion } from '../domain/types';
 
 interface QuestionCardProps {
@@ -11,8 +11,7 @@ interface QuestionCardProps {
   sessionOnly?: boolean;
   onSubmit: (correct: boolean) => Promise<void>;
   onToggleSaved: () => void;
-  onSubmitFeedback?: (feedbackText: string) => Promise<void>;
-  onLoadFeedback?: () => Promise<string | null>;
+  discussion?: ReactNode;
 }
 
 const sameAnswers = (selected: ChoiceKey[], correct: ChoiceKey[]) =>
@@ -100,48 +99,12 @@ export function QuestionCard({
   sessionOnly = false,
   onSubmit,
   onToggleSaved,
-  onSubmitFeedback,
-  onLoadFeedback,
+  discussion,
 }: QuestionCardProps) {
   const [selected, setSelected] = useState<ChoiceKey[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
-  const [feedbackText, setFeedbackText] = useState('');
-  const [savedFeedbackText, setSavedFeedbackText] = useState<string | null>(null);
-  const [feedbackLoadStatus, setFeedbackLoadStatus] = useState<'not-loaded' | 'loading' | 'loaded' | 'failed'>('not-loaded');
-  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'submitted' | 'failed'>('idle');
-  const [feedbackError, setFeedbackError] = useState<string | null>(null);
-
-  const handleFeedbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!feedbackText.trim() || !onSubmitFeedback) return;
-    setFeedbackStatus('submitting');
-    setFeedbackError(null);
-    try {
-      await onSubmitFeedback(feedbackText.trim());
-      setSavedFeedbackText(feedbackText.trim());
-      setFeedbackLoadStatus('loaded');
-      setFeedbackStatus('submitted');
-    } catch (err) {
-      setFeedbackStatus('failed');
-      setFeedbackError(err instanceof Error ? err.message : 'Failed to submit feedback.');
-    }
-  };
-
-  const loadExistingFeedback = async () => {
-    if (!onLoadFeedback || feedbackLoadStatus === 'loading' || feedbackLoadStatus === 'loaded') return;
-    setFeedbackLoadStatus('loading');
-    try {
-      const existingFeedback = await onLoadFeedback();
-      setSavedFeedbackText(existingFeedback);
-      setFeedbackText(existingFeedback ?? '');
-      setFeedbackLoadStatus('loaded');
-    } catch {
-      setFeedbackLoadStatus('failed');
-    }
-  };
-
   const multiple = question.questionType === 'multiple_choice';
   const reviewPrompt = buildReviewPrompt(question, selected, certificationTitle);
   const toggleChoice = (key: ChoiceKey) => {
@@ -249,65 +212,9 @@ export function QuestionCard({
           <details
             className="more-options-details"
             aria-label="More options"
-            onToggle={(event) => {
-              if (event.currentTarget.open) void loadExistingFeedback();
-            }}
           >
             <summary>More <span aria-hidden="true">⌄</span></summary>
             <div className="more-options-content">
-              {onSubmitFeedback && (
-                <div className="question-feedback-action">
-                  <h4>Report a problem with this question</h4>
-                  <form onSubmit={handleFeedbackSubmit}>
-                      <textarea
-                        value={feedbackText}
-                        onChange={(e) => {
-                          setFeedbackText(e.target.value);
-                          if (feedbackStatus === 'submitted') setFeedbackStatus('idle');
-                        }}
-                        placeholder="Describe what seems incorrect, unclear, or outdated..."
-                        maxLength={1000}
-                        disabled={feedbackLoadStatus === 'loading' || feedbackStatus === 'submitting'}
-                        rows={3}
-                      />
-                      <div className="feedback-form-actions">
-                        <span>{feedbackText.length}/1000 characters</span>
-                        <button
-                          type="submit"
-                          className="secondary-button"
-                          disabled={
-                            !feedbackText.trim()
-                            || (Boolean(onLoadFeedback) && feedbackLoadStatus !== 'loaded')
-                            || feedbackStatus === 'submitting'
-                            || feedbackText.trim() === savedFeedbackText
-                          }
-                        >
-                          {feedbackLoadStatus === 'loading'
-                            ? 'Loading...'
-                            : feedbackStatus === 'submitting'
-                              ? 'Saving...'
-                              : savedFeedbackText
-                                ? 'Update feedback'
-                                : 'Submit feedback'}
-                        </button>
-                      </div>
-                      {feedbackStatus === 'submitted' && (
-                        <p className="feedback-success">Feedback saved successfully.</p>
-                      )}
-                      {feedbackLoadStatus === 'failed' && (
-                        <div className="feedback-load-error" role="alert">
-                          <p className="feedback-error">Your existing feedback could not be loaded.</p>
-                          <button type="button" className="secondary-button" onClick={() => void loadExistingFeedback()}>
-                            Try again
-                          </button>
-                        </div>
-                      )}
-                      {feedbackStatus === 'failed' && (
-                        <p className="feedback-error" role="alert">{feedbackError || 'Failed to submit feedback.'}</p>
-                      )}
-                    </form>
-                </div>
-              )}
               <div className="content-metadata-section" aria-label="Question content details">
                 <h4>Question details</h4>
                 <dl className="content-metadata-list">
@@ -325,6 +232,7 @@ export function QuestionCard({
           </details>
         </div>
       )}
+      {submitted && discussion}
     </article>
   );
 }

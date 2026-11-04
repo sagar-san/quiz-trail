@@ -1,4 +1,15 @@
 {
-  "indexes": [],
+  "indexes": [{
+    "collectionGroup": "questionComments",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "certificationId", "order": "ASCENDING" },
+      { "fieldPath": "questionId", "order": "ASCENDING" },
+      { "fieldPath": "deleted", "order": "ASCENDING" },
+      { "fieldPath": "score", "order": "DESCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" },
+      { "fieldPath": "__name__", "order": "ASCENDING" }
+    ]
+  }],
   "fieldOverrides": []
 }

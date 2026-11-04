@@ -177,3 +177,16 @@ footer { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 28px 0 44px; 
 .primary-button { border-radius: 5px; box-shadow: none; }
 .account-controls { flex-wrap: wrap; }
 @media (max-width: 650px) { .site-header { height: auto; min-height: 72px; padding-top: 12px; padding-bottom: 12px; gap: 10px; } .account-controls { gap: 14px; justify-content: flex-end; } }
+
+.question-discussion { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #cbd5e1; }
+.question-discussion textarea { display: block; width: 100%; min-height: 6rem; margin: .5rem 0; padding: .75rem; border: 1px solid #94a3b8; border-radius: .5rem; font: inherit; resize: vertical; }
+.discussion-note, .discussion-byline { color: #475569; font-size: .875rem; }
+.discussion-list { list-style: none; padding: 0; }
+.discussion-list > li { padding: 1.25rem 0; border-bottom: 1px solid #e2e8f0; }
+.discussion-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin-top: .75rem; }
+.discussion-controls button { min-height: 44px; padding: .5rem .75rem; border: 1px solid #cbd5e1; border-radius: .4rem; background: #fff; color: #1e293b; font: inherit; font-weight: 500; }
+.discussion-controls button.primary-button { background: #1d4ed8; color: #fff; }
+.discussion-controls button:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 3px; }
+.discussion-controls button[aria-pressed="true"] { color: #fff; background: #1d4ed8; }
+.comment-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.discussion-byline { display: flex; flex-wrap: wrap; gap: .5rem; overflow-wrap: anywhere; }
