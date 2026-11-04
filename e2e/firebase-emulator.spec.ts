@@ -109,7 +109,6 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   const questionId = await page.locator('.question-meta').evaluate((element) => (
     element.lastElementChild?.textContent ?? ''
   ));
-  await page.getByRole('button', { name: 'Open discussion' }).click();
   await page.getByLabel('Post as Trail Tester').fill('The explanation needs a clearer reference.');
   await page.getByRole('button', { name: 'Post comment', exact: true }).click();
   await expect(page.locator('.comment-text')).toHaveText('The explanation needs a clearer reference.');
@@ -135,7 +134,6 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.locator('.question-meta')).toContainText(questionId);
   await page.locator('.question-card input').first().check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
-  await page.getByRole('button', { name: 'Open discussion' }).click();
   await expect(page.locator('.comment-text')).toHaveText('An updated shared comment.');
 
   await page.getByRole('button', { name: /Open account menu/ }).click();
@@ -220,7 +218,6 @@ for (const mobile of [false, true]) {
     await signInWithNewEmulatorAccount(page);
     await expect(page.getByRole('button', { name: 'Open account menu for Trail Tester' })).toBeVisible();
     await page.locator('.question-card input').first().check();
-    await page.getByRole('button', { name: 'Submit answer' }).click();
     const questionId = await page.locator('.question-meta span').last().textContent();
     for (let i = 0; i < 12; i++) {
       const response = await fetch(`http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/questionComments/seed-${String(i).padStart(2, '0')}`, {
@@ -235,8 +232,7 @@ for (const mobile of [false, true]) {
       });
       expect(response.ok).toBe(true);
     }
-    await page.getByRole('button', { name: 'Open discussion' }).focus();
-    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'Submit answer' }).click();
     await expect(page.locator('.comment-text')).toHaveCount(10);
     await page.getByRole('button', { name: 'Next comments' }).focus();
     await page.keyboard.press('Enter');

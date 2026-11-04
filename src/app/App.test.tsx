@@ -204,8 +204,7 @@ describe('App', () => {
     expect(await screen.findByText('3 questions')).toBeVisible();
     await userEvent.click(screen.getByLabelText(/BigQuery/));
     await userEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
-    expect(commentStore.listPage).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button', { name: 'Open discussion' }));
+    await waitFor(() => expect(commentStore.listPage).toHaveBeenCalledOnce());
     await userEvent.type(await screen.findByLabelText('Post as Alice'), 'A shared comment');
     await userEvent.click(screen.getByRole('button', { name: 'Post comment' }));
     await waitFor(() => expect(commentStore.createComment).toHaveBeenCalledWith('user-a',

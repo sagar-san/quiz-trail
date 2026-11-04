@@ -117,7 +117,7 @@ Firestore rules restrict reads and writes to the authenticated owner, allow only
 
 ### Shared question discussion
 
-`CommentStore` is separate from quiz state and progress. `FirestoreCommentStore` is dynamically imported in cloud modes only. `QuestionDiscussion` owns lazy loading, cursor history, drafts and mutation state; it is mounted outside the grading status region and keyed by user, certification and question. App tracks its mutations before leaving, signing out or deleting an account.
+`CommentStore` is separate from quiz state and progress. `FirestoreCommentStore` is dynamically imported in cloud modes only. `QuestionDiscussion` owns automatic post-answer loading, cursor history, drafts and mutation state; it is mounted outside the grading status region and keyed by user, certification and question. App tracks its mutations before leaving, signing out or deleting an account.
 
 - `questionComments/{id}` stores certification/question scope, author UID and public-safe display label, plain text, creation/edit timestamps, integer like/dislike counts, net score, and a deletion flag.
 - `commentReactions/{uid}/votes/{commentId}` stores that learner's `like`/`dislike` value and server update timestamp. Only that learner can read/list it.
