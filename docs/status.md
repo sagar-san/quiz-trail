@@ -1,16 +1,14 @@
 # Current status
 
-Last reviewed: 2026-11-05
+Last reviewed: 2026-11-06
 
-## PAA JSON launch switch — deployed 2026-11-05
+## PAA public launch — deployed 2026-11-06
 
-- The owner approved deploying a simple JSON switch with PAA still private. `release.config.json.agenticAiPublic` is **false**. A future launch requires changing only that value to true, rebuilding, and deploying Hosting plus Firestore rules.
-- The app registry, static catalog/FAQ/sample copy, and generated `.tmp/release/firestore.rules` use the same value. Deploy hooks reject a stale flag/build mismatch. There is no remote-config service or runtime config document. False keeps the public button disabled and preserves the existing verified Google owner preview; true opens protected PAA practice, own progress and discussion to verified Google learners. Legacy private feedback stays restricted.
-- Verification: 102 unit/component/build-template tests passed with each flag value; typecheck and lint passed; 30 rules/storage tests cover both rule modes; one Auth emulator test passed; all 32 desktop/mobile browser checks passed in each mode; all seven applicable Firebase browser flows passed in each mode. Both Firebase-mode builds passed. Verified the deployment guard rejects a changed flag until rebuild.
-- Integration used isolated Auth port 9199 and Firestore namespace `quiz-trail-paa-release`; the user's development accounts/data were not cleared. Public mode was exercised locally, then the JSON flag was restored to false and rebuilt for release. No question-bank publication, index change, data migration or production data edit is needed.
-- Deployed commit `8ca3485` to Firebase project `quiz-trail` / `724933345983` with the flag false. The deployed rules exactly match the tested private generated rules; anonymous PAA bank access returns 403 and the bank update timestamp is unchanged. All seven HTML pages plus `llms.txt` exactly match the private build, and the new catalog/practice JavaScript assets return 200. Live browser verification confirms the disabled public button and PAA private-preview summary gate. Signed-in writes were exercised in the emulators, not repeated in production.
-- The sibling bank's unrelated `questions/PMLE-0011.json` change remains untouched; no bank changes are part of this release. The isolated test Auth emulator and preview server were stopped; the user's Firestore emulator was left running.
-
+- The owner approved public launch, deployment and push. Deployed commit `87bb641` with `release.config.json.agenticAiPublic=true` to Firebase project `quiz-trail` / `724933345983`. Hosting and Firestore rules are live.
+- PAA catalog practice is enabled; the existing 150-question bank, summaries, own progress and shared discussion are available to verified Google learners. Guests still sign in. No bank publication, migration, index or production data changes were needed.
+- Verification: typecheck, lint (excluding ignored `.tmp` fixtures), 102 unit tests, 30 security-rule/storage tests, one Auth emulator test, all 32 desktop/mobile browser tests, and seven applicable Firebase browser flows passed (two private-mode flows skipped). Production Firebase build and deploy consistency guard passed.
+- Live rules exactly match the generated public rules. All seven HTML pages and `llms.txt` match the production build, referenced JavaScript assets return 200, and anonymous PAA bank access remains 403. Desktop/mobile production browser checks confirm the enabled PAA link and signed-out practice/summary gates without private bank requests. Signed-in progress/discussion writes were verified in isolated emulators, not repeated in production.
+- The question-bank repository is unchanged. The earlier unrelated PMLE-0011 working-tree edit was discarded at the owner's request before this release.
 
 ## Navigation release — deployed 2026-11-04
 
@@ -46,7 +44,7 @@ Last reviewed: 2026-11-05
 
 ## Preserved bank state and cautions
 
-- The sibling bank's pre-existing change to `questions/PMLE-0011.json` remains untouched. No bank source/tooling changes were needed, so question-bank preflight was not rerun. The ten newly public PAA samples were checked against linked official references; the rest of the PAA bank was not re-reviewed.
+- The prior PMLE-0011 working-tree edit was discarded at the owner's request. No bank source/tooling changes were needed for the public launch, so question-bank preflight was not rerun. The ten newly public PAA samples were checked against linked official references; the rest of the PAA bank was not re-reviewed.
 - Never publish the full PAA bank to the public bucket or frontend assets. Only the ten static samples listed in `question-bank.md` are approved for public use. Existing private-feedback retention is unchanged; old reports are never converted to shared comments.
 - A Hosting rollback must account for older clients lacking comment cleanup during account deletion. Preserve the updated deletion path or handle cleanup explicitly; never delete comment data as a rollback shortcut.
 - Verify local processes when resuming; do not assume test servers or emulators remain running.
