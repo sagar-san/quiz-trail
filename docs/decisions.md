@@ -163,3 +163,10 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Remove interactive guest practice and its banner. Require Google sign-in before loading cloud practice or summaries. Keep ten public PMLE samples and publish ten explicitly approved PAA examples as a static page, even while full PAA practice remains in private preview.
 - **Why:** Account creation is simple; public sample pages provide the desired no-account introduction.
 - **Consequences:** Signed-out practice makes no bank, progress, or preference reads. Existing Google sessions and local-development identity continue working. The full PAA bank retains server-enforced preview authorization. The static sample exception does not authorize publishing any other private questions.
+
+## D020 — Use one deployment-time JSON flag for PAA launch
+
+- **Status:** Accepted, 2026-11-05
+- **Decision:** Keep `release.config.json.agenticAiPublic` false until the owner is ready. Build public pages, app access and Firestore rules from that one value. Launch by changing it to true and deploying Hosting plus rules.
+- **Why:** The owner wants a simple one-time launch and accepts deployment; remote config and gradual rollout are unnecessary.
+- **Consequences:** Current owner-only preview stays available. The enabled mode admits verified Google learners while preserving authentication, per-user isolation, bank write/list restrictions and legacy private-feedback permissions. Both modes are tested. No bank republish or progress migration is required.

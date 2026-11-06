@@ -90,3 +90,11 @@ The public production site is [quiz-trail.web.app](https://quiz-trail.web.app).
 ## Certification development
 
 `/practice/` and `?cert=pmle` use legacy PMLE storage. `?cert=agentic-ai` requires the verified preview owner in Firebase modes. Default local mode deliberately does not bypass preview authorization; use Auth/Firestore emulators to test it. Emulator browser tests seed a synthetic encrypted bank and test both authorized and unauthorized accounts. `PLAYWRIGHT_BASE_URL` can override their base URL, but the public PMLE bucket permits only configured localhost origins (use port 5173 for combined flows).
+
+## PAA launch flag
+
+`release.config.json` is the single launch switch: `agenticAiPublic: false` keeps PAA in its owner-only preview; `true` enables practice, summaries, progress and discussion for all verified Google learners after deployment. There is no remote flag or gradual rollout.
+
+Vite reads this file for the app and resolves the `paa:public` / `paa:preview` blocks in static pages before generating HTML. Production pages therefore work without JavaScript. The build also generates `.tmp/release/firestore.rules` from the authored `firestore.rules` template. Never hand-edit generated rules. Firebase uses the generated file; deploy hooks reject a flag changed since the build. `npm run prepare:release` prepares emulator rules without making a production build.
+
+Both rule modes have emulator coverage. The browser suites select preview/public expectations from the same JSON flag; restart Vite after changing it. Default local-mode PAA never falls back to the PMLE bank; use Firebase emulators for PAA practice.

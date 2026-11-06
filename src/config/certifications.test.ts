@@ -7,7 +7,7 @@ it('preserves legacy URLs and rejects unknown certifications', () => {
   expect(selectedCertification('?cert=agentic-ai').id).toBe('agentic-ai');
   expect(() => selectedCertification('?cert=unknown')).toThrow('Unknown certification');
   expect(() => selectedCertification('?cert=__proto__')).toThrow();
-  expect(canAccessCertification(certifications['agentic-ai'], { uid: 'u', displayName: 'User', email: 'ssanghani@gmail.com' })).toBe(false);
+  expect(canAccessCertification({ ...certifications['agentic-ai'], preview: true }, { uid: 'u', displayName: 'User', email: 'ssanghani@gmail.com' })).toBe(false);
 });
 it('isolates answers, bookmarks, versions, filters and reset while retaining legacy keys', async () => {
   localStorage.clear();
@@ -26,4 +26,11 @@ it('isolates answers, bookmarks, versions, filters and reset while retaining leg
   await agentic.reset();
   expect((await pmle.load())?.progress).toEqual({ 'PMLE-0001': true });
   expect(await agentic.load()).toBeNull();
+});
+
+it('opens PAA for ordinary learners only when its preview flag is off', () => {
+  const learner = { uid: 'learner', displayName: 'Learner', email: 'learner@example.com', emailVerified: true };
+  expect(canAccessCertification({ ...certifications['agentic-ai'], preview: true }, learner)).toBe(false);
+  expect(canAccessCertification({ ...certifications['agentic-ai'], preview: false }, learner)).toBe(true);
+  expect(canAccessCertification({ ...certifications['agentic-ai'], preview: true }, { ...learner, email: 'ssanghani@gmail.com' })).toBe(true);
 });

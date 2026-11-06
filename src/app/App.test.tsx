@@ -290,7 +290,7 @@ it('never loads private content or progress for a guest or a different account',
   const bankLoader = vi.fn(loader);
   const store = memoryStore();
   const auth = new TestAuthService(null);
-  render(<App certification={certifications['agentic-ai']} bankLoader={bankLoader} progressStore={store} authService={auth} />);
+  render(<App certification={{ ...certifications['agentic-ai'], preview: true }} bankLoader={bankLoader} progressStore={store} authService={auth} />);
   expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
   expect(await screen.findByText('This preview is not available to this account.')).toBeVisible();
@@ -303,7 +303,7 @@ it('loads the preview only for the verified owner and hides it immediately on si
   window.history.replaceState({}, '', '/practice/?cert=agentic-ai');
   const auth = new TestAuthService({ uid: 'owner', displayName: 'Owner', email: 'ssanghani@gmail.com', emailVerified: true });
   const bankLoader = vi.fn(loader);
-  render(<App certification={certifications['agentic-ai']} bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} />);
+  render(<App certification={{ ...certifications['agentic-ai'], preview: true }} bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} />);
   expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
   await userEvent.click(screen.getByRole('link', { name: 'PAA summary' }));
   expect(screen.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
@@ -312,5 +312,38 @@ it('loads the preview only for the verified owner and hides it immediately on si
   await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
   await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
   expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
+  expect(bankLoader).toHaveBeenCalledTimes(1);
+});
+
+it('keeps PAA questions, progress and preferences unloaded until Google sign-in', async () => {
+  window.history.replaceState({}, '', '/practice/?cert=agentic-ai&view=summary');
+  const bankLoader = vi.fn(loader);
+  const store = memoryStore();
+  const preferences = { loadFilter: vi.fn(() => 'all' as const), saveFilter: vi.fn() };
+  const auth = new TestAuthService(null);
+  render(<App certification={{ ...certifications['agentic-ai'], preview: false }} bankLoader={bankLoader} progressStore={store} preferences={preferences} authService={auth} />);
+  expect(await screen.findByRole('heading', { name: 'Sign in to view your summary' })).toBeVisible();
+  expect(screen.getByRole('link', { name: 'View sample questions' })).toHaveAttribute('href', '/agentic-ai/sample-questions/');
+  expect(bankLoader).not.toHaveBeenCalled();
+  expect(store.load).not.toHaveBeenCalled();
+  expect(preferences.loadFilter).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
+  expect(await screen.findByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
+  expect(bankLoader).toHaveBeenCalledTimes(1);
+});
+it('loads PAA for an ordinary learner and hides it immediately on sign out', async () => {
+  window.history.replaceState({}, '', '/practice/?cert=agentic-ai');
+  const auth = new TestAuthService({ uid: 'learner', displayName: 'Learner', email: 'learner@example.com', emailVerified: true });
+  const bankLoader = vi.fn(loader);
+  render(<App certification={{ ...certifications['agentic-ai'], preview: false }} bankLoader={bankLoader} progressStore={memoryStore()} authService={auth} />);
+  expect(await screen.findByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
+  expect(document.title).toBe('Professional Agentic Architect Practice | Quiz Trail');
+  await userEvent.click(screen.getByRole('link', { name: 'PAA summary' }));
+  expect(screen.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
+  expect(window.location.search).toBe('?cert=agentic-ai&view=summary');
+  await userEvent.click(screen.getByRole('button', { name: 'Open account menu for Learner' }));
+  await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+  expect(await screen.findByRole('heading', { name: 'Sign in to view your summary' })).toBeVisible();
   expect(bankLoader).toHaveBeenCalledTimes(1);
 });

@@ -1,10 +1,12 @@
 {
   "firestore": {
-    "rules": "firestore.rules",
+    "rules": ".tmp/release/firestore.rules",
+    "predeploy": ["npm run verify:release"],
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
     "public": "dist",
+    "predeploy": ["npm run verify:release"],
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
       {

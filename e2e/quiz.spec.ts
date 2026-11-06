@@ -1,3 +1,4 @@
+import releaseConfig from '../release.config.json' with { type: 'json' };
 import { expect, test } from '@playwright/test';
 import axe from 'axe-core';
 
@@ -263,8 +264,9 @@ test('analytics summary is accessible and review queues return to practice', asy
 
 test('certification catalog is accessible and unreleased routes fail closed', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText('Coming soon', { exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'PAA summary (private preview)' })).toHaveAttribute('href', '/practice/?cert=agentic-ai&view=summary');
+  if (releaseConfig.agenticAiPublic) await expect(page.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
+  else await expect(page.getByText('Coming soon', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: releaseConfig.agenticAiPublic ? 'PAA summary' : 'PAA summary (private preview)' })).toHaveAttribute('href', '/practice/?cert=agentic-ai&view=summary');
   await page.addScriptTag({ content: axe.source });
   const violations = await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => issue.impact === 'serious' || issue.impact === 'critical'));
   expect(violations).toEqual([]);
@@ -272,7 +274,8 @@ test('certification catalog is accessible and unreleased routes fail closed', as
   await page.goto('/practice/?cert=unknown');
   await expect(page.getByText('Unknown certification. Return home to choose a certification.')).toBeVisible();
   await page.goto('/practice/?cert=agentic-ai');
-  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
+  if (releaseConfig.agenticAiPublic) await expect(page.getByText('PAA practice requires Firebase mode and Google sign-in.')).toBeVisible();
+  else await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.locator('.question-card')).toHaveCount(0);
 });
 
@@ -305,12 +308,13 @@ test('certification resource links open the right FAQ and summary', async ({ pag
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quiz-trail.web.app/agentic-ai/faq/');
   const html = await (await page.request.get('/agentic-ai/faq/')).text();
   expect(html).toContain('FAQPage');
-  expect(html).toContain('Only the authorized preview owner');
+  expect(html).toContain(releaseConfig.agenticAiPublic ? 'Sign in with Google to practice all 150 PAA questions' : 'Only the authorized preview owner');
   await page.addScriptTag({ content: axe.source });
   expect(await page.evaluate(async () => (await window.axe.run()).violations.filter((issue) => ['serious', 'critical'].includes(issue.impact ?? '')))).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
   await page.locator('footer').getByRole('link', { name: 'PAA summary' }).click();
   await expect(page).toHaveURL(/cert=agentic-ai&view=summary/);
-  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
+  if (releaseConfig.agenticAiPublic) await expect(page.getByText('PAA practice requires Firebase mode and Google sign-in.')).toBeVisible();
+  else await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
   await expect(page.locator('.analytics-summary, .question-card')).toHaveCount(0);
 });

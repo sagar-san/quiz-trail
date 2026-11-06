@@ -2,7 +2,10 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { createDecipheriv } from 'node:crypto';
 import { fileURLToPath, URL } from 'node:url';
+import { readReleaseConfig, renderReleaseHtml, recordReleaseBuild } from './scripts/release.ts';
 import { questionBankEncryptionKey } from '../quiz-trail-question-bank/scripts/encryption.ts';
+
+const releaseConfig = readReleaseConfig();
 
 const questionBankKeyVersion = [...questionBankEncryptionKey]
   .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -11,6 +14,10 @@ const questionBankKeyVersion = [...questionBankEncryptionKey]
 
 export default defineConfig({
   plugins: [react(), {
+    name: 'certification-release',
+    transformIndexHtml: { order: 'pre', handler: (html) => renderReleaseHtml(html, releaseConfig) },
+    writeBundle() { recordReleaseBuild(releaseConfig); },
+  }, {
     name: 'local-question-bank',
     // Only the public PMLE bank is served here, and only by the dev server.
     configureServer(server) {

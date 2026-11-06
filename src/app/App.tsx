@@ -107,7 +107,7 @@ export function App({
   useEffect(() => {
     document.title = activeView === 'summary'
       ? `${certification.label} Progress Summary | Quiz Trail`
-      : certification.preview ? `${certification.title} Practice | Quiz Trail` : 'Practice Google Cloud PMLE Questions | Quiz Trail';
+      : certification.id === 'pmle' ? 'Practice Google Cloud PMLE Questions | Quiz Trail' : `${certification.title} Practice | Quiz Trail`;
   }, [activeView, certification]);
 
   useEffect(() => {
@@ -301,7 +301,7 @@ export function App({
         <a href="/" className="brand" aria-label="Quiz Trail home" onClick={leavePage}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
           <a className="header-button header-link" href="/" onClick={leavePage}>Home</a>
-          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={leavePage}>{certification.id === 'pmle' ? 'PAA preview' : 'PMLE'}</a>}
+          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={leavePage}>{certification.id === 'pmle' ? (certifications['agentic-ai'].preview ? 'PAA preview' : 'PAA') : 'PMLE'}</a>}
           {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
             user ? <div className="account-menu" ref={accountMenu}>

@@ -204,3 +204,15 @@ A Hosting rollback may leave certification progress children; older account-dele
 5. If writes must pause, set `config/comments.enabled` to false with approval. Removals and account cleanup remain available. An interrupted deletion resumes through Settings → Delete account; do not delete the Auth identity manually before cleanup succeeds.
 
 A frontend rollback can restore the old feedback form without deleting comment data. Older clients do not clean up comments during account deletion: keep the updated deletion flow available or explicitly handle that cleanup. Never delete comments, votes, indexes or legacy feedback as a rollback shortcut.
+
+## Enable PAA with one config change
+
+The launch flag lives in `release.config.json`, initially `{ "agenticAiPublic": false }`. False keeps the public practice button disabled and restricts full PAA access to the verified preview owner. True enables the catalog link, public availability copy, practice/summary access, own-progress writes and shared discussion for any verified Google learner. Guest, unverified/non-Google, bank-listing and client-bank-write restrictions remain. Legacy private feedback remains unchanged.
+
+For the public launch, change only `agenticAiPublic` to `true`, run the verification gates above, then build with `VITE_DATA_MODE=firebase npm run build`. Commit/push the config change and deploy both Hosting and Firestore rules with explicit owner approval:
+
+```bash
+XDG_CONFIG_HOME=.tmp/firebase-config XDG_CACHE_HOME=.tmp/firebase-cache ./node_modules/.bin/firebase deploy --only firestore:rules,hosting --project production
+```
+
+The build generates `.tmp/release/firestore.rules` and records its flag value. Firebase predeploy checks reject a config/rules mismatch; rebuild if the flag changed. No question-bank publication, index update, data migration or console flag is needed. Restart local Vite after flipping the flag so static copy and app configuration agree. The existing owner-only rules tests remain useful baseline coverage; `firestore.launch.test.ts` additionally tests both generated modes.

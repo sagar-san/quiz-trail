@@ -1,6 +1,15 @@
 # Current status
 
-Last reviewed: 2026-11-04
+Last reviewed: 2026-11-05
+
+## PAA JSON launch switch — verified, deployment pending
+
+- The owner approved deploying a simple JSON switch with PAA still private. `release.config.json.agenticAiPublic` is **false**. A future launch requires changing only that value to true, rebuilding, and deploying Hosting plus Firestore rules.
+- The app registry, static catalog/FAQ/sample copy, and generated `.tmp/release/firestore.rules` use the same value. Deploy hooks reject a stale flag/build mismatch. There is no remote-config service or runtime config document. False keeps the public button disabled and preserves the existing verified Google owner preview; true opens protected PAA practice, own progress and discussion to verified Google learners. Legacy private feedback stays restricted.
+- Verification: 102 unit/component/build-template tests passed with each flag value; typecheck and lint passed; 30 rules/storage tests cover both rule modes; one Auth emulator test passed; all 32 desktop/mobile browser checks passed in each mode; all seven applicable Firebase browser flows passed in each mode. Both Firebase-mode builds passed. Verified the deployment guard rejects a changed flag until rebuild.
+- Integration used isolated Auth port 9199 and Firestore namespace `quiz-trail-paa-release`; the user's development accounts/data were not cleared. Public mode was exercised locally, then the JSON flag was restored to false and rebuilt for release. No question-bank publication, index change, data migration or production data edit is needed.
+- The earlier direct-launch commits were reverted and pushed before this implementation. The sibling bank's unrelated `questions/PMLE-0011.json` change remains untouched; no bank changes are part of this release.
+
 
 ## Navigation release — deployed 2026-11-04
 

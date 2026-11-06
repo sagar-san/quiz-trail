@@ -5,6 +5,7 @@ export default defineConfig({
     environment: 'node',
     include: [
       'tests/firestore.rules.test.ts',
+      'tests/firestore.launch.test.ts',
       'tests/firestore.progress.test.ts',
       'tests/firestore.feedback.test.ts',
       'tests/firestore.comments.test.ts',
