@@ -1,4 +1,4 @@
-import { certifications, canAccessCertification, type Certification } from '../config/certifications';
+import { certifications, type Certification } from '../config/certifications';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { LocalAuthService, type AuthService, type AuthUser } from '../auth/AuthService';
 import type { DataMode } from '../config/dataMode';
@@ -57,7 +57,6 @@ export function App({
   const store = useMemo<ProgressStore>(() => progressStore ?? new LocalStorageProgressStore(), [progressStore]);
   const preferenceStore = useMemo(() => preferences ?? new LocalStorageQuizPreferences(), [preferences]);
   const auth = useMemo(() => authService ?? new LocalAuthService(), [authService]);
-  const allowed = canAccessCertification(certification, user);
   const pendingWrites = useRef(new Set<Promise<void>>());
   function trackWrite(write: Promise<void>): Promise<void> {
     const tracked = write.finally(() => pendingWrites.current.delete(tracked));
@@ -107,7 +106,7 @@ export function App({
   useEffect(() => {
     document.title = activeView === 'summary'
       ? `${certification.label} Progress Summary | Quiz Trail`
-      : certification.preview ? `${certification.title} Practice | Quiz Trail` : 'Practice Google Cloud PMLE Questions | Quiz Trail';
+      : certification.id === 'pmle' ? 'Practice Google Cloud PMLE Questions | Quiz Trail' : `${certification.title} Practice | Quiz Trail`;
   }, [activeView, certification]);
 
   useEffect(() => {
@@ -150,7 +149,7 @@ export function App({
 
   useEffect(() => {
     const userId = user?.uid;
-    if (!authResolved || !allowed || !userId) return;
+    if (!authResolved || !userId) return;
     let active = true;
     async function start() {
       setLoading(true);
@@ -181,7 +180,7 @@ export function App({
     }
     void start();
     return () => { active = false; };
-  }, [authResolved, allowed, bankLoader, preferenceStore, store, user?.uid]);
+  }, [authResolved, bankLoader, preferenceStore, store, user?.uid]);
 
   const visible = selectFilteredQuestions(state);
   const currentFromBank = state.questions.find((question) => question.questionId === state.currentQuestionId);
@@ -278,7 +277,6 @@ export function App({
   };
 
   if (!authResolved) return <main className="centered-state"><div className="loader" /><h1>Checking your session…</h1><p>Preparing Quiz Trail.</p></main>;
-  if (!allowed) return <main className="centered-state auth-state"><a href="/" className="brand">Quiz Trail</a><p className="eyebrow">Private preview</p><h1>{certification.title} is coming soon</h1><p>{user ? 'This preview is not available to this account.' : 'Sign in with an authorized account to open the private preview.'}</p>{authError && <p role="alert">{authError}</p>}{auth.mode === 'firebase' && <button className="primary-button" disabled={authBusy} onClick={() => void (user ? signOut() : signIn())}>{user ? 'Sign out' : 'Sign in'}</button>}<a href={certification.samplePath}>View sample questions</a><a href={certification.faqPath}>{certification.label} FAQ</a><a href="/">Back to home</a></main>;
   if (!user) return (
     <main className="centered-state auth-state sign-in-state">
       <a href="/" className="brand" aria-label="Quiz Trail home"><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
@@ -301,7 +299,7 @@ export function App({
         <a href="/" className="brand" aria-label="Quiz Trail home" onClick={leavePage}><span className="brand-mark" aria-hidden="true">Q</span><span>Quiz Trail</span></a>
         <div className="account-controls">
           <a className="header-button header-link" href="/" onClick={leavePage}>Home</a>
-          {canAccessCertification(certifications['agentic-ai'], user) && <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={leavePage}>{certification.id === 'pmle' ? 'PAA preview' : 'PMLE'}</a>}
+          <a className="header-button header-link" href={certification.id === 'pmle' ? '/practice/?cert=agentic-ai' : '/practice/'} onClick={leavePage}>{certification.id === 'pmle' ? 'PAA' : 'PMLE'}</a>
           {auth.mode === 'local' && <button className="header-button" type="button" onClick={() => { setAccountError(null); setSettingsOpen(true); }}>Settings</button>}
           {auth.mode === 'firebase' && (
             user ? <div className="account-menu" ref={accountMenu}>
@@ -348,7 +346,7 @@ export function App({
         ) : <>
         <section className="intro">
           <h1>{certification.title} practice questions</h1>
-          <p>{certification.preview ? 'Private preview · Questions are under review.' : 'Free practice questions with explanations and official references.'}</p>
+          <p>Free practice questions with explanations and official references.</p>
         </section>
         <ProgressSummary counts={counts} onOpenSummary={() => showView('summary')} />
         {(storageError || (debugMetadata && state.reconciliationNotice)) && (

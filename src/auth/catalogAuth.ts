@@ -1,12 +1,10 @@
 import type { AuthService, AuthUser } from './AuthService';
-import { canAccessCertification, certifications } from '../config/certifications';
 
 /** Enhance the static catalog without selecting or loading a question bank. */
 export function mountCatalogAuth(auth: AuthService, root: Document = document): () => void {
   const button = root.querySelector<HTMLButtonElement>('[data-catalog-auth]')!;
   const identity = root.querySelector<HTMLElement>('[data-catalog-user]')!;
   const status = root.querySelector<HTMLElement>('[data-catalog-auth-status]')!;
-  const preview = root.querySelector<HTMLElement>('[data-paa-practice]')!;
   const pmleContinue = root.querySelector<HTMLAnchorElement>('[data-pmle-continue]')!;
   let user: AuthUser | null = null;
   let resolved = false;
@@ -22,7 +20,6 @@ export function mountCatalogAuth(auth: AuthService, root: Document = document): 
     identity.textContent = user?.displayName ?? '';
     status.textContent = error ?? (!local && user ? 'Signed in. Choose a certification below to continue.' : '');
     status.hidden = !status.textContent;
-    preview.hidden = local || !canAccessCertification(certifications['agentic-ai'], user);
     pmleContinue.href = user ? '/practice/' : '/practice/?signIn=true';
     pmleContinue.textContent = user ? 'Continue PMLE →' : 'Already have saved progress? Sign in to continue PMLE →';
   };

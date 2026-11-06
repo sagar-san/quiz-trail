@@ -26,3 +26,14 @@ for (const [path, label, prefix] of [
     await context.close();
   });
 }
+
+test('PAA launch links and availability work without JavaScript', async ({ browser, baseURL }, testInfo) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: testInfo.project.use.viewport });
+  const page = await context.newPage();
+  await page.goto(`${baseURL}/`);
+  await expect(page.getByText('Available', { exact: true })).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'Practice Agentic AI' })).toHaveAttribute('href', '/practice/?cert=agentic-ai');
+  await expect(page.getByRole('link', { name: 'PAA summary' })).toHaveAttribute('href', '/practice/?cert=agentic-ai&view=summary');
+  await page.screenshot({ path: `test-results/paa-catalog-${testInfo.project.name}.png`, fullPage: true });
+  await context.close();
+});

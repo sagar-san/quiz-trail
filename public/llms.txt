@@ -1,18 +1,18 @@
 # Quiz Trail
 
-> Quiz Trail is a free, open-source practice application for Google Cloud AI certifications. PMLE practice is available; Professional Agentic Architect practice is coming soon.
+> Quiz Trail is a free, open-source practice application for Google Cloud AI certifications. PMLE and Professional Agentic Architect practice are available with Google sign-in.
 
 Quiz Trail provides 400+ carefully curated single-choice and multiple-choice practice questions with answer explanations, references, progress tracking, review queues, and section-level insights. It is an independent study aid and is not affiliated with or endorsed by Google.
 
 ## Public pages
 
-- [Quiz Trail certification catalog](https://quiz-trail.web.app/): Choose a certification. PMLE is available and Professional Agentic Architect is coming soon.
+- [Quiz Trail certification catalog](https://quiz-trail.web.app/): Choose a certification. PMLE and Professional Agentic Architect are available.
 - [Interactive PMLE practice](https://quiz-trail.web.app/practice/): Sign in with Google for the complete question bank and saved progress across devices.
 - [10 free PMLE sample questions](https://quiz-trail.web.app/sample-questions/): Preview representative questions, answers, explanations, and official references without signing in.
-- [10 free PAA sample questions](https://quiz-trail.web.app/agentic-ai/sample-questions/): Public static examples with answers, explanations, and references. Full PAA practice remains a restricted preview.
+- [10 free PAA sample questions](https://quiz-trail.web.app/agentic-ai/sample-questions/): Public static examples with answers, explanations, and references. Full PAA practice requires Google sign-in.
 - [FAQ](https://quiz-trail.web.app/faq/): Sign-in, saved progress, account data, and shared question comments.
 - [PMLE FAQ](https://quiz-trail.web.app/pmle/faq/): PMLE question-bank coverage, study approach, and official exam resources.
-- [PAA FAQ](https://quiz-trail.web.app/agentic-ai/faq/): Public information about Professional Agentic Architect practice and the private preview.
+- [PAA FAQ](https://quiz-trail.web.app/agentic-ai/faq/): Public information about Professional Agentic Architect practice and saved progress.
 - [Quiz Trail source code](https://github.com/Ameenota/quiz-trail): Review the open-source project or report an issue.
 - [Official Google Cloud certification page](https://cloud.google.com/learn/certification/machine-learning-engineer): Check current certification details and requirements from Google Cloud.
 
@@ -22,6 +22,6 @@ Quiz Trail provides 400+ carefully curated single-choice and multiple-choice pra
 - The practice material is original and curated for learning. It is not an exam dump and does not claim to contain real certification exam questions.
 - Learners should use the official Google Cloud certification page and exam guide as the final source for current exam requirements.
 
-- Full interactive Professional Agentic Architect practice is in private preview; its ten static sample questions are public. PMLE progress and URLs remain unchanged.
+- Full interactive Professional Agentic Architect practice offers 150 questions with Google sign-in; its ten static sample questions are public. PMLE progress and URLs remain unchanged.
 
-- Progress summaries are certification-specific: `/practice/?view=summary` for PMLE and `/practice/?cert=agentic-ai&view=summary` for PAA. The PAA summary requires the authorized preview account.
+- Progress summaries are certification-specific: `/practice/?view=summary` for PMLE and `/practice/?cert=agentic-ai&view=summary` for PAA. Both summaries require Google sign-in.

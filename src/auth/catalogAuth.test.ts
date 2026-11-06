@@ -11,7 +11,7 @@ beforeEach(() => {
     <button data-catalog-auth disabled>Sign in</button>
     <span data-catalog-user hidden></span>
     <p data-catalog-auth-status role="status" hidden></p>
-    <div data-paa-practice hidden><a href="/practice/?cert=agentic-ai">Practice PAA preview</a></div>
+    <a href="/practice/?cert=agentic-ai">Practice Agentic AI</a>
     <a data-pmle-continue href="/practice/?signIn=true">Continue PMLE</a>`;
 });
 afterEach(() => { dispose?.(); document.body.innerHTML = ''; });
@@ -35,18 +35,18 @@ it('keeps the catalog in place after a canceled sign-in and allows a retry', asy
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
   expect(await screen.findByRole('button', { name: 'Sign out' })).toBeEnabled();
   expect(screen.getByRole('status')).toHaveTextContent('Choose a certification');
-  expect(screen.queryByRole('link', { name: 'Practice PAA preview' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
   expect(window.location.pathname).toBe('/');
   await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
   await waitFor(() => expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled());
 });
 
-it('shows local mode without offering Google sign-in or private access', () => {
+it('shows local mode without offering Google sign-in', () => {
   const auth = new LocalAuthService();
   const signIn = vi.spyOn(auth, 'signIn');
   dispose = mountCatalogAuth(auth);
   expect(screen.getByRole('button', { name: 'Local mode' })).toBeDisabled();
   expect(screen.getByRole('link', { name: 'Continue PMLE →' })).toHaveAttribute('href', '/practice/');
-  expect(screen.queryByRole('link', { name: 'Practice PAA preview' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
   expect(signIn).not.toHaveBeenCalled();
 });

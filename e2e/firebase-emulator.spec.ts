@@ -63,7 +63,7 @@ test('homepage sign-in stays on the catalog and shares the session with practice
   await expect(page.getByRole('heading', { name: 'GCP AI Certification practice' })).toBeVisible();
   await expect(page.getByText('Signed in. Choose a certification below to continue.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
   expect(bankRequests).toEqual([]);
   await page.reload();
   await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
@@ -154,8 +154,8 @@ test('signs in, saves to Firestore, signs out, and restores after signing back i
   await expect(page.getByRole('heading', { name: 'Sign in to practice', exact: true })).toBeVisible();
 });
 
-async function seedPrivatePreview() {
-  const values: Record<string, string> = { question_id: 'PAA-0001', question_type: 'single_choice', question: 'Synthetic private preview question', option_a: 'First choice', option_b: 'Second choice', correct_answer: 'A', explanation: 'Synthetic test explanation', exam_section: 'Test section', exam_objectives: 'Test objective', topics: 'Test topic', question_source: 'Synthetic test', review_status: 'Needs Review', difficulty: 'Medium', is_outdated: 'FALSE' };
+async function seedPaaBank() {
+  const values: Record<string, string> = { question_id: 'PAA-0001', question_type: 'single_choice', question: 'Synthetic PAA question', option_a: 'First choice', option_b: 'Second choice', correct_answer: 'A', explanation: 'Synthetic test explanation', exam_section: 'Test section', exam_objectives: 'Test objective', topics: 'Test topic', question_source: 'Synthetic test', review_status: 'Needs Review', difficulty: 'Medium', is_outdated: 'FALSE' };
   const csv = [expectedHeaders.join(','), expectedHeaders.map((key) => JSON.stringify(values[key] ?? '')).join(',')].join('\n');
   const asset = Buffer.from(encryptQuestionBank(new TextEncoder().encode(csv))).toString('base64');
   const response = await fetch('http://127.0.0.1:8080/v1/projects/quiz-trail/databases/(default)/documents/privateQuestionBanks/agentic-ai', {
@@ -165,32 +165,39 @@ async function seedPrivatePreview() {
   expect(response.ok).toBe(true);
 }
 
-test('private summary denies guests and other signed-in users', async ({ page }) => {
-  await seedPrivatePreview();
+test('PAA summary requires sign-in and opens for an ordinary Google account', async ({ page }) => {
+  await seedPaaBank();
+  const bankRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('privateQuestionBanks') || request.postData()?.includes('privateQuestionBanks')) bankRequests.push(request.url());
+  });
   await page.goto('/practice/?cert=agentic-ai&view=summary');
-  await expect(page.getByRole('heading', { name: 'Professional Agentic Architect is coming soon' })).toBeVisible();
-  await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
-  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
-  await expect(page.getByText('This preview is not available to this account.')).toBeVisible();
-  await expect(page.getByText('Synthetic private preview question')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Sign in to view your summary' })).toBeVisible();
+  expect(bankRequests).toEqual([]);
+  await signInWithNewEmulatorAccount(page);
+  await expect(page.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
+  await expect(page).toHaveTitle('PAA Progress Summary | Quiz Trail');
 });
 
-test('owner preview loads protected content and retains independent progress across certification switches', async ({ page }) => {
-  await seedPrivatePreview();
+test('ordinary learner saves PAA answers, bookmarks and discussions independently from PMLE', async ({ page }) => {
+  await seedPaaBank();
   await page.goto('/');
-  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click(), 'ssanghani@gmail.com');
+  await signInWithNewEmulatorAccount(page, () => page.getByRole('button', { name: 'Sign in', exact: true }).click());
   await expect(page).toHaveURL(/\/$/);
-  await page.getByRole('link', { name: 'Practice PAA preview', exact: true }).click();
+  await page.getByRole('link', { name: 'Practice Agentic AI', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Professional Agentic Architect practice questions' })).toBeVisible();
   await page.getByRole('radio', { name: 'A First choice' }).check();
   await page.getByRole('button', { name: 'Submit answer' }).click();
   await expect(page.getByText('✓ Saved!')).toBeVisible();
+  await page.getByLabel('Post as Trail').fill('A PAA learner discussion.');
+  await page.getByRole('button', { name: 'Post comment', exact: true }).click();
+  await expect(page.locator('.comment-text')).toHaveText('A PAA learner discussion.');
   await page.getByRole('button', { name: 'Save for later' }).click();
   await page.getByRole('link', { name: 'PMLE', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Professional Machine Learning Engineer practice questions' })).toBeVisible();
-  await page.getByRole('link', { name: 'PAA preview', exact: true }).click();
+  await page.getByRole('link', { name: 'PAA', exact: true }).click();
   await page.getByRole('button', { name: 'Saved', exact: true }).click();
-  await expect(page.getByText('Synthetic private preview question', { exact: true })).toBeVisible();
+  await expect(page.getByText('Synthetic PAA question', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Saved for later' })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('/practice/?cert=agentic-ai&view=summary');
   await expect(page.getByRole('heading', { name: 'PAA progress summary' })).toBeVisible();
@@ -201,9 +208,9 @@ test('owner preview loads protected content and retains independent progress acr
   await expect(page.getByRole('heading', { name: 'PMLE progress summary' })).toBeVisible();
   await expect(page.locator('.overall-grid > div').filter({ hasText: 'Attempted' }).locator('strong')).toHaveText('0');
   await page.getByRole('link', { name: 'Home', exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Practice PAA preview' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Practice Agentic AI' })).toBeVisible();
 });
 
 for (const mobile of [false, true]) {

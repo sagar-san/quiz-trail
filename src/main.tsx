@@ -8,7 +8,7 @@ async function start() {
   const root = createRoot(document.getElementById('root')!);
   try {
     const dependencies = await createAppDependencies(import.meta.env);
-    if (dependencies.certification?.preview) document.title = `${dependencies.certification.title} Practice | Quiz Trail`;
+    if (dependencies.certification?.id === 'agentic-ai') document.title = `${dependencies.certification.title} Practice | Quiz Trail`;
     root.render(<StrictMode><App {...dependencies} /></StrictMode>);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Quiz Trail could not start because its configuration is invalid.';

@@ -51,7 +51,7 @@ private-repository concerns.
 Duplicate-detector unit tests and a duplicate-only report can be run there with
 `npm test` and `npm run duplicates`.
 
-The local public landing page is `/`; the React practice application is `/practice/`. The general FAQ is `/faq/`. PMLE resources are `/pmle/faq/`, `/sample-questions/`, and `/practice/?view=summary`. PAA has a public FAQ at `/agentic-ai/faq/` and a private summary at `/practice/?cert=agentic-ai&view=summary`.
+The local public landing page is `/`; the React practice application is `/practice/`. The general FAQ is `/faq/`. PMLE resources are `/pmle/faq/`, `/sample-questions/`, and `/practice/?view=summary`. PAA has a public FAQ at `/agentic-ai/faq/` and a signed-in summary at `/practice/?cert=agentic-ai&view=summary`.
 
 Question-feedback download and local review are owned by the sibling private
 question-bank repository. Run its `npm run feedback:download` command before
@@ -89,4 +89,4 @@ The public production site is [quiz-trail.web.app](https://quiz-trail.web.app).
 
 ## Certification development
 
-`/practice/` and `?cert=pmle` use legacy PMLE storage. `?cert=agentic-ai` requires the verified preview owner in Firebase modes. Default local mode deliberately does not bypass preview authorization; use Auth/Firestore emulators to test it. Emulator browser tests seed a synthetic encrypted bank and test both authorized and unauthorized accounts. `PLAYWRIGHT_BASE_URL` can override their base URL, but the public PMLE bucket permits only configured localhost origins (use port 5173 for combined flows).
+`/practice/` and `?cert=pmle` use legacy PMLE storage. `?cert=agentic-ai` uses the protected Firestore bank and requires a verified Google account in Firebase modes. Default local mode shows a clear Firebase-mode requirement for PAA instead of loading the PMLE bank. Emulator browser tests seed a synthetic encrypted PAA bank and verify ordinary-learner access, sign-in gating, separate progress and discussion. `PLAYWRIGHT_BASE_URL` can override their base URL. Never run the destructive browser setup against a developer's populated emulator: use an isolated Auth instance and Firestore namespace as described in current status.

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { certifications, selectedCertification, canAccessCertification } from './certifications';
+import { selectedCertification } from './certifications';
 import { LocalStorageProgressStore } from '../storage/LocalStorageProgressStore';
 import { LocalStorageQuizPreferences } from '../storage/QuizPreferences';
 it('preserves legacy URLs and rejects unknown certifications', () => {
@@ -7,7 +7,6 @@ it('preserves legacy URLs and rejects unknown certifications', () => {
   expect(selectedCertification('?cert=agentic-ai').id).toBe('agentic-ai');
   expect(() => selectedCertification('?cert=unknown')).toThrow('Unknown certification');
   expect(() => selectedCertification('?cert=__proto__')).toThrow();
-  expect(canAccessCertification(certifications['agentic-ai'], { uid: 'u', displayName: 'User', email: 'ssanghani@gmail.com' })).toBe(false);
 });
 it('isolates answers, bookmarks, versions, filters and reset while retaining legacy keys', async () => {
   localStorage.clear();
