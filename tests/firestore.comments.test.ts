@@ -83,23 +83,19 @@ describe('shared comments and paired reaction rules', () => {
     await store('b').setReaction('b', 'c', null);
     expect((await getDoc(ref())).data()).toMatchObject({ likeCount: 0, dislikeCount: 0, score: 0 });
   });
-  it('allows PAA discussions and reactions for ordinary verified Google learners', async () => {
+  it('requires authentication and the verified Google preview owner for PAA', async () => {
+    await create();
+    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'questionComments/c')));
     const paa = { certificationId: 'agentic-ai' as const, questionId: 'PAA-0001' };
-    const claims = { email: 'learner@example.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } };
-    const learner = env.authenticatedContext('learner', claims).firestore();
-    const peer = env.authenticatedContext('peer', { ...claims, email: 'peer@example.com' }).firestore();
-    const learnerStore = new FirestoreCommentStore(learner);
-    const peerStore = new FirestoreCommentStore(peer);
-    await learnerStore.createComment('learner', paa, 'PAA discussion', 'Learner', 'paa');
-    await expect(peerStore.listPage('peer', paa)).resolves.toMatchObject({ items: [{ text: 'PAA discussion' }] });
-    await peerStore.setReaction('peer', 'paa', 'like');
-    expect((await getDoc(doc(learner, 'questionComments/paa'))).data()?.likeCount).toBe(1);
-    await assertFails(updateDoc(doc(peer, 'questionComments/paa'), { text: 'Cannot edit another learner', updatedAt: serverTimestamp() }));
-    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'questionComments/paa')));
+    await assertFails(store().createComment('a', paa, 'Private', 'Learner', 'private'));
+    const owner = env.authenticatedContext('owner', { email: 'ssanghani@gmail.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } }).firestore();
+    await new FirestoreCommentStore(owner).createComment('owner', paa, 'Private', 'Learner', 'private');
+    await expect(new FirestoreCommentStore(owner).listPage('owner', paa)).resolves.toMatchObject({ items: [{ text: 'Private' }] });
+    await assertFails(getDoc(ref('a', 'private')));
     await assertFails(store().listPage('a', paa));
-    // Account cleanup still works if the original Google claims are no longer present.
-    await store('learner').deleteUserCommentData('learner');
-    expect((await getDoc(doc(peer, 'questionComments/paa'))).data()?.deleted).toBe(true);
+    // Cleanup remains possible after preview authorization is lost.
+    await store('owner').deleteUserCommentData('owner');
+    expect((await getDoc(doc(owner, 'questionComments/private'))).data()?.deleted).toBe(true);
   });
   it('paginates ties by full-precision timestamp and ID with the last displayed cursor', async () => {
     await env.withSecurityRulesDisabled(async (ctx) => {
@@ -121,7 +117,7 @@ describe('shared comments and paired reaction rules', () => {
     await store().deleteUserCommentData('a');
     expect((await store().listPage('a', scope)).items).toHaveLength(0);
   });
-  it('rejects creation combined with a deletion marker and rejects unverified and non-Google PAA identities', async () => {
+  it('rejects creation combined with a deletion marker and rejects unauthorized preview identities', async () => {
     const batch = writeBatch(db());
     batch.set(doc(db(), 'commentAccounts/a'), { deleting: true });
     batch.set(ref(), data());

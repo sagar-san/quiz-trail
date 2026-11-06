@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Quiz Trail is a practice application for Google Cloud AI certifications. PMLE and Professional Agentic Architect are available to signed-in Google learners. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
+Quiz Trail is a practice application for Google Cloud AI certifications. PMLE is available; Professional Agentic Architect is in an owner-only preview. It makes a large question bank practical to complete over multiple short study sessions while keeping learners in control of when progress is saved.
 
 The public application is <https://quiz-trail.web.app>.
 
@@ -14,7 +14,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Main experience
 
-1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten static sample questions for each certification, and open PMLE practice at `/practice/` or PAA practice at `/practice/?cert=agentic-ai`. The homepage's Sign in button authenticates in place and leaves the learner at the certification catalog. The PMLE-specific returning-learner link still opens PMLE, while Practice PMLE opens a Google sign-in gate when signed out.
+1. A visitor can choose a certification at `/`, browse certification-specific FAQs and ten static sample questions for each certification, and open PMLE practice at `/practice/`. The homepage's Sign in button authenticates in place and leaves the learner at the certification catalog. The PMLE-specific returning-learner link still opens PMLE, while Practice PMLE opens a Google sign-in gate when signed out.
 2. In cloud mode, practice and summaries require Google sign-in before loading questions, progress, or filter preferences. Signed-in learners receive the complete authorized bank.
 3. The learner works through a shuffled sequence of single- and multiple-choice questions.
 4. Submitting an answer shows correctness, an explanation, reference material when available, and learner-safe subject metadata.
@@ -71,7 +71,7 @@ Quiz Trail is intentionally a practice tool rather than a learning-management sy
 
 ## Question content
 
-The canonical source bank is maintained in a separate private question-bank repository. That repository validates, encrypts, and independently publishes PMLE to Cloud Storage and PAA to a protected Firestore document. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample pages are intentional public snapshots of ten selected questions per certification and are maintained manually.
+The canonical source bank is maintained in a separate private question-bank repository. That repository validates, encrypts, and independently publishes the practice application's runtime `questions.bin` asset to Cloud Storage. It contains question content, answer data, learner analytics metadata, and internal editorial metadata. The static sample pages are intentional public snapshots of ten selected questions per certification and are maintained manually.
 
 Question IDs are permanent progress keys. Wording, explanation, and reference corrections may retain an ID when saved outcomes should remain attached. A change to what a question tests or to its correct answer requires a new ID so learners receive it as unanswered.
 
@@ -79,7 +79,7 @@ See [`question-bank.md`](question-bank.md) for the data contract and editing wor
 
 ## Product boundaries
 
-- The question banks remain versioned outside the public application repository. PMLE uses an encrypted Cloud Storage asset; PAA uses an encrypted Firestore document protected by Google sign-in. Bank updates do not require a frontend deployment.
+- The question bank remains versioned outside the public application repository and is published as an encrypted Cloud Storage asset, not live Firestore content. Bank updates do not require a frontend deployment.
 - The static landing, FAQ, and sample pages remain usable without JavaScript; the React/Firebase practice application lives at `/practice/`.
 - Signed-in answers and bookmark toggles persist as explicit, targeted actions rather than bulk client snapshots.
 - The app uses one production Firebase project and local emulators for development. Occasional live downtime is acceptable for this small free project.
@@ -102,12 +102,12 @@ Neutral page and white panel surfaces use thin dividers, 6px control corners, 8p
 
 ## Certification catalog
 
-The homepage is titled “GCP AI Certification practice,” with available PMLE and Professional Agentic Architect entries. Both practice links and certification-specific FAQ, sample, and summary links are visible without JavaScript. Google sign-in is required for interactive practice and summaries; signing in retains the selected certification.
+The homepage is titled “GCP AI Certification practice,” with an available PMLE entry and a Professional Agentic Architect “Coming soon” entry. Its neutral surfaces, dark typography, blue actions, and ruled rows replace the green landing-page presentation. PMLE practice URLs and existing progress remain compatible. `/faq/` contains shared product questions; PMLE-specific questions live at `/pmle/faq/` and PAA questions at `/agentic-ai/faq/`. Both certifications have public static sample pages. The homepage and practice footers also link to the general FAQ.
 
-Professional Agentic Architect contains 150 questions. Its full bank is delivered through Firestore to any verified Google learner. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context remain certification-specific. Account deletion remains account-wide.
+The signed-in preview owner can open Professional Agentic Architect from practice navigation, or visit `/practice/?cert=agentic-ai`. Other accounts and guests see a coming-soon screen without loading private questions. Signing in retains the certification selection. Professional Agentic Architect currently contains 150 supplied questions under review; the full bank remains restricted even though ten static samples are public. Progress, bookmarks, filters, summaries, reset, and copied review-prompt context are certification-specific. Account deletion remains account-wide.
 
-The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; routes and persisted keys are unchanged.
+The official display name is [Professional Agentic Architect](https://cloud.google.com/learn/certification/agentic-architect), abbreviated PAA. The stable internal ID remains `agentic-ai`; this wording correction does not change routes or persisted keys.
 
-The practice header links to Home and the other certification. PMLE summary opens at `/practice/?view=summary`; PAA summary opens at `/practice/?cert=agentic-ai&view=summary`. Summary headings name the certification. Refresh and browser back/forward preserve the selected view.
+The practice header uses plain text links matching the homepage: Home, the other certification for the preview owner, and account controls. Certification-specific FAQ and summary links live in the footer and in each homepage entry. PMLE summary opens at `/practice/?view=summary`; PAA summary opens at `/practice/?cert=agentic-ai&view=summary` and retains the private-preview restriction. Summary headings name the certification. Refresh and browser back/forward preserve the selected view.
 
-Homepage sign-in uses the existing Google/Firebase session and stays on the catalog. Sign out returns the catalog to its signed-out state while both practice links remain visible. Default local development shows Local mode; PAA requires Firebase mode because its bank is protected.
+Homepage sign-in uses the existing Google/Firebase session. The PAA entry includes a grey, disabled Practice Agentic AI button while public practice is coming soon. The signed-in preview owner also sees a Practice PAA preview link; other accounts do not. Sign out returns the catalog to its signed-out state. Default local development shows Local mode instead of a misleading sign-in link.

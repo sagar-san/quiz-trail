@@ -145,7 +145,7 @@ This log records meaningful durable choices and why they were made. It is not a 
 
 ## D017 — Protect the Agentic AI preview with server-side authorization
 
-- **Status:** Superseded by D020
+- **Status:** Accepted
 - **Decision:** Deliver the small preview bank from a protected Firestore document readable only by the owner's verified Google account. Never publish the preview to PMLE's public bucket. Public visitors see “Coming soon.”
 - **Why:** Public encryption keys cannot enforce private access; hiding navigation is insufficient.
 - **Consequences:** Publication requires approved Firestore rules and a separate approved private-document write. The private publisher checks a 900,000-byte encoded budget. A larger or public release requires revisiting delivery and access deliberately.
@@ -163,10 +163,3 @@ This log records meaningful durable choices and why they were made. It is not a 
 - **Decision:** Remove interactive guest practice and its banner. Require Google sign-in before loading cloud practice or summaries. Keep ten public PMLE samples and publish ten explicitly approved PAA examples as a static page, even while full PAA practice remains in private preview.
 - **Why:** Account creation is simple; public sample pages provide the desired no-account introduction.
 - **Consequences:** Signed-out practice makes no bank, progress, or preference reads. Existing Google sessions and local-development identity continue working. The full PAA bank retains server-enforced preview authorization. The static sample exception does not authorize publishing any other private questions.
-
-## D020 — Launch PAA for all verified Google learners
-
-- **Status:** Accepted, 2026-11-05
-- **Decision:** Remove the owner allowlist from full PAA practice, certification progress, and shared discussion. Keep the existing encrypted Firestore delivery and require a verified Google identity. Enable the public catalog link and replace preview copy.
-- **Why:** The product owner requested the Agentic AI certification go live for learners. The existing 150-question bank fits the current protected document delivery; a public bucket or source publication is unnecessary.
-- **Consequences:** Permanent question IDs, existing progress paths, and account cleanup stay unchanged. Guests, unverified/non-Google identities, bank listing and bank writes remain denied. Legacy private feedback stays restricted. This supersedes the preview restrictions in D017–D019 without changing the sign-in gate or the ten-question public sample exception.

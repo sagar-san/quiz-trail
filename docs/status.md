@@ -1,15 +1,6 @@
 # Current status
 
-Last reviewed: 2026-11-05
-
-## PAA public launch — verified, deployment pending
-
-- Owner requested Agentic AI go live. Enabled the static Practice Agentic AI link and PAA summaries, removed preview UI/allowlist, and opened protected PAA bank reads, own-progress writes and discussion to any verified Google identity. Full bank remains in Firestore; anonymous/unverified/non-Google access, bank listing and client writes remain denied. Legacy private feedback restrictions are unchanged.
-- Verification passed: typecheck, lint excluding pre-existing ignored `.tmp` scripts, 94 unit/component tests, one Auth emulator test, 26 Firestore tests, all 34 desktop/mobile browser checks (one PMLE no-JavaScript navigation timeout passed on targeted rerun), seven Firebase browser flows, and Firebase production build. PAA preflight: 150 active questions, no invalid rows or duplicate candidates, all permanent IDs retained.
-- Firebase browser checks used Auth port 9199, Firestore namespace `quiz-trail-paa-release` and Vite 5188, leaving the user's development accounts/data intact. Initial browser setup lacked emulator environment values; all seven flows passed after supplying them.
-- Live preflight confirmed project `quiz-trail` / `724933345983`, deployed rules matching the previous committed release, a valid 235,984-byte encoded PAA bank, and anonymous bank HTTP 403. No bank republish, migration, index or production-data changes are needed. Deploy tested rules before Hosting and verify the resulting release.
-- Private-repository changes are documentation only; its pre-existing `questions/PMLE-0011.json` change remains untouched.
-
+Last reviewed: 2026-11-04
 
 ## Navigation release — deployed 2026-11-04
 

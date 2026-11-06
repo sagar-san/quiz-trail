@@ -6,11 +6,11 @@ export async function loadPrivateQuestionBank(firestore: Firestore) {
   const snapshot = await getDocFromServer(doc(firestore, 'privateQuestionBanks', 'agentic-ai'));
   const data = snapshot.data();
   if (!data || data.format !== 'aes-gcm-v1' || typeof data.asset !== 'string') {
-    throw new Error('The PAA question bank is not available yet.');
+    throw new Error('The private preview bank has not been published yet.');
   }
   const bank = await decodeQuestionBank(Uint8Array.from(atob(data.asset), (value) => value.charCodeAt(0)));
   if (!bank.questions.length || bank.questions.some((question) => !question.questionId.startsWith('PAA-'))) {
-    throw new Error('The PAA question bank has an incompatible format.');
+    throw new Error('The private preview contains an incompatible question bank.');
   }
   return bank;
 }

@@ -13,22 +13,16 @@ service cloud.firestore {
         && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
 
-    function verifiedGoogleUser() {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.firebase.sign_in_provider == 'google.com';
-    }
-
     match /privateQuestionBanks/{certificationId} {
-      allow get: if certificationId == 'agentic-ai' && verifiedGoogleUser();
+      allow get: if certificationId == 'agentic-ai' && previewOwner();
       allow list, write: if false;
     }
 
     match /userProgress/{userId}/certifications/{certificationId} {
       allow read, delete: if ownsProgress(userId);
-      allow create: if ownsProgress(userId) && certificationId == 'agentic-ai' && verifiedGoogleUser()
+      allow create: if ownsProgress(userId) && certificationId == 'agentic-ai' && previewOwner()
         && hasValidProgressShape(request.resource.data) && request.resource.data.revision == 1;
-      allow update: if ownsProgress(userId) && certificationId == 'agentic-ai' && verifiedGoogleUser()
+      allow update: if ownsProgress(userId) && certificationId == 'agentic-ai' && previewOwner()
         && hasValidProgressShape(request.resource.data)
         && request.resource.data.revision == resource.data.revision + 1;
     }
@@ -79,7 +73,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function discussionAccess(data) {
       return signedIn() && (data.certificationId == 'pmle'
-        || (data.certificationId == 'agentic-ai' && verifiedGoogleUser()));
+        || (data.certificationId == 'agentic-ai' && previewOwner()));
     }
     function commentWrites() {
       return get(/databases/$(database)/documents/config/comments).data.enabled == true

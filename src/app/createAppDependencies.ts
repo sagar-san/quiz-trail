@@ -21,9 +21,6 @@ export async function createAppDependencies(
       authService: new LocalAuthService(),
       progressStore: new LocalStorageProgressStore(window.localStorage, certification.id),
       certification, preferences,
-      bankLoader: certification.id === 'pmle' ? loadQuestionBank : async () => {
-        throw new Error('PAA practice requires Firebase mode and Google sign-in.');
-      },
       dataMode,
     };
   }

@@ -185,7 +185,7 @@ Firestore rule and data changes need case-specific recovery; a Hosting rollback 
 - **Google sign-in says unauthorized domain:** do not alter OAuth or authorized-domain settings without explicit approval.
 - **Stale Firestore write:** reload the app before saving so newer progress is not overwritten.
 
-## Historical first multi-certification preview release (superseded by PAA launch)
+## First multi-certification release (approval required)
 
 1. Verify both repositories, including private-bank preflight, public Auth/rules tests, and owner/non-owner emulator browser flows. Build with `VITE_DATA_MODE=firebase`.
 2. Obtain explicit approval for the production Firestore rule deployment, private bank publication, and Hosting deployment. Commit/push is not production authorization.
@@ -204,11 +204,3 @@ A Hosting rollback may leave certification progress children; older account-dele
 5. If writes must pause, set `config/comments.enabled` to false with approval. Removals and account cleanup remain available. An interrupted deletion resumes through Settings → Delete account; do not delete the Auth identity manually before cleanup succeeds.
 
 A frontend rollback can restore the old feedback form without deleting comment data. Older clients do not clean up comments during account deletion: keep the updated deletion flow available or explicitly handle that cleanup. Never delete comments, votes, indexes or legacy feedback as a rollback shortcut.
-
-## PAA public launch
-
-The product owner's request to make Agentic AI live authorizes the launch's tested Firestore access-rule and Hosting deployments. Validate the existing 150-question bank, run typecheck/lint/unit, Auth/rules, desktop/mobile and isolated Firebase browser checks, then build in production Firebase mode. Commit and push before deployment.
-
-Deploy `firestore:rules` before Hosting. PAA bank reads, own-progress writes, and discussion permit any verified Google identity; guests, unverified/non-Google identities, bank listing and client bank writes remain denied. No bank republish, progress migration, index change, or private-feedback permission change is required. Keep the full bank out of public assets and the PMLE bucket.
-
-Verify the deployed rules match the reviewed source, anonymous bank reads fail, all public links and launch copy work, and a signed-in learner can load PAA, save/reload, switch certifications, and use discussion. Existing preview-owner progress must remain available. A Hosting-only rollback does not restore owner-only rules; reverting access requires an explicitly approved rules deployment.

@@ -81,36 +81,25 @@ describe('Firestore progress ownership rules', () => {
   });
 });
 
-const googleClaims = { email: 'learner@example.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } };
-it('allows any verified Google learner to get PAA but denies guests, invalid identities, listing and client writes', async () => {
+const ownerClaims = { email: 'ssanghani@gmail.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } };
+it('protects the private bank from guests, other users, unverified identities and client writes', async () => {
   await environment.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), 'privateQuestionBanks/agentic-ai'), { format: 'aes-gcm-v1', asset: 'test-only' });
   });
-  for (const email of ['ssanghani@gmail.com', 'learner@example.com']) {
-    const learner = environment.authenticatedContext(email, { ...googleClaims, email }).firestore();
-    await assertSucceeds(getDoc(doc(learner, 'privateQuestionBanks/agentic-ai')));
-    await assertFails(getDocs(collection(learner, 'privateQuestionBanks')));
-    await assertFails(setDoc(doc(learner, 'privateQuestionBanks/agentic-ai'), { asset: 'changed' }));
-    await assertFails(deleteDoc(doc(learner, 'privateQuestionBanks/agentic-ai')));
-    await assertFails(getDoc(doc(learner, 'privateQuestionBanks/unknown')));
-  }
-  for (const context of [environment.unauthenticatedContext(), environment.authenticatedContext('restricted'), environment.authenticatedContext('restricted', { ...googleClaims, email_verified: false }), environment.authenticatedContext('restricted', { ...googleClaims, firebase: { sign_in_provider: 'password' } })]) {
+  const owner = environment.authenticatedContext('owner', ownerClaims).firestore();
+  await assertSucceeds(getDoc(doc(owner, 'privateQuestionBanks/agentic-ai')));
+  for (const context of [environment.unauthenticatedContext(), environment.authenticatedContext('other', { ...ownerClaims, email: 'other@example.com' }), environment.authenticatedContext('unverified', { ...ownerClaims, email_verified: false }), environment.authenticatedContext('password', { ...ownerClaims, firebase: { sign_in_provider: 'password' } })]) {
     await assertFails(getDoc(doc(context.firestore(), 'privateQuestionBanks/agentic-ai')));
-    await assertFails(setDoc(doc(context.firestore(), 'userProgress/restricted/certifications/agentic-ai'), validProgress()));
   }
+  await assertFails(getDocs(collection(owner, 'privateQuestionBanks')));
+  await assertFails(setDoc(doc(owner, 'privateQuestionBanks/agentic-ai'), { asset: 'changed' }));
+  await assertFails(getDoc(doc(owner, 'privateQuestionBanks/unknown')));
 });
-it('allows PAA progress for ordinary Google learners while enforcing ownership, revisions and known certifications', async () => {
-  const learner = environment.authenticatedContext('learner', googleClaims).firestore();
-  const other = environment.authenticatedContext('other', { ...googleClaims, email: 'other@example.com' }).firestore();
-  const own = doc(learner, 'userProgress/learner/certifications/agentic-ai');
-  const foreign = doc(other, 'userProgress/learner/certifications/agentic-ai');
-  await assertSucceeds(setDoc(own, validProgress()));
-  await assertSucceeds(getDoc(own));
-  await assertFails(setDoc(own, validProgress()));
-  await assertSucceeds(setDoc(own, { ...validProgress(), revision: 2 }));
-  await assertFails(getDoc(foreign));
-  await assertFails(setDoc(foreign, { ...validProgress(), revision: 3 }));
-  await assertFails(deleteDoc(foreign));
-  await assertFails(setDoc(doc(learner, 'userProgress/learner/certifications/unknown'), validProgress()));
-  await assertSucceeds(deleteDoc(own));
+it('limits preview progress writes to the owner and denies cross-user access', async () => {
+  const owner = environment.authenticatedContext('owner', ownerClaims).firestore();
+  const other = environment.authenticatedContext('other').firestore();
+  await assertSucceeds(setDoc(doc(owner, 'userProgress/owner/certifications/agentic-ai'), validProgress()));
+  await assertFails(getDoc(doc(other, 'userProgress/owner/certifications/agentic-ai')));
+  await assertFails(setDoc(doc(other, 'userProgress/other/certifications/agentic-ai'), validProgress()));
+  await assertFails(setDoc(doc(owner, 'userProgress/owner/certifications/unknown'), validProgress()));
 });
